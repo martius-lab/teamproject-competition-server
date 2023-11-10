@@ -12,6 +12,7 @@ class AuthFailed(Exception):
     Attributes:
         None
     """
+
     pass
 
 
@@ -24,6 +25,7 @@ class InvalidVersion(Exception):
     Attributes:
         None
     """
+
     pass
 
 
@@ -32,11 +34,12 @@ class AuthClient(Command):
 
     Arguments:
         token (String): Token of the client
-        version (Integer): Version number of the running client framework 
-    
+        version (Integer): Version number of the running client framework
+
     Response:
         uuid (Integer): UUID assigned by the server to the client
     """
+
     arguments: [(b"token", String()), (b"version", Integer())]
     response: [(b"uuid", Integer())]
     fatalErrors: {AuthFailed: "invalid-token", InvalidVersion: "invalid-version"}
@@ -46,15 +49,15 @@ class AuthClient(Command):
 
 
 class StartGame(Command):
-    """[SERVER] Command to notify the client that the game starts
-    """
+    """[SERVER] Command to notify the client that the game starts"""
+
     arguments: [(b"game_id", Integer())]
     response: [(b"ready", Boolean())]
 
 
 class EndGame(Command):
-    """[SERVER] Command to notify the client that the game has ended
-    """
+    """[SERVER] Command to notify the client that the game has ended"""
+
     arguments: [(b"result", Boolean()), (b"stats", AmpList())]
     response: [(b"ready", Boolean())]
 
@@ -75,7 +78,7 @@ class EndGame(Command):
 
 
 class Step(Command):
-    """[SERVER] Command for requesting the next step from the agent
-    """
+    """[SERVER] Command for requesting the next step from the agent"""
+
     arguments: [(b"env", AmpList())]
     response: [(b"action", AmpList())]
