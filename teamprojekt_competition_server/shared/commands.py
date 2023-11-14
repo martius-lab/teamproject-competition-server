@@ -54,27 +54,37 @@ class AuthClient(ClientCommand):
         uuid (Integer): UUID assigned by the server to the client
     """
 
-    arguments: list[tuple(b"token", String()), tuple(b"version", Integer())]
-    response: list[tuple(b"uuid", Integer())]
-    fatalErrors: {AuthFailed: b"INVALID_TOKEN", InvalidVersion: b"INCOMPATIBLE_VERSION"}
+    arguments = [(b"token", String()), (b"version", Integer())]
+    response = [(b"uuid", Integer())]
+    fatalErrors = {
+        AuthFailed: b"INVALID_TOKEN",
+        InvalidVersion: b"INCOMPATIBLE_VERSION",
+    }
 
 
 class StartGame(ServerCommand):
     """Command to notify the client that the game starts"""
 
-    arguments: list[tuple(b"game_id", Integer())]
-    response: list[tuple(b"ready", Boolean())]
+    arguments = [(b"game_id", Integer())]
+    response = [(b"ready", Boolean())]
 
 
 class EndGame(ServerCommand):
     """Command to notify the client that the game has ended"""
 
-    arguments: list[tuple(b"result", Boolean()), tuple(b"stats", AmpList())]
-    response: list[tuple(b"ready", Boolean())]
+    arguments = [
+        (b"result", Boolean()),
+        (b"stats", Integer()),
+    ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
+    response = [(b"ready", Boolean())]
 
 
 class Step(ServerCommand):
     """Command for requesting the next step from the agent"""
 
-    arguments: list[tuple(b"env", AmpList())]
-    response: list[tuple(b"action", AmpList())]
+    arguments = [
+        (b"env", Integer())
+    ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
+    response = [
+        (b"action", Integer())
+    ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
