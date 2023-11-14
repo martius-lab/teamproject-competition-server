@@ -1,6 +1,16 @@
 from twisted.protocols.amp import Integer, String, Boolean, Command, AmpList
 
-# Auth/Connetion-Stuff
+
+class ServerCommand(Command):
+    """Interface for commands send from the server"""
+
+    pass
+
+
+class ClientCommand(Command):
+    """Interface for commands send from the client"""
+
+    pass
 
 
 class AuthFailed(Exception):
@@ -29,8 +39,8 @@ class InvalidVersion(Exception):
     pass
 
 
-class AuthClient(Command):
-    """[CLIENT] Command for authenticating the client with the server.
+class AuthClient(ClientCommand):
+    """Command for authenticating the client with the server.
 
     Arguments:
         token (String): Token of the client
@@ -42,43 +52,25 @@ class AuthClient(Command):
 
     arguments: [(b"token", String()), (b"version", Integer())]
     response: [(b"uuid", Integer())]
-    fatalErrors: {AuthFailed: "invalid-token", InvalidVersion: "invalid-version"}
+    fatalErrors: {AuthFailed: b"INVALID_TOKEN", InvalidVersion: b"INCOMPATIBLE_VERSION"}
 
 
-# Game-Handling
-
-
-class StartGame(Command):
-    """[SERVER] Command to notify the client that the game starts"""
+class StartGame(ServerCommand):
+    """Command to notify the client that the game starts"""
 
     arguments: [(b"game_id", Integer())]
     response: [(b"ready", Boolean())]
 
 
-class EndGame(Command):
-    """[SERVER] Command to notify the client that the game has ended"""
+class EndGame(ServerCommand):
+    """Command to notify the client that the game has ended"""
 
     arguments: [(b"result", Boolean()), (b"stats", AmpList())]
     response: [(b"ready", Boolean())]
 
 
-# class InvalidUUID(Exception):
-#     pass
-
-# class InvalidSurrender(Exception):
-#     pass
-
-# class Surrender(Command):
-#     arguments: [(b"uuid", Integer())]
-#     response: [(b"accepted", Boolean())]
-#     errors: {InvalidSurrender: "invalid-surrender"}
-#     fatalErrors: {InvalidUUID: "invalid-uuid"}
-
-# Agent
-
-
-class Step(Command):
-    """[SERVER] Command for requesting the next step from the agent"""
+class Step(ServerCommand):
+    """Command for requesting the next step from the agent"""
 
     arguments: [(b"env", AmpList())]
     response: [(b"action", AmpList())]
