@@ -1,3 +1,7 @@
+"""
+This module defines the commands used for the server client communication.
+"""
+
 from twisted.protocols.amp import Integer, String, Boolean, Command, AmpList
 
 
