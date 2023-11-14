@@ -54,27 +54,27 @@ class AuthClient(ClientCommand):
         uuid (Integer): UUID assigned by the server to the client
     """
 
-    arguments: [(b"token", String()), (b"version", Integer())]
-    response: [(b"uuid", Integer())]
+    arguments: list[tuple(b"token", String()), tuple(b"version", Integer())]
+    response: list[tuple(b"uuid", Integer())]
     fatalErrors: {AuthFailed: b"INVALID_TOKEN", InvalidVersion: b"INCOMPATIBLE_VERSION"}
 
 
 class StartGame(ServerCommand):
     """Command to notify the client that the game starts"""
 
-    arguments: [(b"game_id", Integer())]
-    response: [(b"ready", Boolean())]
+    arguments: list[tuple(b"game_id", Integer())]
+    response: list[tuple(b"ready", Boolean())]
 
 
 class EndGame(ServerCommand):
     """Command to notify the client that the game has ended"""
 
-    arguments: [(b"result", Boolean()), (b"stats", AmpList())]
-    response: [(b"ready", Boolean())]
+    arguments: list[tuple(b"result", Boolean()), tuple(b"stats", AmpList())]
+    response: list[tuple(b"ready", Boolean())]
 
 
 class Step(ServerCommand):
     """Command for requesting the next step from the agent"""
 
-    arguments: [(b"env", AmpList())]
-    response: [(b"action", AmpList())]
+    arguments: list[tuple(b"env", AmpList())]
+    response: list[tuple(b"action", AmpList())]
