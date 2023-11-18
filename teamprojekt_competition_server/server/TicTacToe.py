@@ -57,4 +57,6 @@ class TicTacToe:
             #print("The board is full. It's a tie!")
             return ['full']
         
+        return self.board
+        
         #self.print_board()
