@@ -1,6 +1,6 @@
-    """
-    This is the game logic of a dummy game (TicTacToe).
-    """
+"""
+This is the game logic of a dummy game (TicTacToe).
+"""
 class TicTacToe:
     """
     This class represents a TicTacToe game.
