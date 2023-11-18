@@ -9,7 +9,7 @@ class TicTacToe:
     """
 
     def __init__(self):
-        """The constructor creates an empty board 
+        """The constructor creates an empty board
         and sets the player to 'X' by default."""
         self.board = [[" " for _ in range(3)] for _ in range(3)]
         self.current_player = "X"
@@ -79,9 +79,9 @@ class TicTacToe:
 
         Returns:
             Array(String): The board after the move.
-            If the input was invalid or the field was already occupied, 
+            If the input was invalid or the field was already occupied,
             an empty array is returned.
-            If the player has won, ['win'] is returned. 
+            If the player has won, ['win'] is returned.
             If the board is full, ['full'] is returned.
         """
         # print(f"It's player {self.current_player}'s turn.")
