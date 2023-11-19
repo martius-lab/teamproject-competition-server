@@ -25,7 +25,7 @@ class COMPClientProtocol(amp.AMP):
     EndGame.responder(end_game)
 
     def step(self, env):
-        action = int(42) #dummy action
+        action = int(input("Enter a move: ")) #dummy action
         print (f'--- Next Step --- \nEnviroment: {env} | Action: {action}')
         return {'action': action} 
     Step.responder(step)
