@@ -9,15 +9,15 @@ from teamprojekt_competition_server.shared.commands import AuthClient
 
 
 class COMPClient(CommandLocator):
-    def __init__(self, step) -> None:
+    def __init__(self, agent) -> None:
         self.connected = False
         self.version = 1
-        self.step = step
+        self.agent = agent
 
     def connect_client(self, token):
         version = int(1)
         destination = TCP4ClientEndpoint(reactor, "127.0.0.1", 1234)
-        auth = connectProtocol(destination, COMPClientProtocol())
+        auth = connectProtocol(destination, COMPClientProtocol(agent=self.agent))
         auth.addCallback(
             lambda ampProto: ampProto.callRemote(
                 AuthClient, token=token, version=version

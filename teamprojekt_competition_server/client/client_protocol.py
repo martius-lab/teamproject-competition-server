@@ -8,11 +8,9 @@ from teamprojekt_competition_server.shared.commands import StartGame, EndGame, S
 
 
 class COMPClientProtocol(amp.AMP):
-    def connectionMade(self):
-        return super().connectionMade()
-
-    def connectionLost(self, reason):
-        return super().connectionLost(reason)
+    def __init__(self, agent, boxReceiver=None, locator=None):
+        super().__init__(boxReceiver, locator)
+        self.agent = agent
 
     def start_game(self, game_id):
         print(f"--- Started Game --- \nGame ID: {game_id}")
@@ -27,7 +25,7 @@ class COMPClientProtocol(amp.AMP):
     EndGame.responder(end_game)
 
     def step(self, env):
-        action = int(input("Enter a move: "))  # dummy action
+        action = self.agent.step(env=int(env))  # dummy action
         print(f"--- Next Step --- \nEnviroment: {env} | Action: {action}")
         return {"action": action}
 

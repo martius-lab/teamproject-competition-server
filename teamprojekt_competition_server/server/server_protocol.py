@@ -28,12 +28,12 @@ class COMPServerProtocol(amp.AMP):
         self.game = game
         self.callRemote(StartGame, game_id=222).addCallback(lambda x: game.ready())
 
-    def step(self):
+    def step(self, env):
         def answer(x):
             action = x.get("action")
             self.game.recieve_step(action=action)
 
-        self.callRemote(Step, env=1).addCallback(answer)
+        self.callRemote(Step, env=int(env)).addCallback(answer)
 
     def end_game(self):
         self.callRemote(EndGame, result=True, stats=4).addCallback(lambda x: print(x))

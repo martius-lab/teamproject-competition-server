@@ -8,7 +8,7 @@ class Game:
 
     def send_step(self):
         player = self.player1 if (self.current_player == 1) else self.player2
-        player.step()
+        player.step(env=self.env)
         print(f"Game: Send Player {self.current_player} a step request.")
 
     def recieve_step(self, action):
