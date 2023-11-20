@@ -7,7 +7,7 @@ from twisted.protocols import amp
 from twisted.internet.protocol import Protocol, ServerFactory
 
 sys.path.insert(0, "") # has to be uncommented for execution
-from shared.commands import (
+from teamprojekt_competition_server.shared.commands import (
     AuthClient,
     StartGame,
     EndGame,
