@@ -8,7 +8,7 @@ from twisted.protocols.amp import CommandLocator
 from client_protocol import COMPClientProtocol
 
 sys.path.insert(0, "")  # has to be uncommented for execution
-from teamprojekt_competition_server.shared.commands import AuthClient
+from teamprojekt_competition_server.shared.commands import AuthClient  # noqa E402
 
 
 class COMPClient(CommandLocator):

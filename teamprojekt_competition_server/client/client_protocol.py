@@ -6,7 +6,11 @@ from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
 sys.path.append("..")  # has to be uncommented for execution
-from teamprojekt_competition_server.shared.commands import StartGame, EndGame, Step # noqa: E402
+from teamprojekt_competition_server.shared.commands import (
+    StartGame,
+    EndGame,
+    Step,
+)  # noqa: E402
 
 
 class COMPClientProtocol(amp.AMP):
