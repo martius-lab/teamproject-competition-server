@@ -1,5 +1,6 @@
 """class for server protocol"""
 import sys
+
 sys.path.insert(0, "")
 
 from collections import deque
@@ -18,6 +19,7 @@ from game import Game
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
+
     game = None
 
     def auth_client(self, token: str, version):
@@ -47,6 +49,7 @@ class COMPServerProtocol(amp.AMP):
 
     def step(self, env):
         """perfroms step requested by player"""
+
         def answer(x):
             action = x.get("action")
             self.game.recieve_step(action=action)
@@ -60,18 +63,18 @@ class COMPServerProtocol(amp.AMP):
 
 class COMPServerFactory(ServerFactory):
     """factory for COMP servers"""
-    
+
     protocol = COMPServerProtocol
     queue = deque()  # queue for storing agents waiting for a game
 
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
-        """ builds the protocoll"""
+        """builds the protocoll"""
         protocol = COMPServerProtocol()
         protocol.factory = self
         return protocol
 
     def find_opponent(self, player: COMPServerProtocol):
-        """ addes the player to a queue in order to match two players
+        """addes the player to a queue in order to match two players
         Args:
             player (COMPServerProtocol): player that wants to find an opponent
         """

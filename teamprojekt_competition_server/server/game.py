@@ -1,6 +1,9 @@
 """base class for games"""
+
+
 class Game:
     """game interface"""
+
     def __init__(self, player1, player2) -> None:
         self.player1 = player1
         self.player2 = player2
@@ -16,10 +19,10 @@ class Game:
 
     def receive_step(self, action):
         """handles step received from player
-        
+
         Args:
             action (int): players requested action."""
-        
+
         print(f"Game: Player {self.current_player} made the step {action}.")
         self.current_player = 1 if self.current_player == 2 else 2
         if input("End game? (y/n)") == "y":
@@ -29,8 +32,7 @@ class Game:
             self.send_step()
 
     def ready(self):
-        """"manages the counter for ready players
-        """
+        """ "manages the counter for ready players"""
         print("Player is ready.")
         self.num_ready += 1
         if self.num_ready == 2:

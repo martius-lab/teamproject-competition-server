@@ -1,5 +1,6 @@
 """class for client"""
 import sys
+
 sys.path.insert(0, "")
 from twisted.internet import defer, reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
@@ -11,6 +12,7 @@ from teamprojekt_competition_server.shared.commands import AuthClient
 
 class COMPClient(CommandLocator):
     """client that manages the connection over the protocoll with the server"""
+
     def __init__(self, agent) -> None:
         self.connected = False
         self.version = 1

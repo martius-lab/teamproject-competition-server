@@ -5,6 +5,7 @@ if __name__ == "__main__":
 
     class MyAgent(COMPAgent):
         """Dummy Agent for testing"""
+
         def step(self, env):
             """dummy step function
 
