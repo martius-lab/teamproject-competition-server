@@ -5,8 +5,8 @@ from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
+sys.path.insert(0, "") # has to be uncommented for execution
 from teamprojekt_competition_server.shared.commands import StartGame, EndGame, Step
-sys.path.insert(0, "")
 
 
 class COMPClientProtocol(amp.AMP):
