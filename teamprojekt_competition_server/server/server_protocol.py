@@ -1,7 +1,4 @@
 from collections import deque
-import json
-
-from typing import Optional
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import Protocol, ServerFactory

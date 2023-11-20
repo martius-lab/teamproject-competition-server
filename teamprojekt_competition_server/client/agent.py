@@ -1,7 +1,3 @@
-from twisted.internet import defer, reactor, protocol
-from twisted.internet.task import deferLater
-from twisted.protocols import amp
-from twisted.protocols.amp import Integer, String, Boolean, Command, AmpList
 from typing import final
 from client import COMPClient
 
