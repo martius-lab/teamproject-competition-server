@@ -17,7 +17,7 @@ class COMPServerProtocol(amp.AMP):
     game = None
 
     def connectionLost(self, reason):
-        """ handle everythin necessary when a client disconnects"""
+        """handle everythin necessary when a client disconnects"""
         self.factory.client_disconnected(self)
         return super().connectionLost(reason)
 
@@ -69,13 +69,13 @@ class COMPServerFactory(ServerFactory):
             player2.start_game(game)
 
     def client_connected(self, client):
-        """ add a newly connected client to the list of logged in clients"""
+        """add a newly connected client to the list of logged in clients"""
         self.active_clients.append(client)  # add new client
         # print('a client connected to the server.' )
         # print('currently there are ' + str(len(self.active_clients)) + ' active clients:')
 
     def client_disconnected(self, client):
-        """ remove a disconnected client from the list of logged in clients"""
+        """remove a disconnected client from the list of logged in clients"""
         try:
             self.active_clients.remove(client)  # try to remove disconnected client
         except ValueError:
