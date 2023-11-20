@@ -6,8 +6,10 @@ from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 from twisted.protocols.amp import CommandLocator
 
 from client_protocol import COMPClientProtocol
-sys.path.insert(0, "") # has to be uncommented for execution
+
+sys.path.insert(0, "")  # has to be uncommented for execution
 from teamprojekt_competition_server.shared.commands import AuthClient
+
 
 class COMPClient(CommandLocator):
     """client that manages the connection over the protocoll with the server"""
