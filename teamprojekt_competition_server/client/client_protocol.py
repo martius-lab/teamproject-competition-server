@@ -6,7 +6,7 @@ from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
 sys.path.append("..")  # has to be uncommented for execution
-from teamprojekt_competition_server.shared.commands import (
+from teamprojekt_competition_server.shared.command import (
     StartGame,
     EndGame,
     Step,
