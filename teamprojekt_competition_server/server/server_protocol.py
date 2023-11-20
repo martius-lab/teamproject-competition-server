@@ -1,8 +1,6 @@
 """class for server protocol"""
 import sys
 
-sys.path.insert(0, "")
-
 from collections import deque
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
@@ -15,6 +13,8 @@ from teamprojekt_competition_server.shared.commands import (
     Step,
 )
 from game import Game
+
+sys.path.insert(0, "")
 
 
 class COMPServerProtocol(amp.AMP):
@@ -52,7 +52,7 @@ class COMPServerProtocol(amp.AMP):
 
         def answer(x):
             action = x.get("action")
-            self.game.recieve_step(action=action)
+            self.game.receive_step(action=action)
 
         self.callRemote(Step, env=int(env)).addCallback(answer)
 
