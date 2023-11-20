@@ -5,6 +5,7 @@ from twisted.protocols.amp import Integer, String, Boolean, Command, AmpList
 from typing import final
 from client import COMPClient
 
+
 class COMPAgent:
     def __init__(self) -> None:
         self.client = COMPClient(self.step)
@@ -12,7 +13,7 @@ class COMPAgent:
 
     def step(self, env):
         pass
-    
-    @final 
+
+    @final
     def run(self, token):
         self.client.connect_client(token=token)

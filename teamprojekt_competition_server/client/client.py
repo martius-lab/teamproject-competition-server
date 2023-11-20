@@ -1,13 +1,12 @@
-from twisted.internet import defer, reactor, protocol
-from twisted.internet.task import deferLater
+from twisted.internet import defer, reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 from twisted.protocols.amp import CommandLocator
-from twisted.protocols import amp
-from twisted.protocols.amp import Integer, String, Boolean, Command, AmpList
-from client_protocol import COMPClientFactory, COMPClientProtocol
+from client_protocol import COMPClientProtocol
 import sys
-sys.path.insert(0, '')
-from teamprojekt_competition_server.shared.commands import AuthClient, StartGame, EndGame, Step
+
+sys.path.insert(0, "")
+from teamprojekt_competition_server.shared.commands import AuthClient
+
 
 class COMPClient(CommandLocator):
     def __init__(self, step) -> None:
@@ -19,6 +18,10 @@ class COMPClient(CommandLocator):
         version = int(1)
         destination = TCP4ClientEndpoint(reactor, "127.0.0.1", 1234)
         auth = connectProtocol(destination, COMPClientProtocol())
-        auth.addCallback(lambda ampProto: ampProto.callRemote(AuthClient, token=token, version=version))
+        auth.addCallback(
+            lambda ampProto: ampProto.callRemote(
+                AuthClient, token=token, version=version
+            )
+        )
         defer.DeferredList([auth])
         reactor.run()
