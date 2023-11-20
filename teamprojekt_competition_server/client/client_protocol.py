@@ -1,10 +1,11 @@
 """class for client protocol"""
+import sys
+sys.path.insert(0, "")
+
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
-import sys
 
-sys.path.insert(0, "")
 from teamprojekt_competition_server.shared.commands import StartGame, EndGame, Step
 
 

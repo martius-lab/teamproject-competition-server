@@ -31,7 +31,7 @@ class Game:
     def ready(self):
         """"manages the counter for ready players
         """
-        print(f"Player is ready.")
+        print("Player is ready.")
         self.num_ready += 1
         if self.num_ready == 2:
             self.send_step()

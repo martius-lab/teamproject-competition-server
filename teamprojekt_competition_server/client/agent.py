@@ -10,7 +10,8 @@ class COMPAgent:
         pass
     
     def step(self, env):
-        """this is an abstract method for one step that the agent makes and should be overwritten
+        """this is an abstract method for one step that the 
+        agent makes and should be overwritten
 
         Args:
             env (_type_): current enviroment

@@ -1,11 +1,12 @@
 """class for server protocol"""
+import sys
+sys.path.insert(0, "")
+
 from collections import deque
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import Protocol, ServerFactory
-import sys
 
-sys.path.insert(0, "")
 from teamprojekt_competition_server.shared.commands import (
     AuthClient,
     StartGame,
