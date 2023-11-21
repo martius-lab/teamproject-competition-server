@@ -36,10 +36,12 @@ class COMPServerProtocol(amp.AMP):
             {"uuid": int}: unique client ID
         """
         print(f"--- Authentification --- \nToken: {token} | Version: {version}")
-        cast(COMPServerFactory, self.factory).find_opponent(self) #TODO: this is really really, like ultra hacky !!!!
-        
+        cast(COMPServerFactory, self.factory).find_opponent(
+            self
+        )  # TODO: this is really really, like ultra hacky !!!!
+
         return {"uuid": 1111}  # dummy uuid
-     
+
     AuthClient.responder(auth_client)
 
     def start_game(self, game: Game):

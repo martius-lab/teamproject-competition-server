@@ -32,4 +32,4 @@ class COMPClient(CommandLocator):
             )
         )
         defer.DeferredList([auth])
-        reactor.run() # type: ignore[attr-defined]
+        reactor.run()  # type: ignore[attr-defined]
