@@ -1,13 +1,13 @@
 """class for client"""
-import sys
 
 from twisted.internet import defer, reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 from twisted.protocols.amp import CommandLocator
 
-from client_protocol import COMPClientProtocol
-sys.path.insert(0, "") # has to be uncommented for execution
-from teamprojekt_competition_server.shared.commands import AuthClient
+from .client_protocol import COMPClientProtocol
+
+from ..shared.commands import AuthClient
+
 
 class COMPClient(CommandLocator):
     """client that manages the connection over the protocoll with the server"""
@@ -17,7 +17,7 @@ class COMPClient(CommandLocator):
         self.version = 1
         self.agent = agent
 
-    def connect_client(self, token):
+    def connect_client(self, token: str):
         """connects the client to the server
 
         Args:
@@ -28,8 +28,8 @@ class COMPClient(CommandLocator):
         auth = connectProtocol(destination, COMPClientProtocol(agent=self.agent))
         auth.addCallback(
             lambda ampProto: ampProto.callRemote(
-                AuthClient, token=token, version=version
+                AuthClient, token=str.encode(token), version=version
             )
         )
         defer.DeferredList([auth])
-        reactor.run()
+        reactor.run() # type: ignore[attr-defined]

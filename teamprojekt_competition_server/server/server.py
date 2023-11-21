@@ -1,6 +1,6 @@
 """class for server"""
 from twisted.internet import reactor
-from server_protocol import COMPServerFactory
+from .server_protocol import COMPServerFactory
 
 
 class COMPServer:

@@ -1,12 +1,10 @@
 """class for client protocol"""
-import sys
 
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
-sys.path.insert(0, "") # has to be uncommented for execution
-from teamprojekt_competition_server.shared.commands import StartGame, EndGame, Step
+from ..shared.commands import StartGame, EndGame, Step
 
 
 class COMPClientProtocol(amp.AMP):
@@ -66,4 +64,6 @@ class COMPClientFactory(ClientFactory):
 
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
         """builds the COMP protocol"""
-        return COMPClientProtocol()
+        return COMPClientProtocol(
+            agent=None
+        )  # TODO: there is something fucked up with the agent...

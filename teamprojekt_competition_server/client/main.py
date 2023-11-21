@@ -1,5 +1,5 @@
 """main class with dummy agend for testing"""
-from agent import COMPAgent
+from .agent import COMPAgent
 
 if __name__ == "__main__":
 
@@ -18,5 +18,6 @@ if __name__ == "__main__":
             return int(input(f"Enviroment: {env} \nEnter a move: "))
 
     agent = MyAgent()
-    token = b"ABC"  # dummy token
+    token = "ABC"  # dummy token
     agent.run(token)
+    print("Hello")

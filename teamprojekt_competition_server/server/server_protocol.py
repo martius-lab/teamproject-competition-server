@@ -1,25 +1,29 @@
 """class for server protocol"""
-import sys
 
+from typing import cast
 from collections import deque
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import Protocol, ServerFactory
 
-sys.path.insert(0, "") # has to be uncommented for execution
-from teamprojekt_competition_server.shared.commands import (
+from ..shared.commands import (
     AuthClient,
     StartGame,
     EndGame,
     Step,
 )
 
-from game import Game
+from .game import Game
+
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
 
     game = None
+
+    def __init__(self, factory, boxReceiver=None, locator=None):
+        self.factory = factory
+        super().__init__(boxReceiver, locator)
 
     def auth_client(self, token: str, version):
         """is called when a client wants to authenticate itself
@@ -32,9 +36,10 @@ class COMPServerProtocol(amp.AMP):
             {"uuid": int}: unique client ID
         """
         print(f"--- Authentification --- \nToken: {token} | Version: {version}")
-        self.factory.find_opponent(self)
+        cast(COMPServerFactory, self.factory).find_opponent(self) #TODO: this is really really, like ultra hacky !!!!
+        
         return {"uuid": 1111}  # dummy uuid
-
+     
     AuthClient.responder(auth_client)
 
     def start_game(self, game: Game):
@@ -63,13 +68,11 @@ class COMPServerProtocol(amp.AMP):
 class COMPServerFactory(ServerFactory):
     """factory for COMP servers"""
 
-    protocol = COMPServerProtocol
-    queue = deque()  # queue for storing agents waiting for a game
+    queue: deque = deque()  # queue for storing agents waiting for a game
 
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
         """builds the protocoll"""
-        protocol = COMPServerProtocol()
-        protocol.factory = self
+        protocol = COMPServerProtocol(factory=self)
         return protocol
 
     def find_opponent(self, player: COMPServerProtocol):
