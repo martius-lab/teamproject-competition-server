@@ -1,7 +1,6 @@
 """class for server protocol"""
 
-from typing import cast
-from collections import deque
+from typing import cast, List
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import Protocol, ServerFactory
@@ -27,7 +26,11 @@ class COMPServerProtocol(amp.AMP):
 
     def connectionLost(self, reason):
         """is called when a client disconnects"""
-        self.factory.client_disconnected(self)  # keep track of the logged in clients
+        cast(
+            COMPServerFactory, self.factory
+        ).client_disconnected(  # keep track of the logged in clients
+            self
+        )  # TODO: this is really really, like ultra hacky !!!!
         return super().connectionLost(reason)
 
     def auth_client(self, token: str, version):
@@ -45,9 +48,11 @@ class COMPServerProtocol(amp.AMP):
 
         print(f"--- Authentification --- \nToken: {token} | Version: {version}")
 
-        self.factory.client_connected(
+        cast(
+            COMPServerFactory, self.factory
+        ).client_connected(  # keep track of the (auth.) connected clients
             self
-        )  # keep track of the (auth.) connected clients
+        )  # TODO: this is really really, like ultra hacky !!!!
 
         cast(COMPServerFactory, self.factory).find_opponent(
             self
@@ -83,8 +88,10 @@ class COMPServerProtocol(amp.AMP):
 class COMPServerFactory(ServerFactory):
     """factory for COMP servers"""
 
-    active_clients = list()  # a basic list for storing logged in clients
-    player_queue = list()  # queue for storing agents waiting for a game
+    # a basic list for storing logged in clients
+    active_clients: List[COMPServerProtocol] = []
+    # queue for storing agents waiting for a game
+    player_queue: List[COMPServerProtocol] = []
 
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
         """builds the protocoll"""
@@ -105,7 +112,7 @@ class COMPServerFactory(ServerFactory):
             player1.start_game(game)
             player2.start_game(game)
 
-    def client_connected(self, client):
+    def client_connected(self, client: COMPServerProtocol):
         """add a newly connected client to the list of logged in clients
 
         Args:
@@ -113,11 +120,10 @@ class COMPServerFactory(ServerFactory):
         """
         self.active_clients.append(client)  # add new client
         # print("a client connected to the server.")
-        # print(
-        #     "currently there are " + str(len(self.active_clients)) + " active clients:"
-        # )
+        # print("currently there are " + str(len(self.active_clients))
+        # + " active clients:")
 
-    def client_disconnected(self, client):
+    def client_disconnected(self, client: COMPServerProtocol):
         """remove a disconnected client from the list of logged in clients
 
         Args:
@@ -128,6 +134,5 @@ class COMPServerFactory(ServerFactory):
         except ValueError:
             pass
         # print("a client disconnected.")
-        # print(
-        #     "currently there are " + str(len(self.active_clients)) + " active clients:"
-        # )
+        # print("currently there are " + str(len(self.active_clients))
+        # + " active clients:")
