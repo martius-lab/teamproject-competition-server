@@ -1,7 +1,7 @@
 """main class with dummy agend for testing"""
 from .agent import COMPAgent
 
-# run with python -m teamprojekt_competition_server.client.main
+# run with "python -m teamprojekt_competition_server.client.main"
 
 if __name__ == "__main__":
 
