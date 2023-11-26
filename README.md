@@ -26,3 +26,26 @@ lest.
 
 - [Actions](../../actions) erlauben Euch Continuous Integration (CI) und automatisiertes
   Testen für jeden Pull Request und jedes Release einzurichten.
+
+# General
+  To run the server use:
+  ```
+  python -m teamprojekt_competition_server.server.main
+  ```
+  To run the client use:
+  ```
+  python -m teamprojekt_competition_server.client.main
+  ```
+
+  ## Naming-Conventions
+  This project follows the [Google-Styleguide](https://google.github.io/styleguide/)
+
+  ## External-Librarys
+  - [Twisted](https://twisted.org): We are using th AMP-Protocol 
+    - [docs1](https://amp-protocol.net/), [docs2](https://twisted.org/documents/13.1.0/api/twisted.protocols.amp.html), 
+    - [Developer Guide](https://docs.twisted.org/en/twisted-18.4.0/core/howto/amp.html)
+    - [API Documentation](https://docs.twisted.org/en/twisted-18.4.0/core/howto/amp.html)
+    - [AMP Exampels](https://docs.twisted.org/en/twisted-18.4.0/core/examples/index.html#amp-server-client-variants)
+  - [Gymnasium](https://gymnasium.farama.org) (maybe?)
+
+ 
