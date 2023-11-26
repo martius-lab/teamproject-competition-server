@@ -5,6 +5,7 @@ from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
 from .server_protocol import COMPServerFactory
 
+# run with "python -m teamprojekt_competition_server.server.main"
 
 if __name__ == "__main__":
     factory = COMPServerFactory()
