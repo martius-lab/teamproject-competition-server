@@ -1,6 +1,7 @@
 """class for server protocol"""
+import asyncio
 
-from typing import cast, List
+from typing import cast, List, Type
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import Protocol, ServerFactory
@@ -33,7 +34,7 @@ class COMPServerProtocol(amp.AMP):
         )  # TODO: this is really really, like ultra hacky !!!!
         return super().connectionLost(reason)
 
-    def auth_client(self, token: str, version):
+    async def auth_client(self, token: str, version):
         """is called when a client wants to authenticate itself
 
         Args:
@@ -54,7 +55,7 @@ class COMPServerProtocol(amp.AMP):
             self
         )  # TODO: this is really really, like ultra hacky !!!!
 
-        cast(COMPServerFactory, self.factory).find_opponent(
+        await cast(COMPServerFactory, self.factory).find_opponent(
             self
         )  # TODO: this is really really, like ultra hacky !!!!
 
@@ -69,7 +70,7 @@ class COMPServerProtocol(amp.AMP):
             game (Game): game that starts
         """
         self.game = game
-        self.callRemote(StartGame, game_id=222).addCallback(lambda x: game.ready())
+        return self.callRemote(StartGame, game_id=222).asFuture(loop=asyncio.get_event_loop())
 
     def step(self, env):
         """perfroms step requested by player"""
@@ -78,7 +79,7 @@ class COMPServerProtocol(amp.AMP):
             action = x.get("action")
             self.game.receive_step(action=action)
 
-        self.callRemote(Step, env=int(env)).addCallback(answer)
+        return self.callRemote(Step, env=int(env)).asFuture(loop=asyncio.get_event_loop())
 
     def end_game(self):
         """ends the game"""
@@ -93,12 +94,16 @@ class COMPServerFactory(ServerFactory):
     # queue for storing agents waiting for a game
     player_queue: List[COMPServerProtocol] = []
 
+    def __init__(self, game_class: Type[Game]) -> None:
+        super().__init__()
+        self.GameClass = game_class
+
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
         """builds the protocoll"""
         protocol = COMPServerProtocol(factory=self)
         return protocol
 
-    def find_opponent(self, player: COMPServerProtocol):
+    async def find_opponent(self, player: COMPServerProtocol):
         """addes the player to a queue in order to match two players
         Args:
             player (COMPServerProtocol): player that wants to find an opponent
@@ -108,9 +113,8 @@ class COMPServerFactory(ServerFactory):
         else:
             player1 = player
             player2 = self.player_queue.pop()
-            game = Game(player1=player1, player2=player2)
-            player1.start_game(game)
-            player2.start_game(game)
+            game = self.GameClass(player1=player1, player2=player2)
+            await game.start_game()
 
     def client_connected(self, client: COMPServerProtocol):
         """add a newly connected client to the list of logged in clients
