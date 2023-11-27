@@ -14,3 +14,11 @@ __pycache__
 *.egg-info
 build/
 dist/
+
+# local test caches
+.mypy_cache
+.ruff_cache
+
+# vscode settings
+.vscode
+
