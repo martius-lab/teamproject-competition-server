@@ -4,15 +4,18 @@ from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
-from ..shared.commands import StartGame, EndGame, Step
+from ..shared.commands import StartGame, EndGame, Step, Auth
 
 
 class COMPClientProtocol(amp.AMP):
     """protocol for the client"""
 
-    def __init__(self, agent, boxReceiver=None, locator=None):
+    token: str = "Unknown"
+
+    def __init__(self, agent, token, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
         self.agent = agent
+        self.token = token
 
     def start_game(self, game_id: int):
         """is called when the server starts the game
@@ -57,6 +60,16 @@ class COMPClientProtocol(amp.AMP):
         return {"action": action}
 
     Step.responder(step)
+
+    def auth(self):
+        """called for auth the client
+
+        Returns:
+            {"token": String}: the clients auth token
+        """
+        return {"token": self.token, "version": 1}
+
+    Auth.responder(auth)
 
 
 class COMPClientFactory(ClientFactory):

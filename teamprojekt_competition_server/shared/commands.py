@@ -5,45 +5,7 @@ Defines the commands used for the server client communication.
 from twisted.protocols.amp import Integer, String, Boolean, Command
 
 
-class ServerCommand(Command):
-    """Interface for commands send from the server"""
-
-    pass
-
-
-class ClientCommand(Command):
-    """Interface for commands send from the client"""
-
-    pass
-
-
-class AuthFailed(Exception):
-    """Exception raised when authentication fails.
-
-    This exception is raised in cases where the authentication process encounters
-    an issue, such as an invalid token.
-
-    Attributes:
-        None
-    """
-
-    pass
-
-
-class InvalidVersion(Exception):
-    """Exception raised for an invalid version during authentication.
-
-    This exception is raised when the version provided during the authentication
-    process is not compatible with the current version of the server.
-
-    Attributes:
-        None
-    """
-
-    pass
-
-
-class AuthClient(ClientCommand):
+class Auth(Command):
     """Command for authenticating the client with the server.
 
     Arguments:
@@ -53,23 +15,17 @@ class AuthClient(ClientCommand):
     Response:
         uuid (Integer): UUID assigned by the server to the client
     """
-
-    arguments = [(b"token", String()), (b"version", Integer())]
-    response = [(b"uuid", Integer())]
-    fatalErrors = {
-        AuthFailed: b"INVALID_TOKEN",
-        InvalidVersion: b"INCOMPATIBLE_VERSION",
-    }
+    response = [(b"token", String()),(b"version", Integer())]
 
 
-class StartGame(ServerCommand):
+class StartGame(Command):
     """Command to notify the client that the game starts"""
 
     arguments = [(b"game_id", Integer())]
     response = [(b"ready", Boolean())]
 
 
-class EndGame(ServerCommand):
+class EndGame(Command):
     """Command to notify the client that the game has ended"""
 
     arguments = [
@@ -79,11 +35,11 @@ class EndGame(ServerCommand):
     response = [(b"ready", Boolean())]
 
 
-class Step(ServerCommand):
+class Step(Command):
     """Command for requesting the next step from the agent"""
 
     arguments = [
-        (b"env", Integer())
+        (b"obv", Integer())
     ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
     response = [
         (b"action", Integer())

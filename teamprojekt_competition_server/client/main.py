@@ -20,6 +20,4 @@ if __name__ == "__main__":
             return int(input(f"Enviroment: {env} \nEnter a move: "))
 
     agent = MyAgent()
-    token = "ABC"  # dummy token
-    agent.run(token)
-    print("Hello")
+    agent.run("HelloWorldToken")
