@@ -7,7 +7,6 @@ from twisted.protocols.amp import CommandLocator
 from .client_protocol import COMPClientProtocol
 
 
-
 class COMPClient(CommandLocator):
     """client that manages the connection over the protocoll with the server"""
 
@@ -23,5 +22,7 @@ class COMPClient(CommandLocator):
             token (str): token to verify the client
         """
         destination = TCP4ClientEndpoint(reactor, "127.0.0.1", 1234)
-        auth = connectProtocol(destination, COMPClientProtocol(agent=self.agent, token=token))
+        auth = connectProtocol(
+            destination, COMPClientProtocol(agent=self.agent, token=token)
+        )
         reactor.run()  # type: ignore[attr-defined]

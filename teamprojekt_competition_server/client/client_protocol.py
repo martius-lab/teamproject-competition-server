@@ -67,7 +67,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"token": String}: the clients auth token
         """
-        return {"token": self.token, "version": 1}
+        return {"token": str.encode(self.token), "version": 1}
 
     Auth.responder(auth)
 
@@ -78,5 +78,5 @@ class COMPClientFactory(ClientFactory):
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
         """builds the COMP protocol"""
         return COMPClientProtocol(
-            agent=None
+            agent=None, token="ThisIsSomeCoolDummyToken"
         )  # TODO: there is something fucked up with the agent...

@@ -1,11 +1,12 @@
 """class for server"""
-from typing import Type
+
 import logging as log
 
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
 
 from .factory import COMPServerFactory
+
 
 class COMPServer:
     """class for server instance"""
@@ -15,10 +16,12 @@ class COMPServer:
 
     def start(self):
         """set up server at localhost:1234."""
-        self.endpoint = TCP4ServerEndpoint(reactor, 1234) #TODO the port should be in some .env file or so
+        self.endpoint = TCP4ServerEndpoint(
+            reactor, 1234
+        )  # TODO the port should be in some .env file or so
         self.endpoint.listen(self.factory)
-        log.debug("Server Started") #TODO some more info here
-        reactor.run() # type: ignore[attr-defined]
+        log.debug("Server Started")  # TODO some more info here
+        reactor.run()  # type: ignore[attr-defined]
 
     def stop(self):
         """terminates server."""

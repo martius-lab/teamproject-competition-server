@@ -4,54 +4,79 @@ import logging as log
 
 import abc
 
+
+class IAction:
+    pass
+
+
 class IPlayer(abc.ABC):
     
-    @abc.abstractmethod
-    async def authenticate(self):
-        ...
+    id : int = -1
     
     @abc.abstractmethod
-    async def notify_start(self):
+    def authenticate(self, result_callback):
         ...
 
     @abc.abstractmethod
-    async def get_action(self, obv):
+    def notify_start(self):
         ...
 
     @abc.abstractmethod
-    async def notify_end(self):
+    def get_action(self, obv, result_callback) -> IAction:
+        ...
+
+    @abc.abstractmethod
+    def notify_end(self):
         ...
 
 
 class IGame(abc.ABC):
     """game interface"""
-    
-    players : list[IPlayer] = []
-    
-    def __init__(self, players : list[IPlayer]) -> None:
+
+    players: list[IPlayer] = []
+    current_actions: list[IAction] = []
+    result_received: int = 0
+
+    def __init__(self, players: list[IPlayer]) -> None:
         self.players = players
 
-    async def start(self):
+    def start(self):
         for p in self.players:
-            if not await p.notify_start():
-                log.error("player not ready...")
+            p.notify_start()
 
-    async def end(self, reason="unknown"):
+    def end(self, reason="unknown"):
         for p in self.players:
-            await p.notify_end(reason)
+            p.notify_end(reason)
 
     @abc.abstractmethod
-    async def _game_cycle(self):
+    def _game_cycle(self):
         """sends a step request to both players and changes the enviroment accordingly."""
-        ...
-    
+
+    def _request_actions(self):
+        self.result_received = 0
+
+        for i, p in enumerate(self.players):
+
+            def __res(v: IAction):
+                self.current_actions[i] = v
+                self.result_received += 1
+                if self.result_received == len(self.players):
+                    self._game_cycle()
+
+                    if self._is_finished():
+                        self.end()
+                    else:
+                        self._request_actions()
+
+            p.get_action(callback=__res)
+
     @abc.abstractmethod
-    async def _validate_action(self, action) -> bool:
+    def _validate_action(self, action) -> bool:
         """check weather an action is valid"""
         ...
 
     @abc.abstractmethod
-    async def _is_finished(self) -> bool:
+    def _is_finished(self) -> bool:
         """detirmens if the game has ended
 
         Returns:

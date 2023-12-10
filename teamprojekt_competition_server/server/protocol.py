@@ -1,51 +1,80 @@
 """class for server protocol"""
-import asyncio
+
 import logging as log
+from typing import Callable
 
 from twisted.protocols import amp
+from twisted.internet.interfaces import IAddress
+
 
 from ..shared.commands import Auth, StartGame, EndGame, Step
-from ..shared.twisted_asyncio import twisted_async
 
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
 
+    connection_made_callbacks : list[Callable[[None], None]] = []
+    connection_lost_callbacks : list[Callable[[None], None]] = []
+
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
 
-    def connectionLost(self, reason) -> None:
-        """is called when a client disconnects"""
+    def addConnectionMadeCallback(self, callback):
+        self.connection_made_callbacks.append(callback)
+    
+    def addConnectionLostCallback(self, callback):
+        self.connection_lost_callbacks.append(callback)
 
-        # TODO handle this!
+    def connectionMade(self) -> None:
+        addr: IAddress = self.transport.getPeer()  # type: ignore
+        log.debug(
+            f"Connected to client with IP address: {addr.host}, Port: {addr.port} via {addr.type}"
+        )
+        
+        #broadcast to callbacks
+        for c in self.connection_made_callbacks:
+            c()
+
+        return super().connectionMade()
+    
+    def connectionLost(self, reason):
+        
+        #broadcast to callbacks
+        for c in self.connection_lost_callbacks:
+            c()
 
         return super().connectionLost(reason)
 
-    def connectionMade(self):
-        log.debug("Client connected")
-        test = self.get_token()
-        print(test)
-        return super().connectionMade()
+    def get_token(self, return_callback: Callable[[str], None]) -> None:
+        """get token from client to authenticate
 
-    async def get_token(self) -> str:
-        token = await self.callRemote(Auth)
-        log.debug(token)
-        return token
+        Args:
+            game (Game): game that starts
+        """
+        return self.callRemote(Auth).addCallback(
+            callback=lambda res: return_callback(res["token"])
+        )
 
-    async def notify_start(self) -> bool:
+    def notify_start(self) -> None:
         """starts the game
 
         Args:
             game (Game): game that starts
         """
-        return await self.callRemote(StartGame, game_id=222).asFuture(loop=asyncio.get_event_loop())
+        return self.callRemote(StartGame, game_id=222)
 
-    async def get_step(self, obv):
+    def get_step(self, obv, return_callback: Callable[[list], None]) -> None:
         """perfroms step requested by player"""
 
-        return await self.callRemote(Step, obv=int(obv)).asFuture(loop=asyncio.get_event_loop())
+        return self.callRemote(Step, obv=int(obv)).addCallback(
+            callback=lambda res: return_callback(res["action"])
+        )
 
-    async def notify_end(self, result, stats) -> bool:
+    def notify_end(
+        self, result, stats, return_callback: Callable[[bool], None]
+    ) -> None:
         """ends the game"""
-        
-        return await self.callRemote(EndGame, result=True, stats=4).asFuture(loop=asyncio.get_event_loop())
+
+        return self.callRemote(EndGame, result=True, stats=4).addCallback(
+            callback=lambda res: return_callback(res["ready"])
+        )

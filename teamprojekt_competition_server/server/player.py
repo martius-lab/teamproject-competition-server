@@ -3,23 +3,27 @@
 from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
 
-from ..shared.twisted_asyncio import twisted_async
+from .game_manager import game_manager
+
 
 class COMPPlayer(IPlayer):
-    connection :  COMPServerProtocol
-    
-    def __init__(self, connection : COMPServerProtocol) -> None:
-        self.connection = connection    
-    
-    async def authenticate(self):
-        return await self.connection.get_token()
-    
-    async def notify_start(self):
+    connection: COMPServerProtocol
+
+    def __init__(self, connection: COMPServerProtocol) -> None:
+        self.connection = connection
+        
+        def connection_made():
+            self.authenticate(result_callback=lambda x: game_manager.add_player_to_queue(self.id))
+        self.connection.addConnectionMadeCallback(connection_made)
+
+    def authenticate(self, result_callback):
+        return self.connection.get_token(result_callback)
+
+    def notify_start(self):
         self.connection.notify_start()
-    
-    async def get_action(self, obv):
-        return await self.connection.get_step(obv)
-    
-    async def notify_end(self):
+
+    def get_action(self, obv, result_callback):
+        return self.connection.get_step(obv, result_callback)
+
+    def notify_end(self):
         return self.connection.notify_end()
-    

@@ -15,7 +15,8 @@ class Auth(Command):
     Response:
         uuid (Integer): UUID assigned by the server to the client
     """
-    response = [(b"token", String()),(b"version", Integer())]
+
+    response = [(b"token", String()), (b"version", Integer())]
 
 
 class StartGame(Command):
