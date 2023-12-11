@@ -26,7 +26,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"ready": boolean}: true if the client is ready to start the game
         """
-        print(f"--- Started Game --- \nGame ID: {game_id}")
+        print(f"------ Started Game  [Game ID: {game_id}] ------")
         return {"ready": True}  # dummy ready
 
     StartGame.responder(start_game)
@@ -41,12 +41,12 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"ready": boolean}: true if the client is ready to start a new game
         """
-        print(f"--- Ended Game --- \nGame ID: {result} | Stats: {stats}")
+        print(f"------ Ended Game [Game ID: {result} | Stats: {stats}] ------")
         return {"ready": True}  # dummy ready
 
     EndGame.responder(end_game)
 
-    def step(self, env):
+    def step(self, obv):
         """is called when the server wants the client to make a step
 
         Args:
@@ -55,8 +55,8 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"action": int}: action that should be executed
         """
-        action = self.agent.step(env=int(env))  # dummy action
-        print(f"--- Next Step --- \nEnviroment: {env} | Action: {action}")
+        action = self.agent.step(obv=int(obv))  # dummy action
+        print(f"Send action: {action}")
         return {"action": action}
 
     Step.responder(step)

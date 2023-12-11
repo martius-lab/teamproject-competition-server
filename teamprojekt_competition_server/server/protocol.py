@@ -13,11 +13,10 @@ from ..shared.commands import Auth, StartGame, EndGame, Step
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
 
-    connection_made_callbacks : list[Callable[[None], None]] = []
-    connection_lost_callbacks : list[Callable[[None], None]] = []
-
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
+        self.connection_made_callbacks : list[Callable[[None], None]] = []
+        self.connection_lost_callbacks : list[Callable[[None], None]] = []
 
     def addConnectionMadeCallback(self, callback):
         self.connection_made_callbacks.append(callback)
@@ -30,7 +29,6 @@ class COMPServerProtocol(amp.AMP):
         log.debug(
             f"Connected to client with IP address: {addr.host}, Port: {addr.port} via {addr.type}"
         )
-        
         #broadcast to callbacks
         for c in self.connection_made_callbacks:
             c()
@@ -75,6 +73,6 @@ class COMPServerProtocol(amp.AMP):
     ) -> None:
         """ends the game"""
 
-        return self.callRemote(EndGame, result=True, stats=4).addCallback(
+        return self.callRemote(EndGame, result=result, stats=stats).addCallback(
             callback=lambda res: return_callback(res["ready"])
         )

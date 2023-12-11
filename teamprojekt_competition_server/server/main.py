@@ -17,15 +17,24 @@ class ExampleGame(IGame):
         super().__init__(players=players)
         self.env = 0
 
-    def _game_cycle(self):
-        for p in self.players:
-            self.env += sum(self.current_actions)
+    def _update_enviroment(self):
+        self.env += sum(self.current_actions)
 
     def _validate_action(self, action):
         return isinstance(action, int)
 
     def _is_finished(self) -> bool:
         return self.env > 10
+    
+    def _observation(self):
+        return self.env
+    
+    def _player_stats(self, index) -> int:
+        return 0
+    
+    def _player_won(self, index) -> bool:
+        if index==0: return True
+        return False
 
 
 def main():
