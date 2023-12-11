@@ -1,5 +1,4 @@
 """Player"""
-import logging as log
 
 from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
@@ -8,6 +7,7 @@ from .game_manager import game_manager
 
 
 class COMPPlayer(IPlayer):
+    """player of the game"""
 
     def __init__(self, connection: COMPServerProtocol) -> None:
         self.connection: COMPServerProtocol = connection
@@ -27,5 +27,6 @@ class COMPPlayer(IPlayer):
 
     def notify_end(self, result, stats):
         def callback(ready: bool):
-            if ready: game_manager.add_player_to_queue(self.id)
+            if ready: 
+                game_manager.add_player_to_queue(self.id)
         return self.connection.notify_end(result=result, stats=stats, return_callback=callback)

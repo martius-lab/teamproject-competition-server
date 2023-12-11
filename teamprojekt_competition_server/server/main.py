@@ -13,6 +13,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class ExampleGame(IGame):
+    """example for a game"""
+    
     def __init__(self, players: list[IPlayer]) -> None:
         super().__init__(players=players)
         self.env = 0
@@ -38,6 +40,7 @@ class ExampleGame(IGame):
 
 
 def main():
+    """main function for testing"""
     game_manager.GameClass = ExampleGame
     server = COMPServer()
     server.start()

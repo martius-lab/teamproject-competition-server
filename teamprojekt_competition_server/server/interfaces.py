@@ -6,28 +6,49 @@ import abc
 
 
 class IAction:
+    """Interface for an action
+    """
     pass
 
 
 class IPlayer(abc.ABC):
+    """Interface for a player"""
     
     def __init__(self) -> None:
         self.id : int = -1
     
     @abc.abstractmethod
     def authenticate(self, result_callback):
+        """authenticates player
+
+        Args:
+            result_callback (Callable): callback 
+        """
         ...
 
     @abc.abstractmethod
     def notify_start(self):
+        """notifies player that the game has started
+        """
         ...
 
     @abc.abstractmethod
     def get_action(self, obv, result_callback) -> IAction:
+        """gets an action from the player
+
+        Args:
+            obv (Any): obserervation
+            result_callback (Callable): callback
+
+        Returns:
+            IAction: action
+        """
         ...
 
     @abc.abstractmethod
     def notify_end(self, result, stats):
+        """notifies player that the game has ended
+        """
         ...
 
 
@@ -36,23 +57,35 @@ class IGame(abc.ABC):
 
     def __init__(self, players: list[IPlayer]) -> None:
         self.players: list[IPlayer] = players
-        self.current_actions: list[IAction] = [None for _ in players]
+        self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
 
     def start(self):
+        """
+        notifies all players that the game has started 
+        and starts the game cycle
+        """
         for p in self.players:
             p.notify_start()
         self._game_cycle()
 
     def end(self, reason="unknown"):
+        """notifies all players that the game has ended 
+
+        Args:
+            reason (str, optional): reason why the game has ended. Defaults to "unknown".
+        """
         for i, p in enumerate(self.players):
             p.notify_end(result=self._player_won(i), stats=self._player_stats(i))
 
     @abc.abstractmethod
     def _update_enviroment(self):
         """works with the current_actions list to change the enviroment accordingly."""
+        ...
 
     def _game_cycle(self):
+        """collectes all actions and puts them in current_actions list
+        """
         self.result_received = 0
 
         for i, p in enumerate(self.players):

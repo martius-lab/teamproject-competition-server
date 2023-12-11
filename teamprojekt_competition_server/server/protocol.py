@@ -15,13 +15,23 @@ class COMPServerProtocol(amp.AMP):
 
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
-        self.connection_made_callbacks : list[Callable[[None], None]] = []
-        self.connection_lost_callbacks : list[Callable[[None], None]] = []
+        self.connection_made_callbacks : list[Callable[[], None]] = []
+        self.connection_lost_callbacks : list[Callable[[], None]] = []
 
     def addConnectionMadeCallback(self, callback):
+        """adds callback that is executed, when the connection is made
+
+        Args:
+            callback (function): callback to execute, when the connection is made
+        """
         self.connection_made_callbacks.append(callback)
     
     def addConnectionLostCallback(self, callback):
+        """adds callback that is executed, when the connection is lost
+
+        Args:
+            callback (function): callback to execute, when the connection is lost
+        """
         self.connection_lost_callbacks.append(callback)
 
     def connectionMade(self) -> None:
