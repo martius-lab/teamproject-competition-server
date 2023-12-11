@@ -22,7 +22,5 @@ class COMPClient(CommandLocator):
             token (str): token to verify the client
         """
         destination = TCP4ClientEndpoint(reactor, "127.0.0.1", 1234)
-        auth = connectProtocol(
-            destination, COMPClientProtocol(agent=self.agent, token=token)
-        )
+        connectProtocol(destination, COMPClientProtocol(agent=self.agent, token=token))
         reactor.run()  # type: ignore[attr-defined]

@@ -19,4 +19,3 @@ class COMPServerFactory(ServerFactory):
         game_manager.add_player(new_player)
 
         return protocol
-       

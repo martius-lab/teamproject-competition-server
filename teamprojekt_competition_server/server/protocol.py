@@ -15,8 +15,8 @@ class COMPServerProtocol(amp.AMP):
 
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
-        self.connection_made_callbacks : list[Callable[[], None]] = []
-        self.connection_lost_callbacks : list[Callable[[], None]] = []
+        self.connection_made_callbacks: list[Callable[[], None]] = []
+        self.connection_lost_callbacks: list[Callable[[], None]] = []
 
     def addConnectionMadeCallback(self, callback):
         """adds callback that is executed, when the connection is made
@@ -25,7 +25,7 @@ class COMPServerProtocol(amp.AMP):
             callback (function): callback to execute, when the connection is made
         """
         self.connection_made_callbacks.append(callback)
-    
+
     def addConnectionLostCallback(self, callback):
         """adds callback that is executed, when the connection is lost
 
@@ -35,19 +35,19 @@ class COMPServerProtocol(amp.AMP):
         self.connection_lost_callbacks.append(callback)
 
     def connectionMade(self) -> None:
+        """called upon connectionMade event"""
         addr: IAddress = self.transport.getPeer()  # type: ignore
-        log.debug(
-            f"Connected to client with IP address: {addr.host}, Port: {addr.port} via {addr.type}"
-        )
-        #broadcast to callbacks
+        debug_msg = f"connected to client with IP: {addr.host}"
+        debug_msg_rest = f", Port: {addr.port} viae {addr.type}"
+        log.debug(debug_msg + debug_msg_rest)
+        # broadcast to callbacks
         for c in self.connection_made_callbacks:
             c()
 
         return super().connectionMade()
-    
+
     def connectionLost(self, reason):
-        
-        #broadcast to callbacks
+        """called upon connectionLost event"""
         for c in self.connection_lost_callbacks:
             c()
 
@@ -59,7 +59,7 @@ class COMPServerProtocol(amp.AMP):
         Args:
             game (Game): game that starts
         """
-        return self.callRemote(Auth).addCallback(
+        self.callRemote(Auth).addCallback(
             callback=lambda res: return_callback(res["token"])
         )
 

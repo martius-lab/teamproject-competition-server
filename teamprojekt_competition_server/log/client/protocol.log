@@ -1,0 +1,4 @@
+2023-12-11T20:33:44+0100 [teamprojekt_competition_server.client.client_protocol.COMPClientProtocol#info] Initialized protocol: 140671236286992 with agent: 140671271353360, token: 140671262383408
+2023-12-11T20:33:46+0100 [teamprojekt_competition_server.client.client_protocol.COMPClientProtocol#info] Initialized protocol: 140397948106592 with agent: 140397980761104, token: 140397969693744
+2023-12-11T20:33:46+0100 [teamprojekt_competition_server.client.client_protocol.COMPClientProtocol#info] 		Receive StartGame command, game_id: 222
+2023-12-11T20:33:46+0100 [teamprojekt_competition_server.client.client_protocol.COMPClientProtocol#info] 		Receive StartGame command, game_id: 222

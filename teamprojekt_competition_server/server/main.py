@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class ExampleGame(IGame):
     """example for a game"""
-    
+
     def __init__(self, players: list[IPlayer]) -> None:
         super().__init__(players=players)
         self.env = 0
@@ -27,15 +27,16 @@ class ExampleGame(IGame):
 
     def _is_finished(self) -> bool:
         return self.env > 10
-    
+
     def _observation(self):
         return self.env
-    
+
     def _player_stats(self, index) -> int:
         return 0
-    
+
     def _player_won(self, index) -> bool:
-        if index==0: return True
+        if index == 0:
+            return True
         return False
 
 

@@ -22,9 +22,9 @@ class GameManager:
             player (IPlayer): player to add
         """
         self.players.append(player)
-        
-        player.id = len(self.players)-1
-    
+
+        player.id = len(self.players) - 1
+
     def add_player_to_queue(self, player_id: int):
         """adds a player to the queue
 
@@ -41,5 +41,6 @@ class GameManager:
         else:
             self.queue.append(player_id)
             log.debug(f"added player to queue. ID: {player_id}")
+
 
 game_manager = GameManager()

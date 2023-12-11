@@ -6,30 +6,29 @@ import abc
 
 
 class IAction:
-    """Interface for an action
-    """
+    """Interface for an action"""
+
     pass
 
 
 class IPlayer(abc.ABC):
     """Interface for a player"""
-    
+
     def __init__(self) -> None:
-        self.id : int = -1
-    
+        self.id: int = -1
+
     @abc.abstractmethod
     def authenticate(self, result_callback):
         """authenticates player
 
         Args:
-            result_callback (Callable): callback 
+            result_callback (Callable): callback
         """
         ...
 
     @abc.abstractmethod
     def notify_start(self):
-        """notifies player that the game has started
-        """
+        """notifies player that the game has started"""
         ...
 
     @abc.abstractmethod
@@ -47,8 +46,7 @@ class IPlayer(abc.ABC):
 
     @abc.abstractmethod
     def notify_end(self, result, stats):
-        """notifies player that the game has ended
-        """
+        """notifies player that the game has ended"""
         ...
 
 
@@ -62,7 +60,7 @@ class IGame(abc.ABC):
 
     def start(self):
         """
-        notifies all players that the game has started 
+        notifies all players that the game has started
         and starts the game cycle
         """
         for p in self.players:
@@ -70,10 +68,10 @@ class IGame(abc.ABC):
         self._game_cycle()
 
     def end(self, reason="unknown"):
-        """notifies all players that the game has ended 
+        """notifies all players that the game has ended
 
         Args:
-            reason (str, optional): reason why the game has ended. Defaults to "unknown".
+            reason (str, optional): reason why the game has ended. Defaults to "unknown"
         """
         for i, p in enumerate(self.players):
             p.notify_end(result=self._player_won(i), stats=self._player_stats(i))
@@ -84,8 +82,7 @@ class IGame(abc.ABC):
         ...
 
     def _game_cycle(self):
-        """collectes all actions and puts them in current_actions list
-        """
+        """collectes all actions and puts them in current_actions list"""
         self.result_received = 0
 
         for i, p in enumerate(self.players):
@@ -101,7 +98,7 @@ class IGame(abc.ABC):
                         self.end()
                     else:
                         self._game_cycle()
-            
+
             p.get_action(obv=self._observation(), result_callback=__res)
 
     @abc.abstractmethod
@@ -117,11 +114,12 @@ class IGame(abc.ABC):
             bool: returns true if game has ended
         """
         ...
+
     @abc.abstractmethod
     def _observation(self):
         """retutns the observation for the players"""
         ...
-    
+
     @abc.abstractmethod
     def _player_won(self, index) -> bool:
         """check wether the player has won
@@ -130,7 +128,7 @@ class IGame(abc.ABC):
             bool: returns true if player has won
         """
         ...
-    
+
     @abc.abstractmethod
     def _player_stats(self, index) -> int:
         """retutns the player stats"""
