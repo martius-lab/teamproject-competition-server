@@ -1,5 +1,4 @@
 """Player"""
-import logging as log
 
 from .protocol import COMPServerProtocol
 from .interfaces import IPlayer

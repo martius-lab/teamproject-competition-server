@@ -1,16 +1,10 @@
 """run the server"""
-
+import os
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
-
 from .game_manager import game_manager
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
 # run with "python -m teamprojekt_competition_server.server.main"
-
 
 class ExampleGame(IGame):
     def __init__(self, players: list[IPlayer]) -> None:
@@ -41,7 +35,6 @@ def main():
     game_manager.GameClass = ExampleGame
     server = COMPServer()
     server.start()
-
 
 if __name__ == "__main__":
     main()

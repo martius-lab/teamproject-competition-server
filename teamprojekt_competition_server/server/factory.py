@@ -1,7 +1,3 @@
-""" Hello World """
-
-import logging as log
-
 from twisted.internet.interfaces import IAddress
 from twisted.internet.protocol import Protocol, ServerFactory
 

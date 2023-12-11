@@ -1,22 +1,22 @@
 """class for server protocol"""
 
-import logging as log
 from typing import Callable
-
+import io
 from twisted.protocols import amp
 from twisted.internet.interfaces import IAddress
-
+from twisted.logger import Logger, textFileLogObserver
 
 from ..shared.commands import Auth, StartGame, EndGame, Step
 
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
-
+    log = Logger(observer=textFileLogObserver(io.open("./teamprojekt_competition_server/log/server/protocol.log", "a")))
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
         self.connection_made_callbacks : list[Callable[[None], None]] = []
         self.connection_lost_callbacks : list[Callable[[None], None]] = []
+        self.log.info("Initialized Protocol: {}".format(id(self)))
 
     def addConnectionMadeCallback(self, callback):
         self.connection_made_callbacks.append(callback)
@@ -26,7 +26,7 @@ class COMPServerProtocol(amp.AMP):
 
     def connectionMade(self) -> None:
         addr: IAddress = self.transport.getPeer()  # type: ignore
-        log.debug(
+        print(
             f"Connected to client with IP address: {addr.host}, Port: {addr.port} via {addr.type}"
         )
         #broadcast to callbacks
