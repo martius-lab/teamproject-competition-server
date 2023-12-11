@@ -10,12 +10,12 @@ class COMPAgent:
         self.client = COMPClient(agent=self)
         pass
 
-    def step(self, env):
+    def step(self, obv):
         """this is an abstract method for one step that the
         agent makes and should be overwritten
 
         Args:
-            env (_type_): current enviroment
+            obv (_type_): current enviroment
 
         Raises:
             NotImplementedError: this method should be overwritten

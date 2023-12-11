@@ -4,15 +4,18 @@ from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
-from ..shared.commands import StartGame, EndGame, Step
+from ..shared.commands import StartGame, EndGame, Step, Auth
 
 
 class COMPClientProtocol(amp.AMP):
     """protocol for the client"""
 
-    def __init__(self, agent, boxReceiver=None, locator=None):
+    token: str = "Unknown"
+
+    def __init__(self, agent, token, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
         self.agent = agent
+        self.token = token
 
     def start_game(self, game_id: int):
         """is called when the server starts the game
@@ -23,7 +26,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"ready": boolean}: true if the client is ready to start the game
         """
-        print(f"--- Started Game --- \nGame ID: {game_id}")
+        print(f"------ Started Game  [Game ID: {game_id}] ------")
         return {"ready": True}  # dummy ready
 
     StartGame.responder(start_game)
@@ -38,12 +41,12 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"ready": boolean}: true if the client is ready to start a new game
         """
-        print(f"--- Ended Game --- \nGame ID: {result} | Stats: {stats}")
+        print(f"------ Ended Game [Game ID: {result} | Stats: {stats}] ------")
         return {"ready": True}  # dummy ready
 
     EndGame.responder(end_game)
 
-    def step(self, env):
+    def step(self, obv):
         """is called when the server wants the client to make a step
 
         Args:
@@ -52,11 +55,21 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"action": int}: action that should be executed
         """
-        action = self.agent.step(env=int(env))  # dummy action
-        print(f"--- Next Step --- \nEnviroment: {env} | Action: {action}")
+        action = self.agent.step(obv=int(obv))  # dummy action
+        print(f"Send action: {action}")
         return {"action": action}
 
     Step.responder(step)
+
+    def auth(self):
+        """called for auth the client
+
+        Returns:
+            {"token": String}: the clients auth token
+        """
+        return {"token": str.encode(self.token), "version": 1}
+
+    Auth.responder(auth)
 
 
 class COMPClientFactory(ClientFactory):
@@ -65,5 +78,5 @@ class COMPClientFactory(ClientFactory):
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
         """builds the COMP protocol"""
         return COMPClientProtocol(
-            agent=None
+            agent=None, token="ThisIsSomeCoolDummyToken"
         )  # TODO: there is something fucked up with the agent...

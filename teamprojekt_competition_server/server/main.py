@@ -1,16 +1,51 @@
-"""run a client dummy agent"""
+"""run the server"""
 
-from twisted.internet import reactor
+from .server import COMPServer
+from .interfaces import IGame, IPlayer
 
-from twisted.internet.endpoints import TCP4ServerEndpoint
-from .server_protocol import COMPServerFactory
+from .game_manager import game_manager
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 # run with "python -m teamprojekt_competition_server.server.main"
 
-if __name__ == "__main__":
-    factory = COMPServerFactory()
 
-    endpoint = TCP4ServerEndpoint(reactor, 1234)
-    endpoint.listen(factory)
-    print("Server Started")
-    reactor.run()  # type: ignore[attr-defined]
+class ExampleGame(IGame):
+    """example for a game"""
+
+    def __init__(self, players: list[IPlayer]) -> None:
+        super().__init__(players=players)
+        self.env = 0
+
+    def _update_enviroment(self):
+        self.env += sum(self.current_actions)
+
+    def _validate_action(self, action):
+        return isinstance(action, int)
+
+    def _is_finished(self) -> bool:
+        return self.env > 10
+
+    def _observation(self):
+        return self.env
+
+    def _player_stats(self, index) -> int:
+        return 0
+
+    def _player_won(self, index) -> bool:
+        if index == 0:
+            return True
+        return False
+
+
+def main():
+    """main function for testing"""
+    game_manager.GameClass = ExampleGame
+    server = COMPServer()
+    server.start()
+
+
+if __name__ == "__main__":
+    main()
