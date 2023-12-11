@@ -36,6 +36,6 @@ class GameManager:
         else:
             self.queue.append(player_id)
             print(f"added player to queue. ID: {player_id}")
-            self.log.info("added player with id: {} to queue".format(player_id))
+            self.log.info("\t\tadded player with id: {} to queue".format(player_id))
 
 game_manager = GameManager()
