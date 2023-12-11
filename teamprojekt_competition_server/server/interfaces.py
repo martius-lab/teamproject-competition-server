@@ -10,10 +10,9 @@ class IAction:
 
 
 class IPlayer(abc.ABC):
-    
     def __init__(self) -> None:
-        self.id : int = -1
-    
+        self.id: int = -1
+
     @abc.abstractmethod
     def authenticate(self, result_callback):
         ...
@@ -68,7 +67,7 @@ class IGame(abc.ABC):
                         self.end()
                     else:
                         self._game_cycle()
-            
+
             p.get_action(obv=self._observation(), result_callback=__res)
 
     @abc.abstractmethod
@@ -84,11 +83,12 @@ class IGame(abc.ABC):
             bool: returns true if game has ended
         """
         ...
+
     @abc.abstractmethod
     def _observation(self):
         """retutns the observation for the players"""
         ...
-    
+
     @abc.abstractmethod
     def _player_won(self, index) -> bool:
         """check wether the player has won
@@ -97,7 +97,7 @@ class IGame(abc.ABC):
             bool: returns true if player has won
         """
         ...
-    
+
     @abc.abstractmethod
     def _player_stats(self, index) -> int:
         """retutns the player stats"""

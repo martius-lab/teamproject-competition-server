@@ -9,11 +9,20 @@ from .factory import COMPServerFactory
 
 class COMPServer:
     """class for server instance"""
-    log = Logger(observer=textFileLogObserver(io.open("./teamprojekt_competition_server/log/server/server.log", "a")))
+
+    log = Logger(
+        observer=textFileLogObserver(
+            io.open("./teamprojekt_competition_server/log/server/server.log", "a")
+        )
+    )
 
     def __init__(self) -> None:
         self.factory = COMPServerFactory()
-        self.log.info("COMPServer {} initialized with factory: {}".format(id(self),id(self.factory)))
+        self.log.info(
+            "COMPServer {} initialized with factory: {}".format(
+                id(self), id(self.factory)
+            )
+        )
 
     def start(self):
         """set up server at localhost:1234."""

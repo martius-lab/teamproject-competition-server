@@ -11,16 +11,22 @@ from ..shared.commands import Auth, StartGame, EndGame, Step
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
-    log = Logger(observer=textFileLogObserver(io.open("./teamprojekt_competition_server/log/server/protocol.log", "a")))
+
+    log = Logger(
+        observer=textFileLogObserver(
+            io.open("./teamprojekt_competition_server/log/server/protocol.log", "a")
+        )
+    )
+
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
-        self.connection_made_callbacks : list[Callable[[None], None]] = []
-        self.connection_lost_callbacks : list[Callable[[None], None]] = []
+        self.connection_made_callbacks: list[Callable[[None], None]] = []
+        self.connection_lost_callbacks: list[Callable[[None], None]] = []
         self.log.info("Initialized Protocol: {}".format(id(self)))
 
     def addConnectionMadeCallback(self, callback):
         self.connection_made_callbacks.append(callback)
-    
+
     def addConnectionLostCallback(self, callback):
         self.connection_lost_callbacks.append(callback)
 
@@ -29,15 +35,14 @@ class COMPServerProtocol(amp.AMP):
         print(
             f"Connected to client with IP address: {addr.host}, Port: {addr.port} via {addr.type}"
         )
-        #broadcast to callbacks
+        # broadcast to callbacks
         for c in self.connection_made_callbacks:
             c()
 
         return super().connectionMade()
-    
+
     def connectionLost(self, reason):
-        
-        #broadcast to callbacks
+        # broadcast to callbacks
         for c in self.connection_lost_callbacks:
             c()
 

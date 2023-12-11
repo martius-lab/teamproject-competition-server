@@ -10,7 +10,12 @@ from .client_protocol import COMPClientProtocol
 
 class COMPClient(CommandLocator):
     """client that manages the connection over the protocoll with the server"""
-    log = Logger(observer=textFileLogObserver(io.open("./teamprojekt_competition_server/log/client/client.log", "a")))
+
+    log = Logger(
+        observer=textFileLogObserver(
+            io.open("./teamprojekt_competition_server/log/client/client.log", "a")
+        )
+    )
 
     def __init__(self, agent) -> None:
         self.connected = False

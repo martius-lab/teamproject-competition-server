@@ -7,12 +7,14 @@ from .game_manager import game_manager
 
 
 class COMPPlayer(IPlayer):
-
     def __init__(self, connection: COMPServerProtocol) -> None:
         self.connection: COMPServerProtocol = connection
-        
+
         def connected():
-            self.authenticate(result_callback=lambda x: game_manager.add_player_to_queue(self.id))
+            self.authenticate(
+                result_callback=lambda x: game_manager.add_player_to_queue(self.id)
+            )
+
         self.connection.addConnectionMadeCallback(connected)
 
     def authenticate(self, result_callback):
@@ -26,5 +28,9 @@ class COMPPlayer(IPlayer):
 
     def notify_end(self, result, stats):
         def callback(ready: bool):
-            if ready: game_manager.add_player_to_queue(self.id)
-        return self.connection.notify_end(result=result, stats=stats, return_callback=callback)
+            if ready:
+                game_manager.add_player_to_queue(self.id)
+
+        return self.connection.notify_end(
+            result=result, stats=stats, return_callback=callback
+        )

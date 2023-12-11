@@ -6,6 +6,7 @@ from .game_manager import game_manager
 
 # run with "python -m teamprojekt_competition_server.server.main"
 
+
 class ExampleGame(IGame):
     def __init__(self, players: list[IPlayer]) -> None:
         super().__init__(players=players)
@@ -19,15 +20,16 @@ class ExampleGame(IGame):
 
     def _is_finished(self) -> bool:
         return self.env > 10
-    
+
     def _observation(self):
         return self.env
-    
+
     def _player_stats(self, index) -> int:
         return 0
-    
+
     def _player_won(self, index) -> bool:
-        if index==0: return True
+        if index == 0:
+            return True
         return False
 
 
@@ -35,6 +37,7 @@ def main():
     game_manager.GameClass = ExampleGame
     server = COMPServer()
     server.start()
+
 
 if __name__ == "__main__":
     main()
