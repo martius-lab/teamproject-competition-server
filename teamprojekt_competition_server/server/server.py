@@ -1,29 +1,35 @@
 """class for server"""
 
 import logging as log
+from typing import Type
 
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
 
 from .factory import COMPServerFactory
-
+from .interfaces import IGame
+from . import game_manager
+from . import config
 
 class COMPServer:
     """class for server instance"""
 
-    def __init__(self) -> None:
+    def __init__(self, game_type : Type[IGame]) -> None:
+        game_manager.set_game_type(game_type)
         self.factory = COMPServerFactory()
 
-    def start(self):
-        """set up server at localhost:1234."""
+    def start(self) -> None:
+        """starts the server, so we can wait for clients to connect"""
+        
+        port = config.get_config_value("port")
         self.endpoint = TCP4ServerEndpoint(
-            reactor, 1234
-        )  # TODO the port should be in some .env file or so
+            reactor, port
+        ) 
         self.endpoint.listen(self.factory)
-        log.debug("Server Started")  # TODO some more info here
+        log.debug(f"Server listening on port {port}")  # TODO some more info here
         reactor.run()  # type: ignore[attr-defined]
 
-    def stop(self):
+    def stop(self) -> None:
         """terminates server."""
         log.debug("Server Stopped")
         reactor.stop()

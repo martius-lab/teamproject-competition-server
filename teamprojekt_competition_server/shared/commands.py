@@ -45,3 +45,8 @@ class Step(Command):
     response = [
         (b"action", Integer())
     ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
+
+
+class Error(Command):
+    """Command interface for a generic error message"""
+    arguments = [(b"msg", String())]

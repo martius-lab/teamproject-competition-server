@@ -3,22 +3,22 @@
 from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
 
-from .game_manager import game_manager
+from . import player_manager
 
 
 class COMPPlayer(IPlayer):
     """player of the game"""
 
-    def __init__(self, connection: COMPServerProtocol) -> None:
+    def __init__(self, connection: COMPServerProtocol):
         self.connection: COMPServerProtocol = connection
 
-        def connected():
+        def __auth():
             """Connects player to server"""
             self.authenticate(
-                result_callback=lambda x: game_manager.add_player_to_queue(self.id)
+                result_callback=lambda token: player_manager.authenticate_player(self ,token)
             )
 
-        self.connection.addConnectionMadeCallback(connected)
+        self.connection.addConnectionMadeCallback(__auth)
 
     def authenticate(self, result_callback):
         """authenticates player
@@ -48,7 +48,7 @@ class COMPPlayer(IPlayer):
 
         def callback(ready: bool):
             if ready:
-                game_manager.add_player_to_queue(self.id)
+                pass
 
         return self.connection.notify_end(
             result=result, stats=stats, return_callback=callback

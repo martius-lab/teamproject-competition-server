@@ -4,7 +4,7 @@ from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
-from ..shared.commands import StartGame, EndGame, Step, Auth
+from ..shared.commands import StartGame, EndGame, Step, Auth, Error
 
 
 class COMPClientProtocol(amp.AMP):
@@ -70,6 +70,11 @@ class COMPClientProtocol(amp.AMP):
         return {"token": str.encode(self.token), "version": 1}
 
     Auth.responder(auth)
+    
+    def error(self, msg):
+        pass
+    
+    Error.responder(error)
 
 
 class COMPClientFactory(ClientFactory):

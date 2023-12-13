@@ -1,0 +1,2 @@
+port: 65335 #port the server listens on
+timeout: 5 #time in seconds we wait for a response

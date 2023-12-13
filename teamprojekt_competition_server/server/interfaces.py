@@ -89,6 +89,7 @@ class IGame(abc.ABC):
 
             def __res(v: IAction, index=i):
                 log.debug(f"got action {v} from player {index}")
+                #TODO: add validation here!
                 self.current_actions[index] = v
                 self.result_received += 1
                 if self.result_received == len(self.players):

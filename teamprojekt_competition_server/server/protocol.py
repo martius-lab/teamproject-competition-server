@@ -5,14 +5,15 @@ from typing import Callable
 
 from twisted.protocols import amp
 from twisted.internet.interfaces import IAddress
+from twisted.internet import reactor
 
-
-from ..shared.commands import Auth, StartGame, EndGame, Step
+from . import config
+from ..shared.commands import Auth, StartGame, EndGame, Step, Error
 
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
-
+    
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
         self.connection_made_callbacks: list[Callable[[], None]] = []
@@ -61,7 +62,7 @@ class COMPServerProtocol(amp.AMP):
         """
         self.callRemote(Auth).addCallback(
             callback=lambda res: return_callback(res["token"])
-        )
+        ).addTimeout(config.get_config_value("timeout"), reactor, self.transport.loseConnection)
 
     def notify_start(self) -> None:
         """starts the game
@@ -76,7 +77,7 @@ class COMPServerProtocol(amp.AMP):
 
         return self.callRemote(Step, obv=int(obv)).addCallback(
             callback=lambda res: return_callback(res["action"])
-        )
+        ).addTimeout(config.get_config_value("timeout"), reactor, self.transport.loseConnection)
 
     def notify_end(
         self, result, stats, return_callback: Callable[[bool], None]
@@ -85,4 +86,7 @@ class COMPServerProtocol(amp.AMP):
 
         return self.callRemote(EndGame, result=result, stats=stats).addCallback(
             callback=lambda res: return_callback(res["ready"])
-        )
+        ).addTimeout(config.get_config_value("timeout"), reactor, self.transport.loseConnection)
+        
+    def send_error(self, msg : str):
+        self.callRemote(Error, msg=str.encode(msg))
