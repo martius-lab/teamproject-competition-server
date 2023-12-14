@@ -23,10 +23,10 @@ class COMPPlayer(IPlayer):
     def authenticate(self, result_callback):
         """authenticates player
 
-        Args: resul_callback (callback function)
+        Args: result_callback (callback function)
 
         Returns: token (string)"""
-        return self.connection.get_token(result_callback)
+        self.connection.get_token(result_callback, delete_callback=self.delete)
 
     def notify_start(self):
         """notifies start of game"""
@@ -37,7 +37,7 @@ class COMPPlayer(IPlayer):
 
         Args:
             obv(any): observation"""
-        return self.connection.get_step(obv, result_callback)
+        self.connection.get_step(obv, result_callback)
 
     def notify_end(self, result, stats):
         """called when game ends
@@ -53,3 +53,7 @@ class COMPPlayer(IPlayer):
         return self.connection.notify_end(
             result=result, stats=stats, return_callback=callback
         )
+
+    def delete(self):
+        """delete the player"""
+        game_manager.delete_player(player_id=self.id)

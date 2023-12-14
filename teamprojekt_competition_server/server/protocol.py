@@ -9,6 +9,8 @@ from twisted.internet.interfaces import IAddress
 
 from ..shared.commands import Auth, StartGame, EndGame, Step
 
+VERSION: int = 1
+
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
@@ -38,7 +40,7 @@ class COMPServerProtocol(amp.AMP):
         """called upon connectionMade event"""
         addr: IAddress = self.transport.getPeer()  # type: ignore
         debug_msg = f"connected to client with IP: {addr.host}"
-        debug_msg_rest = f", Port: {addr.port} viae {addr.type}"
+        debug_msg_rest = f", Port: {addr.port} via {addr.type}"
         log.debug(debug_msg + debug_msg_rest)
         # broadcast to callbacks
         for c in self.connection_made_callbacks:
@@ -53,15 +55,26 @@ class COMPServerProtocol(amp.AMP):
 
         return super().connectionLost(reason)
 
-    def get_token(self, return_callback: Callable[[str], None]) -> None:
+    def get_token(
+        self,
+        return_callback: Callable[[str], None],
+        delete_callback: Callable[[], None],
+    ) -> None:
         """get token from client to authenticate
 
         Args:
             game (Game): game that starts
         """
-        self.callRemote(Auth).addCallback(
-            callback=lambda res: return_callback(res["token"])
-        )
+
+        def callback(res):
+            if res["version"] == VERSION:
+                return_callback(res["token"])
+            else:
+                log.error("Client with wrong version tried to authenticate.")
+                delete_callback()
+                self.transport.loseConnection()
+
+        self.callRemote(Auth).addCallback(callback=callback)
 
     def notify_start(self) -> None:
         """starts the game
@@ -72,7 +85,7 @@ class COMPServerProtocol(amp.AMP):
         return self.callRemote(StartGame, game_id=222)
 
     def get_step(self, obv, return_callback: Callable[[list], None]) -> None:
-        """perfroms step requested by player"""
+        """performs step requested by player"""
 
         return self.callRemote(Step, obv=int(obv)).addCallback(
             callback=lambda res: return_callback(res["action"])

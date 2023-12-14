@@ -8,7 +8,7 @@ from .client_protocol import COMPClientProtocol
 
 
 class COMPClient(CommandLocator):
-    """client that manages the connection over the protocoll with the server"""
+    """client that manages the connection over the protocol with the server"""
 
     def __init__(self, agent) -> None:
         self.connected = False

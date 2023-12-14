@@ -25,6 +25,16 @@ class GameManager:
 
         player.id = len(self.players) - 1
 
+    def delete_player(self, player_id: int):
+        """delete a player from the player array
+
+        Args:
+            player_id (int): ID of the player
+        """
+        self.players.pop(player_id)
+        for id in range(player_id, len(self.players)):
+            self.players[id].id = id
+
     def add_player_to_queue(self, player_id: int):
         """adds a player to the queue
 

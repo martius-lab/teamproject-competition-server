@@ -6,6 +6,8 @@ from twisted.internet.protocol import ClientFactory, Protocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth
 
+VERSION = 2
+
 
 class COMPClientProtocol(amp.AMP):
     """protocol for the client"""
@@ -50,7 +52,7 @@ class COMPClientProtocol(amp.AMP):
         """is called when the server wants the client to make a step
 
         Args:
-            env (int): enviroment given by the server
+            env (int): environment given by the server
 
         Returns:
             {"action": int}: action that should be executed
@@ -67,7 +69,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"token": String}: the clients auth token
         """
-        return {"token": str.encode(self.token), "version": 1}
+        return {"token": str.encode(self.token), "version": VERSION}
 
     Auth.responder(auth)
 
