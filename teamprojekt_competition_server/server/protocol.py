@@ -72,8 +72,8 @@ class COMPServerProtocol(amp.AMP):
             else:
                 log.error("Client with wrong version tried to authenticate.")
                 delete_callback()
-                #self.transport.loseConnection()
-                #TODO send error to client
+                # self.transport.loseConnection()
+                # TODO send error to client
 
         self.callRemote(Auth).addCallback(callback=callback)
 
