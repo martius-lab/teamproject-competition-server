@@ -6,7 +6,7 @@ from twisted.internet.protocol import ClientFactory, Protocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth
 
-VERSION = 2
+VERSION = 1
 
 
 class COMPClientProtocol(amp.AMP):
