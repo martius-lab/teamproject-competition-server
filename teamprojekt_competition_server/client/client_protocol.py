@@ -1,4 +1,5 @@
 """class for client protocol"""
+import logging as log
 
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
@@ -18,6 +19,14 @@ class COMPClientProtocol(amp.AMP):
         super().__init__(boxReceiver, locator)
         self.agent = agent
         self.token = token
+
+    def connectionMade(self):
+        """is called when the connection to the server is made"""
+        log.debug("connected to server")
+
+    def connectionLost(self, reason):
+        """is called when the connection to the server is made"""
+        log.debug(f"disconnected from the server. reason: {reason}")
 
     def start_game(self, game_id: int):
         """is called when the server starts the game

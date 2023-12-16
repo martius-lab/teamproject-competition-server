@@ -12,7 +12,6 @@ class COMPClient(CommandLocator):
 
     def __init__(self, agent) -> None:
         self.connected = False
-        self.version = 1
         self.agent = agent
 
     def connect_client(self, token: str):

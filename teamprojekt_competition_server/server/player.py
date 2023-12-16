@@ -18,7 +18,12 @@ class COMPPlayer(IPlayer):
                 result_callback=lambda x: game_manager.add_player_to_queue(self.id)
             )
 
+        def disconnected():
+            """remove the player from the game manager"""
+            game_manager.delete_player(player_id=self.id)
+
         self.connection.addConnectionMadeCallback(connected)
+        self.connection.addConnectionLostCallback(disconnected)
 
     def authenticate(self, result_callback):
         """authenticates player
@@ -26,7 +31,7 @@ class COMPPlayer(IPlayer):
         Args: result_callback (callback function)
 
         Returns: token (string)"""
-        self.connection.get_token(result_callback, delete_callback=self.delete)
+        self.connection.get_token(result_callback)
 
     def notify_start(self):
         """notifies start of game"""
@@ -53,7 +58,3 @@ class COMPPlayer(IPlayer):
         return self.connection.notify_end(
             result=result, stats=stats, return_callback=callback
         )
-
-    def delete(self):
-        """delete the player"""
-        game_manager.delete_player(player_id=self.id)

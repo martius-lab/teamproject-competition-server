@@ -50,16 +50,13 @@ class COMPServerProtocol(amp.AMP):
 
     def connectionLost(self, reason):
         """called upon connectionLost event"""
+        log.debug("connection to client lost")
         for c in self.connection_lost_callbacks:
             c()
 
         return super().connectionLost(reason)
 
-    def get_token(
-        self,
-        return_callback: Callable[[str], None],
-        delete_callback: Callable[[], None],
-    ) -> None:
+    def get_token(self, return_callback: Callable[[str], None]) -> None:
         """get token from client to authenticate
 
         Args:
@@ -71,9 +68,8 @@ class COMPServerProtocol(amp.AMP):
                 return_callback(res["token"])
             else:
                 log.error("Client with wrong version tried to authenticate.")
-                delete_callback()
-                # self.transport.loseConnection()
                 # TODO send error to client
+                self.transport.loseConnection()
 
         self.callRemote(Auth).addCallback(callback=callback)
 
