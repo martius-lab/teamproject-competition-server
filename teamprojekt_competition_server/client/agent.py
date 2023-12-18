@@ -15,7 +15,7 @@ class COMPAgent:
         agent makes and should be overwritten
 
         Args:
-            obv (_type_): current enviroment
+            obv (_type_): current environment
 
         Raises:
             NotImplementedError: this method should be overwritten

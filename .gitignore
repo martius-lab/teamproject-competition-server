@@ -14,6 +14,8 @@ __pycache__
 *.egg-info
 build/
 dist/
+teamprojekt_competition_server/log/client/*
+teamprojekt_competition_server/log/server/*
 
 # local test caches
 .mypy_cache

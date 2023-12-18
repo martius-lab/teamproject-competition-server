@@ -1,5 +1,7 @@
 """class for client protocol"""
 
+import io
+from twisted.logger import Logger, textFileLogObserver
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
@@ -10,12 +12,22 @@ from ..shared.commands import StartGame, EndGame, Step, Auth
 class COMPClientProtocol(amp.AMP):
     """protocol for the client"""
 
+    log = Logger(
+        observer=textFileLogObserver(
+            io.open("./teamprojekt_competition_server/log/client/protocol.log", "a")
+        )
+    )
     token: str = "Unknown"
 
     def __init__(self, agent, token, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
         self.agent = agent
         self.token = token
+        self.log.info(
+            "Initialized protocol: {} with agent: {}, token: {}".format(
+                id(self), id(self.agent), id(self.token)
+            )
+        )
 
     def start_game(self, game_id: int):
         """is called when the server starts the game
@@ -27,6 +39,7 @@ class COMPClientProtocol(amp.AMP):
             {"ready": boolean}: true if the client is ready to start the game
         """
         print(f"------ Started Game  [Game ID: {game_id}] ------")
+        self.log.info("\t\tReceive StartGame command, game_id: {}".format(game_id))
         return {"ready": True}  # dummy ready
 
     StartGame.responder(start_game)
@@ -42,6 +55,9 @@ class COMPClientProtocol(amp.AMP):
             {"ready": boolean}: true if the client is ready to start a new game
         """
         print(f"------ Ended Game [Game ID: {result} | Stats: {stats}] ------")
+        self.log.info(
+            "\t\tReceived EndGame, result: {}, stats: {}".format(result, stats)
+        )
         return {"ready": True}  # dummy ready
 
     EndGame.responder(end_game)
@@ -57,6 +73,7 @@ class COMPClientProtocol(amp.AMP):
         """
         action = self.agent.step(obv=int(obv))  # dummy action
         print(f"Send action: {action}")
+        self.log.info("\t\tReceived step command, obv: {}".format(obv))
         return {"action": action}
 
     Step.responder(step)

@@ -1,13 +1,8 @@
 """run the server"""
-
+import os
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
-
 from .game_manager import game_manager
-
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
 
 # run with "python -m teamprojekt_competition_server.server.main"
 

@@ -1,17 +1,22 @@
 """class for server protocol"""
 
-import logging as log
 from typing import Callable
-
+import io
 from twisted.protocols import amp
 from twisted.internet.interfaces import IAddress
-
+from twisted.logger import Logger, textFileLogObserver
 
 from ..shared.commands import Auth, StartGame, EndGame, Step
 
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
+
+    log = Logger(
+        observer=textFileLogObserver(
+            io.open("./teamprojekt_competition_server/log/server/protocol.log", "a")
+        )
+    )
 
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
