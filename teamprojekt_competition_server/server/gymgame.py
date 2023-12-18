@@ -11,13 +11,18 @@ class GymGame(IGame):
         """create a game
 
         Args:
-            players (list[IPlayer]): list of players participating in this game. Handeld by the abstarct class
-            env_name (str, optional): Name of the used gym env. Defaults to "Pendulum-v1" for testing purposes. The default changes later.
+            players (list[IPlayer]): list of players participating in this game.
+                                      Handeld by the abstarct class
+            env_name (str, optional): Name of the used gym env. Defaults to 
+                                      "Pendulum-v1" for testing purposes. 
+                                      The default might change later.
         """
         self.env = gym.make(
             env_name, render_mode="human"
         )  # add ', render_mode="human" ' to render the env.
-        self.terminated = False  # initialize terminated and truncated, so the game hasn't endet by default.
+        
+        # initialize terminated and truncated, so the game hasn't endet by default.
+        self.terminated = False  
         self.truncated = False
         self.cycle_count = 0
         self.MAX_CYCLE_COUNT = 1000
@@ -29,9 +34,19 @@ class GymGame(IGame):
         super().__init__(players)
 
     def start(self):
+        """
+        notifies all players that the game has started
+        and starts the game cycle
+        """
         return super().start()
 
     def end(self, reason="unknown"):
+        """notifies all players that the game has ended
+
+        Args:
+            reason (str, optional): reason why the game has ended. 
+                                    Defaults to "unknown"
+        """
         self.env.close()
         return super().end(reason)
 
@@ -48,7 +63,7 @@ class GymGame(IGame):
         )  # TODO remove [sum()]. This is only for testing purposes
         self.cycle_count += 1
         if self.cycle_count > self.MAX_CYCLE_COUNT:
-            self.terminated = true
+            self.terminated = True
 
     def _game_cycle(self):
         return super()._game_cycle()
@@ -63,7 +78,7 @@ class GymGame(IGame):
 
     def _observation(self):
         # return self.observation
-        return self.cycle_count  # TODO change this. But currently obs has to be a int
+        return self.cycle_count  #TODO change this. But currently obs has to be an int
 
     def _player_won(self, index) -> bool:
         return False  # TODO find the winner
