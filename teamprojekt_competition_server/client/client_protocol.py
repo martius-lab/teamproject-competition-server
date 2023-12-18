@@ -1,10 +1,13 @@
 """class for client protocol"""
+import logging as log
 
 from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth
+
+VERSION = 1
 
 
 class COMPClientProtocol(amp.AMP):
@@ -16,6 +19,16 @@ class COMPClientProtocol(amp.AMP):
         super().__init__(boxReceiver, locator)
         self.agent = agent
         self.token = token
+
+    def connectionMade(self):
+        """is called when the connection to the server is made"""
+        log.debug("connected to server")
+        return super().connectionMade()
+
+    def connectionLost(self, reason):
+        """is called when the connection to the server is made"""
+        log.debug(f"disconnected from the server. reason: {reason}")
+        return super().connectionLost(reason)
 
     def start_game(self, game_id: int):
         """is called when the server starts the game
@@ -50,12 +63,12 @@ class COMPClientProtocol(amp.AMP):
         """is called when the server wants the client to make a step
 
         Args:
-            env (int): enviroment given by the server
+            env (int): environment given by the server
 
         Returns:
             {"action": int}: action that should be executed
         """
-        action = self.agent.step(obv=int(obv))  # dummy action
+        action = self.agent.step(obv=obv)
         print(f"Send action: {action}")
         return {"action": action}
 
@@ -67,7 +80,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"token": String}: the clients auth token
         """
-        return {"token": str.encode(self.token), "version": 1}
+        return {"token": str.encode(self.token), "version": VERSION}
 
     Auth.responder(auth)
 

@@ -5,6 +5,8 @@ from .interfaces import IGame, IPlayer
 
 from .game_manager import game_manager
 
+from .gymgame import GymGame
+
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -19,7 +21,7 @@ class ExampleGame(IGame):
         super().__init__(players=players)
         self.env = 0
 
-    def _update_enviroment(self):
+    def _update_environment(self):
         self.env += sum(self.current_actions)
 
     def _validate_action(self, action):
@@ -42,7 +44,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = ExampleGame
+    game_manager.GameClass = GymGame
     server = COMPServer()
     server.start()
 

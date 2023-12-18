@@ -10,10 +10,10 @@ class GameManager:
     """manager for the games"""
 
     def __init__(self) -> None:
-        self.players: list[IPlayer] = []
-        self.queue: list[int] = []
-        self.games: list[IGame] = []
-        self.GameClass: Type[IGame]
+        self.players: list[IPlayer] = []  # active players
+        self.queue: list[int] = []  # queue of players waiting for a game
+        self.games: list[IGame] = []  # active games
+        self.GameClass: Type[IGame]  # game class to use
 
     def add_player(self, player: IPlayer) -> None:
         """adds a player to the player list and gives it its index as id
@@ -24,6 +24,16 @@ class GameManager:
         self.players.append(player)
 
         player.id = len(self.players) - 1
+
+    def delete_player(self, player_id: int):
+        """delete a player from the player array
+
+        Args:
+            player_id (int): ID of the player
+        """
+        self.players.pop(player_id)
+        for id in range(player_id, len(self.players)):
+            self.players[id].id = id
 
     def add_player_to_queue(self, player_id: int):
         """adds a player to the queue

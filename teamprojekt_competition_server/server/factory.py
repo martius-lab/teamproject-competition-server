@@ -12,7 +12,7 @@ class COMPServerFactory(ServerFactory):
     """factory for COMP servers"""
 
     def buildProtocol(self, addr: IAddress) -> Protocol | None:
-        """builds the protocoll"""
+        """builds the protocol"""
         protocol: COMPServerProtocol = COMPServerProtocol()
 
         new_player = COMPPlayer(protocol)
