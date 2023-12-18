@@ -10,10 +10,10 @@ class GameManager:
     """manager for the games"""
 
     def __init__(self) -> None:
-        self.players: list[IPlayer] = []
-        self.queue: list[int] = []
-        self.games: list[IGame] = []
-        self.GameClass: Type[IGame]
+        self.players: list[IPlayer] = []  # active players
+        self.queue: list[int] = []  # queue of players waiting for a game
+        self.games: list[IGame] = []  # active games
+        self.GameClass: Type[IGame]  # game class to use
 
     def add_player(self, player: IPlayer) -> None:
         """adds a player to the player list and gives it its index as id
