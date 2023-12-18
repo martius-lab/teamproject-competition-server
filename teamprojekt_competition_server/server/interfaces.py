@@ -77,7 +77,7 @@ class IGame(abc.ABC):
             p.notify_end(result=self._player_won(i), stats=self._player_stats(i))
 
     @abc.abstractmethod
-    def _update_enviroment(self):
+    def _update_environment(self):
         """works with the current_actions list to change the enviroment accordingly."""
         ...
 
@@ -92,7 +92,7 @@ class IGame(abc.ABC):
                 self.current_actions[index] = v
                 self.result_received += 1
                 if self.result_received == len(self.players):
-                    self._update_enviroment()
+                    self._update_environment()
 
                     if self._is_finished():
                         self.end()
