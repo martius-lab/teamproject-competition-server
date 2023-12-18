@@ -8,7 +8,7 @@ from .game_manager import game_manager
 # from .gymgame import GymGame
 from .rock_paper_scissors import rock_paper_scissors
 
-import loggingF
+import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -45,7 +45,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = rock_paper_scissors
+    game_manager.GameClass = rock_paper_scissors  # GymGame
     server = COMPServer()
     server.start()
 
