@@ -7,7 +7,7 @@ from twisted.internet.protocol import ClientFactory, Protocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth
 
-VERSION = 2
+VERSION = 1
 
 
 class COMPClientProtocol(amp.AMP):
@@ -68,7 +68,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"action": int}: action that should be executed
         """
-        action = self.agent.step(obv=int(obv))  # dummy action
+        action = self.agent.step(obv=obv)
         print(f"Send action: {action}")
         return {"action": action}
 
