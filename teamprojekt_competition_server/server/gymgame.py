@@ -3,8 +3,6 @@
 import gymnasium as gym
 import logging as log
 
-import numpy as np
-
 import random
 
 
