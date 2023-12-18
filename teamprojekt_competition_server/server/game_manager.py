@@ -7,7 +7,12 @@ from .interfaces import IPlayer, IGame
 
 
 class GameManager:
-    
+    log = Logger(
+        observer=textFileLogObserver(
+            io.open("./teamprojekt_competition_server/log/server/game_manager.log", "a")
+        )
+    )
+
     def __init__(self) -> None:
         self.players: list[IPlayer] = []
         self.queue: list[int] = []
@@ -34,7 +39,7 @@ class GameManager:
         if len(self.queue) > 0:
             player1 = self.players[self.queue.pop(0)]
             player2 = self.players[player_id]
-            log.debug(f"matched two players: player1 {player1.id}, player2 {player2.id}")
+            self.log.debug(f"matched two players: player1 {player1.id}, player2 {player2.id}")
             new_game = self.GameClass(players=[player1, player2])
             self.games.append(new_game)
             new_game.start()

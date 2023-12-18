@@ -44,7 +44,7 @@ class COMPServerProtocol(amp.AMP):
         addr: IAddress = self.transport.getPeer()  # type: ignore
         debug_msg = f"connected to client with IP: {addr.host}"
         debug_msg_rest = f", Port: {addr.port} viae {addr.type}"
-        log.debug(debug_msg + debug_msg_rest)
+        self.log.debug(debug_msg + debug_msg_rest)
         # broadcast to callbacks
         for c in self.connection_made_callbacks:
             c()

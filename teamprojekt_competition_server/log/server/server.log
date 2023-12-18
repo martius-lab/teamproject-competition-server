@@ -1,6 +1,0 @@
-2023-12-11T20:25:19+0100 [teamprojekt_competition_server.server.server.COMPServer#info] COMPServer 140477692281472 initialized with factory: 140477692281520
-2023-12-11T20:25:19+0100 [teamprojekt_competition_server.server.server.COMPServer#info] 		Server: 140477692281472 now listening to localhost:1234
-2023-12-11T20:25:27+0100 [teamprojekt_competition_server.server.server.COMPServer#info] 		Reactor running
-2023-12-11T20:33:24+0100 [teamprojekt_competition_server.server.server.COMPServer#info] COMPServer 140512046928736 initialized with factory: 140512046928496
-2023-12-11T20:33:24+0100 [teamprojekt_competition_server.server.server.COMPServer#info] 		Server: 140512046928736 now listening to localhost:1234
-2023-12-11T20:33:51+0100 [teamprojekt_competition_server.server.server.COMPServer#info] 		Reactor running
