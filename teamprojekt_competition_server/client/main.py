@@ -40,8 +40,8 @@ if __name__ == "__main__":
             """
             # return float(input(f"Observation: {obv} | Enter a move: "))
             print(random.choice([0.0, 1.0, 2.0]))
-            return [random.choice([0.0, 1.0, 2.0])]  # Action Space Box(-2.0, 2.0, (1,), float32)
-
+            return [random.choice([0.0, 1.0, 2.0])]
+            # Action Space Box(-2.0, 2.0, (1,), float32)
 
     agent = Rock_Paper_Scissors_Agent()
     agent.run("HelloWorldToken")
