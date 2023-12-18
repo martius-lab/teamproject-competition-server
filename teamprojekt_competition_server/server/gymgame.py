@@ -3,6 +3,11 @@
 import gymnasium as gym
 import logging as log
 
+import numpy as np
+
+import random
+
+
 from .interfaces import IGame, IPlayer
 
 
@@ -61,8 +66,8 @@ class GymGame(IGame):
             self.truncated,
             self.info,
         ) = self.env.step(
-            [sum(self.current_actions)]
-        )  # TODO remove [sum()]. This is only for testing purposes
+            self.current_actions[random.randint(0, 1)]
+        )  # TODO remove random. This is only for testing purposes
         self.cycle_count += 1
         if self.cycle_count > self.MAX_CYCLE_COUNT:
             self.terminated = True
@@ -79,11 +84,10 @@ class GymGame(IGame):
         return self.terminated or self.truncated
 
     def _observation(self):
-        # return self.observation
-        return self.cycle_count  # TODO change this. But currently obs has to be an int
+        return self.observation.tolist()  # obs is an np array, we need list
 
     def _player_won(self, index) -> bool:
         return False  # TODO find the winner
 
-    # def _player_stats(self, index) -> int:
-    #    return super()._player_stats(index) # TODO
+    def _player_stats(self, index) -> int:
+        return 0  # TODO

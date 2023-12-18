@@ -2,7 +2,7 @@
 Defines the commands used for the server client communication.
 """
 
-from twisted.protocols.amp import Integer, String, Boolean, Command
+from twisted.protocols.amp import Integer, String, Boolean, Command, Float, ListOf
 
 
 class Auth(Command):
@@ -40,8 +40,8 @@ class Step(Command):
     """Command for requesting the next step from the agent"""
 
     arguments = [
-        (b"obv", Integer())
+        (b"obv", ListOf(Float()))
     ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
     response = [
-        (b"action", Integer())
+        (b"action", ListOf(Float()))
     ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
