@@ -2,13 +2,13 @@
 
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
-
 from .game_manager import game_manager
 
-#from .gymgame import GymGame
+
+# from .gymgame import GymGame
 from .rock_paper_scissors import rock_paper_scissors
 
-import logging
+import loggingF
 
 logging.basicConfig(level=logging.DEBUG)
 
