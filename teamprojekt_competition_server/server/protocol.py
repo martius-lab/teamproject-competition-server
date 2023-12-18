@@ -74,6 +74,7 @@ class COMPServerProtocol(amp.AMP):
     def get_step(self, obv, return_callback: Callable[[list], None]) -> None:
         """perfroms step requested by player"""
 
+        # TODO the obv is currently cast to int, als only ints are allowed. This has to be changed
         return self.callRemote(Step, obv=int(obv)).addCallback(
             callback=lambda res: return_callback(res["action"])
         )

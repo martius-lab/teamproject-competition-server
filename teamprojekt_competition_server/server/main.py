@@ -5,6 +5,8 @@ from .interfaces import IGame, IPlayer
 
 from .game_manager import game_manager
 
+from .gymgame import GymGame
+
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -42,7 +44,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = ExampleGame
+    game_manager.GameClass = GymGame
     server = COMPServer()
     server.start()
 

@@ -55,7 +55,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"action": int}: action that should be executed
         """
-        action = self.agent.step(obv=int(obv))  # dummy action
+        action = self.agent.step(obv=int(obv))  # dummy action TODO remove int()
         print(f"Send action: {action}")
         return {"action": action}
 

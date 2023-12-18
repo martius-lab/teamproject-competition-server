@@ -1,6 +1,8 @@
 """main class with dummy agend for testing"""
 from .agent import COMPAgent
 
+import random
+
 # run with "python -m teamprojekt_competition_server.client.main"
 
 if __name__ == "__main__":
@@ -15,9 +17,10 @@ if __name__ == "__main__":
                 obv (int): enviroment
 
             Returns:
-                int: action
+                float: action
             """
-            return int(input(f"Observation: {obv} | Enter a move: "))
+            # return float(input(f"Observation: {obv} | Enter a move: "))
+            return random.uniform(-1, 1)
 
     agent = MyAgent()
     agent.run("HelloWorldToken")
