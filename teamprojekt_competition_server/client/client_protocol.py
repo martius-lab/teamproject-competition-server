@@ -7,7 +7,7 @@ from twisted.internet.protocol import ClientFactory, Protocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth
 
-VERSION = 1
+VERSION = 2
 
 
 class COMPClientProtocol(amp.AMP):
@@ -23,10 +23,12 @@ class COMPClientProtocol(amp.AMP):
     def connectionMade(self):
         """is called when the connection to the server is made"""
         log.debug("connected to server")
+        return super().connectionMade()
 
     def connectionLost(self, reason):
         """is called when the connection to the server is made"""
         log.debug(f"disconnected from the server. reason: {reason}")
+        return super().connectionLost(reason)
 
     def start_game(self, game_id: int):
         """is called when the server starts the game
