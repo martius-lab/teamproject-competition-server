@@ -36,7 +36,7 @@ class IPlayer(abc.ABC):
         """gets an action from the player
 
         Args:
-            obv (Any): obserervation
+            obv (Any): observation
             result_callback (Callable): callback
 
         Returns:
