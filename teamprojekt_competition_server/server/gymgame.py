@@ -1,3 +1,5 @@
+"""Game using gym"""
+
 import gymnasium as gym
 import logging as log
 
@@ -13,16 +15,16 @@ class GymGame(IGame):
         Args:
             players (list[IPlayer]): list of players participating in this game.
                                       Handeld by the abstarct class
-            env_name (str, optional): Name of the used gym env. Defaults to 
-                                      "Pendulum-v1" for testing purposes. 
+            env_name (str, optional): Name of the used gym env. Defaults to
+                                      "Pendulum-v1" for testing purposes.
                                       The default might change later.
         """
         self.env = gym.make(
             env_name, render_mode="human"
         )  # add ', render_mode="human" ' to render the env.
-        
+
         # initialize terminated and truncated, so the game hasn't endet by default.
-        self.terminated = False  
+        self.terminated = False
         self.truncated = False
         self.cycle_count = 0
         self.MAX_CYCLE_COUNT = 1000
@@ -44,7 +46,7 @@ class GymGame(IGame):
         """notifies all players that the game has ended
 
         Args:
-            reason (str, optional): reason why the game has ended. 
+            reason (str, optional): reason why the game has ended.
                                     Defaults to "unknown"
         """
         self.env.close()
@@ -78,7 +80,7 @@ class GymGame(IGame):
 
     def _observation(self):
         # return self.observation
-        return self.cycle_count  #TODO change this. But currently obs has to be an int
+        return self.cycle_count  # TODO change this. But currently obs has to be an int
 
     def _player_won(self, index) -> bool:
         return False  # TODO find the winner
