@@ -17,7 +17,7 @@ class GymGame(IGame):
 
         Args:
             players (list[IPlayer]): list of players participating in this game.
-                                      Handeld by the abstarct class
+                                      Handled by the abstract class
             env_name (str, optional): Name of the used gym env. Defaults to
                                       "Pendulum-v1" for testing purposes.
                                       The default might change later.
@@ -26,7 +26,7 @@ class GymGame(IGame):
             env_name, render_mode="human"
         )  # add ', render_mode="human" ' to render the env.
 
-        # initialize terminated and truncated, so the game hasn't endet by default.
+        # initialize terminated and truncated, so the game hasn't ended by default.
         self.terminated = False
         self.truncated = False
         self.cycle_count = 0
@@ -55,7 +55,7 @@ class GymGame(IGame):
         self.env.close()
         return super().end(reason)
 
-    def _update_enviroment(self):
+    def _update_environment(self):
         """perform one gym step, using the actions collected by _game_cycle"""
         (
             self.observation,

@@ -21,7 +21,7 @@ class ExampleGame(IGame):
         super().__init__(players=players)
         self.env = 0
 
-    def _update_enviroment(self):
+    def _update_environment(self):
         self.env += sum(self.current_actions)
 
     def _validate_action(self, action):
