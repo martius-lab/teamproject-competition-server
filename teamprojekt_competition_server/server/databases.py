@@ -20,7 +20,7 @@ class GameDatabase:
         if self.cursor.fetchone() is None:
             self.cursor.execute(f"CREATE TABLE {GAME_DB_NAME}(winnerID, loserID)")
 
-    def insert_game(self, winnerID: int, loserID: int) -> int:
+    def insert_game(self, winnerID: int, loserID: int) -> int | None:
         """insert a new game into the database
 
         Args:
