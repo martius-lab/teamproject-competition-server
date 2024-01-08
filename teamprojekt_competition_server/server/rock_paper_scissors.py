@@ -7,7 +7,8 @@ This is the game logic of a dummy game (rock-paper-scissors).
 from enum import Enum
 from .interfaces import IGame, IPlayer
 
-Sign = Enum('Sign',['ROCK','PAPER','SCISSORS']) 
+Sign = Enum("Sign", ["ROCK", "PAPER", "SCISSORS"])
+
 
 class rock_paper_scissors(IGame):
     """
@@ -20,20 +21,20 @@ class rock_paper_scissors(IGame):
 
     def _update_environment(self):
         match self.current_actions[0]:
-            case Sign.ROCK.value:  
-                if self.current_actions[1] == Sign.SCISSORS.value:  
+            case Sign.ROCK.value:
+                if self.current_actions[1] == Sign.SCISSORS.value:
                     self.env[0] = self.env[0] + 1
-                elif self.current_actions[1] == Sign.PAPER.value:  
+                elif self.current_actions[1] == Sign.PAPER.value:
                     self.env[1] = self.env[1] + 1
-            case Sign.PAPER.value:  
-                if self.current_actions[1] == Sign.ROCK.value:  
+            case Sign.PAPER.value:
+                if self.current_actions[1] == Sign.ROCK.value:
                     self.env[0] = self.env[0] + 1
-                elif self.current_actions[1] == Sign.SCISSORS.value: 
+                elif self.current_actions[1] == Sign.SCISSORS.value:
                     self.env[1] = self.env[1] + 1
-            case Sign.SCISSORS.value: 
-                if self.current_actions[1] == Sign.PAPER.value: 
+            case Sign.SCISSORS.value:
+                if self.current_actions[1] == Sign.PAPER.value:
                     self.env[0] = self.env[0] + 1
-                elif self.current_actions[1] == Sign.ROCK.value: 
+                elif self.current_actions[1] == Sign.ROCK.value:
                     self.env[1] = self.env[1] + 1
 
     def _player_won(self, index) -> bool:
