@@ -78,7 +78,7 @@ class IGame(abc.ABC):
 
     @abc.abstractmethod
     def _update_environment(self):
-        """works with the current_actions list to change the enviroment accordingly."""
+        """works with the current_actions list to change the environment accordingly."""
         ...
 
     def _game_cycle(self):
