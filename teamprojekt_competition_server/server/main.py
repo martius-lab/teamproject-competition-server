@@ -2,11 +2,12 @@
 
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
-
 from .game_manager import game_manager
 from .databases import GameDatabase
 
-from .gymgame import GymGame
+
+# from .gymgame import GymGame
+from .rock_paper_scissors import rock_paper_scissors
 
 import logging
 
@@ -45,7 +46,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = GymGame
+    game_manager.GameClass = rock_paper_scissors  # GymGame
     server = COMPServer()
     server.start()
 
