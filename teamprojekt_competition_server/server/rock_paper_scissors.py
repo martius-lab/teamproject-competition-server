@@ -20,22 +20,24 @@ class rock_paper_scissors(IGame):
         self.env = list([0.0, 0.0])
 
     def _update_environment(self):
-        match self.current_actions[0][0]:
+        player_one_action = self.current_actions[0][0]
+        player_two_action = self.current_actions[1][0]
+        match player_one_action:
             case Sign.ROCK.value:
-                if self.current_actions[1][0] == Sign.SCISSORS.value:
-                    self.env[0] = self.env[0] + 1
-                elif self.current_actions[1][0] == Sign.PAPER.value:
-                    self.env[1] = self.env[1] + 1
+                if player_two_action == Sign.SCISSORS.value:
+                    self.env[0] += 1
+                elif player_two_action == Sign.PAPER.value:
+                    self.env[1] += 1
             case Sign.PAPER.value:
-                if self.current_actions[1][0] == Sign.ROCK.value:
-                    self.env[0] = self.env[0] + 1
-                elif self.current_actions[1][0] == Sign.SCISSORS.value:
-                    self.env[1] = self.env[1] + 1
+                if player_two_action == Sign.ROCK.value:
+                    self.env[0] += 1
+                elif player_two_action == Sign.SCISSORS.value:
+                    self.env[1] += 1
             case Sign.SCISSORS.value:
-                if self.current_actions[1][0] == Sign.PAPER.value:
-                    self.env[0] = self.env[0] + 1
-                elif self.current_actions[1][0] == Sign.ROCK.value:
-                    self.env[1] = self.env[1] + 1
+                if player_two_action == Sign.PAPER.value:
+                    self.env[0] += 1
+                elif player_two_action == Sign.ROCK.value:
+                    self.env[1] += 1
 
     def _player_won(self, index) -> bool:
         return self.env[index] >= 3
