@@ -4,8 +4,10 @@ This is the game logic of a dummy game (rock-paper-scissors).
     1: paper
     2: scissors
 """
+from enum import Enum
 from .interfaces import IGame, IPlayer
 
+Sign = Enum('Sign',['ROCK','PAPER','SCISSORS']) 
 
 class rock_paper_scissors(IGame):
     """
@@ -18,20 +20,20 @@ class rock_paper_scissors(IGame):
 
     def _update_environment(self):
         match self.current_actions[0]:
-            case 0:  # rock vs.
-                if self.current_actions[1] == 2:  # scissors
+            case Sign.ROCK.value:  
+                if self.current_actions[1] == Sign.SCISSORS.value:  
                     self.env[0] = self.env[0] + 1
-                elif self.current_actions[1] == 1:  # paper
+                elif self.current_actions[1] == Sign.PAPER.value:  
                     self.env[1] = self.env[1] + 1
-            case 1:  # paper vs.
-                if self.current_actions[1] == 0:  # rock
+            case Sign.PAPER.value:  
+                if self.current_actions[1] == Sign.ROCK.value:  
                     self.env[0] = self.env[0] + 1
-                elif self.current_actions[1] == 2:  # scissors
+                elif self.current_actions[1] == Sign.SCISSORS.value: 
                     self.env[1] = self.env[1] + 1
-            case 2:  # scissors vs.
-                if self.current_actions[1] == 1:  # paper
+            case Sign.SCISSORS.value: 
+                if self.current_actions[1] == Sign.PAPER.value: 
                     self.env[0] = self.env[0] + 1
-                elif self.current_actions[1] == 0:  # rock
+                elif self.current_actions[1] == Sign.ROCK.value: 
                     self.env[1] = self.env[1] + 1
 
     def _player_won(self, index) -> bool:
