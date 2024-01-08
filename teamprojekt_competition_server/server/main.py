@@ -3,6 +3,7 @@
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
 from .game_manager import game_manager
+from .databases import GameDatabase
 
 
 # from .gymgame import GymGame
@@ -50,5 +51,17 @@ def main():
     server.start()
 
 
+def test_database():
+    """function to test database"""
+    game_db = GameDatabase()
+    gameID = game_db.insert_game(12, 23)
+    gameID = game_db.insert_game(52, 12)
+    print(gameID)
+    print(game_db.get_playerIDs(gameID=gameID))
+    print(game_db.get_gameIDs(playerID=12))
+    print(game_db.get_won_gameIDs(playerID=12))
+
+
 if __name__ == "__main__":
     main()
+    # test_database()
