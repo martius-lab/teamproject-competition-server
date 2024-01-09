@@ -7,14 +7,15 @@ import gymnasium as gym
 from importlib import reload
 
 
-
 from .interfaces import IGame, IPlayer
 
 
 class LaserHockeyGame(IGame):
     """game class with the game logic being the laser-hockey env"""
 
-    def __init__(self, players: list[IPlayer], env_name: str = "laser_hockey_env") -> None:
+    def __init__(
+        self, players: list[IPlayer], env_name: str = "laser_hockey_env"
+    ) -> None:
         """create a game
 
         Args:
@@ -24,7 +25,9 @@ class LaserHockeyGame(IGame):
                                       "Pendulum-v1" for testing purposes.
                                       The default might change later.
         """
-        if(env_name == "laser_hockey_env"): # not pretty, but I don't want to register it at the moment
+        if (
+            env_name == "laser_hockey_env"
+        ):  # not pretty, but I don't want to register the env at the moment
             reload(lh)
             self.env = lh.LaserHockeyEnv()
         else:
@@ -34,9 +37,7 @@ class LaserHockeyGame(IGame):
 
         # initialize terminated and truncated, so the game hasn't ended by default.
         self.terminated = False
-        self.truncated = False
-        self.cycle_count = 0
-        self.MAX_CYCLE_COUNT = 1000 # TODO use the build in function from twisted for this
+        self.truncated = False  # TODO use the build in function from gym to limit the amount of steps
 
         self.observation, self.info = self.env.reset()
 
@@ -63,19 +64,14 @@ class LaserHockeyGame(IGame):
 
     def _update_environment(self):
         """perform one gym step, using the actions collected by _game_cycle"""
-        self.env.render() # (un)comment to render or not
+        self.env.render()  # (un)comment to render or not
         (
             self.observation,
             self.reward,
             self.terminated,
             self.truncated,
             self.info,
-        ) = self.env.step(
-            np.hstack(self.current_actions)
-        ) 
-        self.cycle_count += 1
-        if self.cycle_count > self.MAX_CYCLE_COUNT:
-            self.terminated = True
+        ) = self.env.step(np.hstack(self.current_actions))
 
     def _game_cycle(self):
         return super()._game_cycle()

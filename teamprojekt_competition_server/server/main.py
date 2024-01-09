@@ -47,7 +47,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = LaserHockeyGame # GymGame, rock_paper_scissors  
+    game_manager.GameClass = LaserHockeyGame  # GymGame, rock_paper_scissors
     server = COMPServer()
     server.start()
 

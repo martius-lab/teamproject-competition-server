@@ -24,8 +24,9 @@ if __name__ == "__main__":
             Returns:
                 list(float): action
             """
-            
-            return np.random.uniform(-1,1,3)  # Action Space Box(-1.0, 1.0, (3,), float32)
+
+            return np.random.uniform(-1, 1, 3)
+            # Action Space Box(-1.0, 1.0, (3,), float32)
 
     class Rock_Paper_Scissors_Agent(COMPAgent):
         """Dummy Agent for testing"""
@@ -44,5 +45,5 @@ if __name__ == "__main__":
             return [random.choice([0.0, 1.0, 2.0])]
             # Action Space Box(-2.0, 2.0, (1,), float32)
 
-    agent = MyAgent() #Rock_Paper_Scissors_Agent()
+    agent = MyAgent()  # Rock_Paper_Scissors_Agent()
     agent.run("HelloWorldToken")
