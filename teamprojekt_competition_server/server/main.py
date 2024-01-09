@@ -7,7 +7,8 @@ from .databases import GameDatabase
 
 
 # from .gymgame import GymGame
-from .rock_paper_scissors import rock_paper_scissors
+# from .rock_paper_scissors import rock_paper_scissors
+from .laserhockeygame import LaserHockeyGame
 
 import logging
 
@@ -46,7 +47,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = rock_paper_scissors  # GymGame
+    game_manager.GameClass = LaserHockeyGame # GymGame, rock_paper_scissors  
     server = COMPServer()
     server.start()
 

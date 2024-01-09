@@ -1,0 +1,2 @@
+[console_scripts]
+swig = swig:swig
