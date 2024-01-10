@@ -37,7 +37,8 @@ class LaserHockeyGame(IGame):
 
         # initialize terminated and truncated, so the game hasn't ended by default.
         self.terminated = False
-        self.truncated = False  # TODO use the build in function from gym to limit the amount of steps
+        self.truncated = False
+        # TODO use the build in function from gym to limit the amount of steps
 
         self.observation, self.info = self.env.reset()
 

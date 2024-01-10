@@ -25,7 +25,7 @@ if __name__ == "__main__":
                 list(float): action
             """
 
-            return np.random.uniform(-1, 1, 3)
+            return np.random.uniform(-1, 1, 3).tolist()
             # Action Space Box(-1.0, 1.0, (3,), float32)
 
     class Rock_Paper_Scissors_Agent(COMPAgent):
