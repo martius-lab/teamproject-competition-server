@@ -13,27 +13,16 @@ from .interfaces import IGame, IPlayer
 class LaserHockeyGame(IGame):
     """game class with the game logic being the laser-hockey env"""
 
-    def __init__(
-        self, players: list[IPlayer], env_name: str = "laser_hockey_env"
-    ) -> None:
+    def __init__(self, players: list[IPlayer]) -> None:
         """create a game
 
         Args:
             players (list[IPlayer]): list of players participating in this game.
                                       Handled by the abstract class
-            env_name (str, optional): Name of the used gym env. Defaults to
-                                      "Pendulum-v1" for testing purposes.
-                                      The default might change later.
         """
-        if (
-            env_name == "laser_hockey_env"
-        ):  # not pretty, but I don't want to register the env at the moment
-            reload(lh)
-            self.env = lh.LaserHockeyEnv()
-        else:
-            self.env = gym.make(
-                env_name, render_mode="human"
-            )  # add ', render_mode="human" ' to render the env.
+
+        reload(lh)
+        self.env = lh.LaserHockeyEnv()
 
         # initialize terminated and truncated, so the game hasn't ended by default.
         self.terminated = False
