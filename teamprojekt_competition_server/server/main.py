@@ -1,5 +1,4 @@
 """run the server"""
-
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
 from .game_manager import game_manager
@@ -54,14 +53,29 @@ def main():
 def test_database():
     """function to test database"""
     game_db = GameDatabase()
-    gameID = game_db.insert_game(12, 23)
-    gameID = game_db.insert_game(52, 12)
-    print(gameID)
-    print(game_db.get_playerIDs(gameID=gameID))
-    print(game_db.get_gameIDs(playerID=12))
-    print(game_db.get_won_gameIDs(playerID=12))
+    gameID1 = game_db.insert_game(
+        player1_ID=23, player2_ID=4, score_player_1=3, score_player_2=6
+    )
+    gameID2 = game_db.insert_game(
+        player1_ID=43,
+        player2_ID=23,
+        score_player_1=6,
+        score_player_2=7,
+        is_player1_winner=False,
+    )
+    gameID3 = game_db.insert_game(
+        player1_ID=23,
+        player2_ID=26,
+        score_player_1=6,
+        score_player_2=7,
+        game_end_state=3,
+    )
+    print(gameID1, gameID2, gameID3)
+    print(game_db.get_playerIDs(game_ID=gameID2))
+    print(game_db.get_gameIDs(player_ID=23))
+    print(game_db.get_won_gameIDs(player_ID=23))
 
 
 if __name__ == "__main__":
-    main()
-    # test_database()
+    # main()
+    test_database()
