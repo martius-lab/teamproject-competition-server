@@ -12,7 +12,9 @@ from .interfaces import IGame, IPlayer
 class GymGame(IGame):
     """game class with the game logic being a gym env"""
 
-    def __init__(self, players: list[IPlayer], env_name: str = "Pendulum-v1") -> None:
+    def __init__(
+        self, players: list[IPlayer], game_id: int, env_name: str = "Pendulum-v1"
+    ) -> None:
         """create a game
 
         Args:
@@ -36,7 +38,7 @@ class GymGame(IGame):
 
         log.debug("created a new gym env")
 
-        super().__init__(players)
+        super().__init__(players, game_id)
 
     def start(self):
         """

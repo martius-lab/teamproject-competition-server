@@ -3,7 +3,8 @@
 import logging as log
 import numpy as np
 import laserhockey.laser_hockey_env as lh
-import gymnasium as gym
+
+# import gymnasium as gym
 from importlib import reload
 
 
@@ -13,7 +14,7 @@ from .interfaces import IGame, IPlayer
 class LaserHockeyGame(IGame):
     """game class with the game logic being the laser-hockey env"""
 
-    def __init__(self, players: list[IPlayer]) -> None:
+    def __init__(self, players: list[IPlayer], game_id: int) -> None:
         """create a game
 
         Args:
@@ -29,17 +30,17 @@ class LaserHockeyGame(IGame):
         self.truncated = False
         # TODO use the build in function from gym to limit the amount of steps
 
-        self.observation, self.info = self.env.reset()
-
         log.debug("created a new gym env")
 
-        super().__init__(players)
+        super().__init__(players, game_id)
 
     def start(self):
         """
         notifies all players that the game has started
         and starts the game cycle
         """
+
+        self.observation, self.info = self.env.reset()
         return super().start()
 
     def end(self, reason="unknown"):
@@ -63,9 +64,6 @@ class LaserHockeyGame(IGame):
             self.info,
         ) = self.env.step(np.hstack(self.current_actions))
 
-    def _game_cycle(self):
-        return super()._game_cycle()
-
     def _validate_action(self, action) -> bool:
         return self.env.action_space.contains(
             action
@@ -74,11 +72,21 @@ class LaserHockeyGame(IGame):
     def _is_finished(self) -> bool:
         return self.terminated or self.truncated
 
-    def _observation(self):
-        return self.observation.tolist()  # obs is an np array, we need list
+    def _observation(self, index):
+        if index == 1:
+            return self.env.obs_agent_two().tolist()  # obs is an np array, we need list
+        else:
+            return self.observation.tolist()  # obs is an np array, we need list
 
     def _player_won(self, index) -> bool:
-        return False  # TODO find the winner
+        self.winner = self.info["winner"]
+        if self.winner == 0:  # draw
+            return False
+        if index == 0:
+            return self.winner == 1  # check if left player won
+        if index == 1:
+            return self.winner == -1  # check if right player won
+        return False
 
     def _player_stats(self, index) -> int:
-        return 0  # TODO
+        return 0  # TODO where tf is th score stored?
