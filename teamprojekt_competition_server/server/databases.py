@@ -53,12 +53,12 @@ class GameDatabase:
             score_user_1 (float): score of user 1
             score_user_2 (float): score of user 2
             start_time (String | None): use datetime.now().isoformat(sep=" ")
-                to generate JJJJ-MM-DD HH-MM-SS.SSSS 
-                (example: 2024-01-14 19:23:13.736286))  
+                to generate JJJJ-MM-DD HH-MM-SS.SSSS
+                (example: 2024-01-14 19:23:13.736286))
             game_end_state(int): GameEndState enum value
             is_user1_winner (bool): if user 1 is the winner
                 (only relevant for won games)
-            is_user1_disconnected (bool): if user 1 is disconnected 
+            is_user1_disconnected (bool): if user 1 is disconnected
                 (only relevant for disconnected games)
 
         Returns:
