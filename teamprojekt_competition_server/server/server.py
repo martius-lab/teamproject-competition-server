@@ -17,6 +17,7 @@ class COMPServer:
     def __init__(self, game_type : Type[IGame]) -> None:
         game_manager.set_game_type(game_type)
         self.factory = COMPServerFactory()
+        self.is_running = False
 
     def start(self) -> None:
         """starts the server, so we can wait for clients to connect"""
@@ -27,9 +28,15 @@ class COMPServer:
         ) 
         self.endpoint.listen(self.factory)
         log.debug(f"Server listening on port {port}")  # TODO some more info here
+        self.is_running = True
         reactor.run()  # type: ignore[attr-defined]
 
     def stop(self) -> None:
         """terminates server."""
-        log.debug("Server Stopped")
-        reactor.stop()
+        if self.is_running:
+            log.debug("Server Stopped")
+            reactor.stop()
+            self.is_running = False
+        
+    def __del__(self):
+        pass #TODO: cleanup here ?

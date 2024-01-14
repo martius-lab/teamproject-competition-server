@@ -61,7 +61,7 @@ class COMPServerProtocol(amp.AMP):
             game (Game): game that starts
         """
         self.callRemote(Auth).addCallback(
-            callback=lambda res: return_callback(res["token"])
+            callback=lambda res: return_callback(res["token"].decode()) #caution, we need to decode the data otherwise wo receive bytes !
         ).addTimeout(config.get_config_value("timeout"), reactor, self.transport.loseConnection)
 
     def notify_start(self) -> None:

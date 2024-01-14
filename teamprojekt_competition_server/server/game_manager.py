@@ -10,11 +10,10 @@ _games : list[IGame] = []
 _queue : Queue[IPlayer] = Queue()
 _game_type : Type[IGame] = IGame
 
-
-def set_game_type(T : Type[IGame]):
+def set_game_type(T : Type[IGame]) -> None:
     _game_type = T
 
-def enter_queue(player : IPlayer):
+def enter_queue(player : IPlayer) -> None:
     _queue.put(player)
     if len(_queue) >= 2:
         game = _game_type([_queue.get(), _queue.get()])

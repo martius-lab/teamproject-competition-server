@@ -67,7 +67,7 @@ class COMPClientProtocol(amp.AMP):
         Returns:
             {"token": String}: the clients auth token
         """
-        return {"token": str.encode(self.token), "version": 1}
+        return {"token": self.token.encode(), "version": 1}
 
     Auth.responder(auth)
     

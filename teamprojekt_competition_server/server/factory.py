@@ -16,6 +16,6 @@ class COMPServerFactory(ServerFactory):
         protocol: COMPServerProtocol = COMPServerProtocol()
 
         new_player = COMPPlayer(protocol)
-        player_manager.register_player(new_player)
+        player_manager.register(new_player)
 
         return protocol

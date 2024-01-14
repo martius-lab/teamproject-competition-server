@@ -11,14 +11,17 @@ class COMPPlayer(IPlayer):
 
     def __init__(self, connection: COMPServerProtocol):
         self.connection: COMPServerProtocol = connection
-
+        
+        self.id = player_manager.register(self) #get our id by registering in the playermanager
+        
         def __auth():
             """Connects player to server"""
             self.authenticate(
-                result_callback=lambda token: player_manager.authenticate_player(self ,token)
+                result_callback=lambda token: player_manager.authenticate(self.id ,token) 
             )
-
-        self.connection.addConnectionMadeCallback(__auth)
+        
+        self.connection.addConnectionMadeCallback(__auth) #add the callback for authentication
+        self.connection.addConnectionLostCallback(lambda : player_manager.remove(self.id)) #add the callback for loosing the connection
 
     def authenticate(self, result_callback):
         """authenticates player

@@ -4,7 +4,6 @@ import logging as log
 
 import abc
 
-
 class IAction:
     """Interface for an action"""
 
@@ -63,6 +62,7 @@ class IGame(abc.ABC):
         notifies all players that the game has started
         and starts the game cycle
         """
+                
         for p in self.players:
             p.notify_start()
         self._game_cycle()
