@@ -53,7 +53,7 @@ class IPlayer(abc.ABC):
 class IGame(abc.ABC):
     """game interface"""
 
-    def __init__(self, players: list[IPlayer], game_id: int = 123) -> None:
+    def __init__(self, players: list[IPlayer], game_id: int) -> None:
         self.players: list[IPlayer] = players
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
