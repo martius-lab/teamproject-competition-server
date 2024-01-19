@@ -55,8 +55,7 @@ def add_user(user_name: str, user_token: int, mu=25.000, sigma=8.333) -> int | N
     """
     assert not _is_token_taken(user_token)
     cursor.execute(
-        f"""
-                   INSERT INTO {USER_DB_NAME}(name, token, TS_mu, TS_sigma) VALUES (?,?,?,?)""",
+        f"""INSERT INTO {USER_DB_NAME}(name, token, TS_mu, TS_sigma) VALUES (?,?,?,?)""",
         (user_name, user_token, mu, sigma),
     )
     connection.commit()
