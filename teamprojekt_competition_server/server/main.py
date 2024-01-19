@@ -20,8 +20,8 @@ logging.basicConfig(level=logging.DEBUG)
 class ExampleGame(IGame):
     """example for a game"""
 
-    def __init__(self, players: list[IPlayer]) -> None:
-        super().__init__(players=players)
+    def __init__(self, players: list[IPlayer], game_id) -> None:
+        super().__init__(players=players,game_id=game_id)
         self.env = 0
 
     def _update_environment(self):
