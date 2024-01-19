@@ -2,7 +2,7 @@
 
 import sqlite3
 import logging as log
-import uuid
+from uuid import UUID
 from enum import Enum
 from datetime import datetime
 
@@ -33,7 +33,7 @@ if cursor.fetchone() is None:
 
 
 def _insert_game(
-    game_id: uuid,
+    game_id: UUID,
     user1_id: int,
     user2_id: int,
     score_user_1: float,
@@ -42,11 +42,11 @@ def _insert_game(
     game_end_state: int,
     is_user1_winner=True,
     is_user1_disconnected=True,
-) :
+):
     """insert a new game into the database
 
     Args:
-        game_id (uuid): ID of the game
+        game_id (UUID): ID of the game
         user1_id (int): user ID of user 1 (standard: winner or disconnected)
         user2_id (int): user ID of user 2 (standard: loser)
         score_user_1 (float): score of user 1
@@ -103,7 +103,7 @@ def _insert_game(
 
 
 def insert_won_game(
-    game_id: uuid,
+    game_id: UUID,
     winner_id: int,
     loser_id: int,
     score_winner: float,
@@ -113,7 +113,7 @@ def insert_won_game(
     """insert a won game into the database
 
     Args:
-        game_id (uuid): ID of the game
+        game_id (UUID): ID of the game
         winner_id (int): user ID of the winner
         loser_id (int): user ID of the loser
         score_winner (float): score of the winner
@@ -135,7 +135,7 @@ def insert_won_game(
 
 
 def insert_disconnected_game(
-    game_id: uuid,
+    game_id: UUID,
     disconnected_user_id: int,
     other_user_id: int,
     score_disconnected_user: float,
@@ -145,7 +145,7 @@ def insert_disconnected_game(
     """insert a disconnected game into the database
 
     Args:
-        game_id (uuid): ID of the game
+        game_id (UUID): ID of the game
         disconnected_user_id (int): user ID of the disconnected player
         other_user_id (int): user ID of the other player
         score_disconnected_user (float): score of the disconnected player
@@ -167,7 +167,7 @@ def insert_disconnected_game(
 
 
 def insert_drawn_game(
-    game_id: uuid,
+    game_id: UUID,
     user1_id: int,
     user2_id: int,
     score_user_1: float,
@@ -177,7 +177,7 @@ def insert_drawn_game(
     """insert a drawn game into the database
 
     Args:
-        game_id (uuid): ID of the game
+        game_id (UUID): ID of the game
         user1_id (int): user ID of user 1
         user2_id (int): user ID of user 2
         score_user_1 (float): score of user 1
@@ -198,7 +198,7 @@ def insert_drawn_game(
     )
 
 
-def get_user_ids(game_id: uuid) -> tuple[int, int]:
+def get_user_ids(game_id: UUID) -> tuple[int, int]:
     """get the IDs of the users that participated in a game
 
     Args:
@@ -214,7 +214,7 @@ def get_user_ids(game_id: uuid) -> tuple[int, int]:
     return users
 
 
-def get_game_ids(user_id: int) -> list[int]:
+def get_game_ids(user_id: int) -> list[UUID]:
     """get all games that a user participated in
 
     Args:
@@ -229,11 +229,11 @@ def get_game_ids(user_id: int) -> list[int]:
     )
     games = []
     for (result,) in res.fetchall():
-        games.append(uuid.UUID(result))
+        games.append(UUID(result))
     return games
 
 
-def get_won_game_ids(user_id: int) -> list[int]:
+def get_won_game_ids(user_id: int) -> list[UUID]:
     """get all games that a user has won
 
     Args:
@@ -248,7 +248,7 @@ def get_won_game_ids(user_id: int) -> list[int]:
     )
     games = []
     for (result,) in res.fetchall():
-        games.append(uuid.UUID(result))
+        games.append(UUID(result))
     return games
 
 
