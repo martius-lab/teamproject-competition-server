@@ -12,7 +12,7 @@ class COMPPlayer(IPlayer):
     def __init__(self, connection: COMPServerProtocol):
         self.connection: COMPServerProtocol = connection
         
-        self.id = player_manager.register(self) #get our id by registering in the playermanager
+        player_manager.register(self) #register in the player manager
         
         def __auth():
             """Connects player to server"""

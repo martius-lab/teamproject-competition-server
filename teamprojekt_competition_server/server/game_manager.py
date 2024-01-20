@@ -1,21 +1,26 @@
 """Structure which handles multiple games"""
 
 import logging as log
-from queue import Queue
 from typing import Type
 
-from .interfaces import IPlayer, IGame
+from .interfaces import IGame
+from ..shared.types import game_id, player_id
 
-_games : list[IGame] = []
-_queue : Queue[IPlayer] = Queue()
+_running_games : dict[game_id, IGame] = []
 _game_type : Type[IGame] = IGame
 
 def set_game_type(T : Type[IGame]) -> None:
     _game_type = T
+    
+def start_game(players : list[player_id]) -> None:
+    game = _game_type(players)
+    game.start()
+    game.add_finish_callback(_game_ended)
+    _running_games[game.id] = game
+    
+def _game_ended(id : game_id):
+    if id not in _running_games:
+        log.error("Stopping non registered game!")
+        return
 
-def enter_queue(player : IPlayer) -> None:
-    _queue.put(player)
-    if len(_queue) >= 2:
-        game = _game_type([_queue.get(), _queue.get()])
-        game.start()
-        _games.append(game)
+    game = _running_games.pop(game_id)

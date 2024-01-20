@@ -1,8 +1,11 @@
 """defines interfaces for the server logic"""
 
 import logging as log
-
 import abc
+from typing import Callable
+
+from ..shared.types import game_id, player_id
+from . import id_generator
 
 class IAction:
     """Interface for an action"""
@@ -14,7 +17,7 @@ class IPlayer(abc.ABC):
     """Interface for a player"""
 
     def __init__(self) -> None:
-        self.id: int = -1
+        self.id: player_id = id_generator.generate_player_id()
 
     @abc.abstractmethod
     def authenticate(self, result_callback):
@@ -56,6 +59,13 @@ class IGame(abc.ABC):
         self.players: list[IPlayer] = players
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
+        
+        self.id : game_id = id_generator.generate_game_id()
+        
+        self.finish_callbacks : list[Callable] = []
+        
+    def add_finish_callback(self, callback : Callable) -> None:
+        self.finish_callbacks.append(callback)
 
     def start(self):
         """
@@ -73,6 +83,10 @@ class IGame(abc.ABC):
         Args:
             reason (str, optional): reason why the game has ended. Defaults to "unknown"
         """
+        for c in self.finish_callbacks:
+            c(self.id)
+        
+        #we might want to move this
         for i, p in enumerate(self.players):
             p.notify_end(result=self._player_won(i), stats=self._player_stats(i))
 
