@@ -27,7 +27,7 @@ class IPlayer(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def notify_start(self):
+    def notify_start(self, game_id):
         """notifies player that the game has started"""
         ...
 
@@ -53,10 +53,11 @@ class IPlayer(abc.ABC):
 class IGame(abc.ABC):
     """game interface"""
 
-    def __init__(self, players: list[IPlayer]) -> None:
+    def __init__(self, players: list[IPlayer], game_id: int) -> None:
         self.players: list[IPlayer] = players
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
+        self.game_id = game_id
 
     def start(self):
         """
@@ -64,7 +65,7 @@ class IGame(abc.ABC):
         and starts the game cycle
         """
         for p in self.players:
-            p.notify_start()
+            p.notify_start(game_id=self.game_id)
         self._game_cycle()
 
     def end(self, reason="unknown"):
@@ -82,7 +83,7 @@ class IGame(abc.ABC):
         ...
 
     def _game_cycle(self):
-        """collectes all actions and puts them in current_actions list"""
+        """collects all actions and puts them in current_actions list"""
         self.result_received = 0
 
         for i, p in enumerate(self.players):
@@ -99,7 +100,7 @@ class IGame(abc.ABC):
                     else:
                         self._game_cycle()
 
-            p.get_action(obv=self._observation(), result_callback=__res)
+            p.get_action(obv=self._observation(index=i), result_callback=__res)
 
     @abc.abstractmethod
     def _validate_action(self, action) -> bool:
@@ -108,7 +109,7 @@ class IGame(abc.ABC):
 
     @abc.abstractmethod
     def _is_finished(self) -> bool:
-        """detirmens if the game has ended
+        """determines if the game has ended
 
         Returns:
             bool: returns true if game has ended
@@ -116,8 +117,8 @@ class IGame(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def _observation(self):
-        """retutns the observation for the players"""
+    def _observation(self, index: int = 0):
+        """returns the observation for the player"""
         ...
 
     @abc.abstractmethod

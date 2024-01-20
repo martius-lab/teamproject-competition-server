@@ -45,7 +45,7 @@ class GameManager:
             player1 = self.players[self.queue.pop(0)]
             player2 = self.players[player_id]
             log.debug(f"matched two players: player {player1.id}, player {player2.id}")
-            new_game = self.GameClass(players=[player1, player2])
+            new_game = self.GameClass(players=[player1, player2], game_id=123)
             self.games.append(new_game)
             new_game.start()
         else:
