@@ -14,7 +14,9 @@ authors = [
 requires-python = ">=3.8"
 dependencies = [
     "twisted==23.10.0",
-    "gymnasium==0.29.1"
+    "numpy==1.26.2",
+    #"gymnasium==0.29.1",
+    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git"
 ]
 
 [project.optional-dependencies]
@@ -50,6 +52,5 @@ exclude = ["build"]
 [[tool.mypy.overrides]]
 # here you can list third-party packages for which no type hints are provided (to avoid
 # complaints from mypy)
-module = [
-]
+module = "laserhockey.*"
 ignore_missing_imports = true

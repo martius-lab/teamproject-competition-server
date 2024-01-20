@@ -33,9 +33,9 @@ class COMPPlayer(IPlayer):
         Returns: token (string)"""
         self.connection.get_token(result_callback)
 
-    def notify_start(self):
+    def notify_start(self, game_id: int):
         """notifies start of game"""
-        self.connection.notify_start()
+        self.connection.notify_start(game_id=game_id)
 
     def get_action(self, obv, result_callback):
         """receive action from server

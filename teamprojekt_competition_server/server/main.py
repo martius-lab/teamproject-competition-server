@@ -7,7 +7,8 @@ from .databases import GameDatabase
 
 
 # from .gymgame import GymGame
-from .rock_paper_scissors import rock_paper_scissors
+# from .rock_paper_scissors import rock_paper_scissors
+from .laserhockeygame import LaserHockeyGame
 
 import logging
 
@@ -19,8 +20,8 @@ logging.basicConfig(level=logging.DEBUG)
 class ExampleGame(IGame):
     """example for a game"""
 
-    def __init__(self, players: list[IPlayer]) -> None:
-        super().__init__(players=players)
+    def __init__(self, players: list[IPlayer], game_id) -> None:
+        super().__init__(players=players, game_id=game_id)
         self.env = 0
 
     def _update_environment(self):
@@ -46,7 +47,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = rock_paper_scissors  # GymGame
+    game_manager.GameClass = LaserHockeyGame  # GymGame, rock_paper_scissors
     server = COMPServer()
     server.start()
 
