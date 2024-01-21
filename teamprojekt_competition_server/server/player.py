@@ -10,9 +10,15 @@ class COMPPlayer(IPlayer):
     """player of the game"""
 
     def __init__(self, connection: COMPServerProtocol):
+        #init super to obtain id
+        super().__init__()
+        
+        #set the networing connection
         self.connection: COMPServerProtocol = connection
         
+        #register in player manager
         player_manager.register(self) #register in the player manager
+        
         
         def __auth():
             """Connects player to server"""
@@ -20,7 +26,10 @@ class COMPPlayer(IPlayer):
                 result_callback=lambda token: player_manager.authenticate(self.id ,token) 
             )
         
+        #when connection made we want to authenticate
         self.connection.addConnectionMadeCallback(__auth) #add the callback for authentication
+        
+        #if we lose connection we also need to notify the manager
         self.connection.addConnectionLostCallback(lambda : player_manager.remove(self.id)) #add the callback for loosing the connection
 
     def authenticate(self, result_callback):
