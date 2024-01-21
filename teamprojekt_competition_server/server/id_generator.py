@@ -1,9 +1,9 @@
 import uuid
 
-from ..shared.types import game_id, player_id
+from ..shared.types import GameID, PlayerID
 
-def generate_player_id() -> player_id:
+def generate_player_id() -> PlayerID:
     return uuid.uuid4()
 
-def generate_game_id() -> game_id:
+def generate_game_id() -> GameID:
     return uuid.uuid4()

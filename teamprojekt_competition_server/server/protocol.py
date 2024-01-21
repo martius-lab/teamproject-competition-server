@@ -7,9 +7,9 @@ from twisted.protocols import amp
 from twisted.internet.interfaces import IAddress
 from twisted.internet import reactor
 
-from . import config
 from ..shared.commands import Auth, StartGame, EndGame, Step, Error
 
+TIMEOUT = 5
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""
@@ -62,7 +62,7 @@ class COMPServerProtocol(amp.AMP):
         """
         self.callRemote(Auth).addCallback(
             callback=lambda res: return_callback(res["token"].decode()) #caution, we need to decode the data otherwise wo receive bytes !
-        ).addTimeout(config.get_config_value("timeout"), reactor, self.transport.loseConnection)
+        ).addTimeout(TIMEOUT, reactor, self.transport.loseConnection)
 
     def notify_start(self) -> None:
         """starts the game
@@ -70,14 +70,14 @@ class COMPServerProtocol(amp.AMP):
         Args:
             game (Game): game that starts
         """
-        return self.callRemote(StartGame, game_id=222)
+        return self.callRemote(StartGame, game_id="TODO:GAME_ID MISSING")
 
     def get_step(self, obv, return_callback: Callable[[list], None]) -> None:
         """perfroms step requested by player"""
 
         return self.callRemote(Step, obv=int(obv)).addCallback(
             callback=lambda res: return_callback(res["action"])
-        ).addTimeout(config.get_config_value("timeout"), reactor, self.transport.loseConnection)
+        ).addTimeout(TIMEOUT, reactor, self.transport.loseConnection)
 
     def notify_end(
         self, result, stats, return_callback: Callable[[bool], None]
@@ -86,7 +86,7 @@ class COMPServerProtocol(amp.AMP):
 
         return self.callRemote(EndGame, result=result, stats=stats).addCallback(
             callback=lambda res: return_callback(res["ready"])
-        ).addTimeout(config.get_config_value("timeout"), reactor, self.transport.loseConnection)
+        ).addTimeout(TIMEOUT, reactor, self.transport.loseConnection)
         
     def send_error(self, msg : str):
         self.callRemote(Error, msg=str.encode(msg))

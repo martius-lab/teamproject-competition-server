@@ -9,7 +9,8 @@ from twisted.internet.endpoints import TCP4ServerEndpoint
 from .factory import COMPServerFactory
 from .interfaces import IGame
 from . import game_manager
-from . import config
+
+PORT = 65335 #TODO move this in config
 
 class COMPServer:
     """class for server instance"""
@@ -22,7 +23,7 @@ class COMPServer:
     def start(self) -> None:
         """starts the server, so we can wait for clients to connect"""
         
-        port = config.get_config_value("port")
+        port = PORT
         self.endpoint = TCP4ServerEndpoint(
             reactor, port
         ) 

@@ -5,6 +5,7 @@ from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth, Error
+from ..shared.types import GameID
 
 
 class COMPClientProtocol(amp.AMP):
@@ -17,11 +18,11 @@ class COMPClientProtocol(amp.AMP):
         self.agent = agent
         self.token = token
 
-    def start_game(self, game_id: int):
+    def start_game(self, game_id: str):
         """is called when the server starts the game
 
         Args:
-            game_id (int): ID of the game
+            game_id (str (UUID)): ID of the game
 
         Returns:
             {"ready": boolean}: true if the client is ready to start the game

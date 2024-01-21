@@ -16,10 +16,6 @@ class COMPPlayer(IPlayer):
         #set the networing connection
         self.connection: COMPServerProtocol = connection
         
-        #register in player manager
-        player_manager.register(self) #register in the player manager
-        
-        
         def __auth():
             """Connects player to server"""
             self.authenticate(

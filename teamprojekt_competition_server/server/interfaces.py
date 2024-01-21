@@ -4,7 +4,7 @@ import logging as log
 import abc
 from typing import Callable
 
-from ..shared.types import game_id, player_id
+from ..shared.types import GameID, PlayerID
 from . import id_generator
 
 class IAction:
@@ -17,7 +17,7 @@ class IPlayer(abc.ABC):
     """Interface for a player"""
 
     def __init__(self) -> None:
-        self.id: player_id = id_generator.generate_player_id()
+        self.id: PlayerID = id_generator.generate_player_id()
 
     @abc.abstractmethod
     def authenticate(self, result_callback):
@@ -60,7 +60,7 @@ class IGame(abc.ABC):
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
         
-        self.id : game_id = id_generator.generate_game_id()
+        self.id : GameID = id_generator.generate_game_id()
         
         self.finish_callbacks : list[Callable] = []
         

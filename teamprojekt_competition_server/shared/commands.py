@@ -22,7 +22,7 @@ class Auth(Command):
 class StartGame(Command):
     """Command to notify the client that the game starts"""
 
-    arguments = [(b"game_id", Integer())]
+    arguments = [(b"game_id", String())]
     response = [(b"ready", Boolean())]
 
 
