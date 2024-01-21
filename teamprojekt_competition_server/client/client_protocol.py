@@ -71,10 +71,10 @@ class COMPClientProtocol(amp.AMP):
         return {"token": self.token.encode(), "version": 1}
 
     Auth.responder(auth)
-    
+
     def error(self, msg):
         pass
-    
+
     Error.responder(error)
 
 

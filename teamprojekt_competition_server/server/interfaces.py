@@ -7,6 +7,7 @@ from typing import Callable
 from ..shared.types import GameID, PlayerID
 from . import id_generator
 
+
 class IAction:
     """Interface for an action"""
 
@@ -59,12 +60,12 @@ class IGame(abc.ABC):
         self.players: list[IPlayer] = players
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
-        
-        self.id : GameID = id_generator.generate_game_id()
-        
-        self.finish_callbacks : list[Callable] = []
-        
-    def add_finish_callback(self, callback : Callable) -> None:
+
+        self.id: GameID = id_generator.generate_game_id()
+
+        self.finish_callbacks: list[Callable] = []
+
+    def add_finish_callback(self, callback: Callable) -> None:
         self.finish_callbacks.append(callback)
 
     def start(self):
@@ -72,7 +73,7 @@ class IGame(abc.ABC):
         notifies all players that the game has started
         and starts the game cycle
         """
-                
+
         for p in self.players:
             p.notify_start()
         self._game_cycle()
@@ -85,8 +86,8 @@ class IGame(abc.ABC):
         """
         for c in self.finish_callbacks:
             c(self.id)
-        
-        #we might want to move this
+
+        # we might want to move this
         for i, p in enumerate(self.players):
             p.notify_end(result=self._player_won(i), stats=self._player_stats(i))
 
@@ -103,7 +104,7 @@ class IGame(abc.ABC):
 
             def __res(v: IAction, index=i):
                 log.debug(f"got action {v} from player {index}")
-                #TODO: add validation here!
+                # TODO: add validation here!
                 self.current_actions[index] = v
                 self.result_received += 1
                 if self.result_received == len(self.players):

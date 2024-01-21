@@ -8,6 +8,7 @@ from .player import COMPPlayer
 
 from . import player_manager
 
+
 class COMPServerFactory(ServerFactory):
     """factory for COMP servers"""
 

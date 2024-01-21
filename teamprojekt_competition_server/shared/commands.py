@@ -49,4 +49,5 @@ class Step(Command):
 
 class Error(Command):
     """Command interface for a generic error message"""
+
     arguments = [(b"msg", String())]
