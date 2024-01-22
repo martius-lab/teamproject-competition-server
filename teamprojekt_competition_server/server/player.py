@@ -5,6 +5,7 @@ from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
 
 from . import player_manager
+from . import matchmaking
 
 
 class COMPPlayer(IPlayer):
@@ -61,10 +62,10 @@ class COMPPlayer(IPlayer):
             result (any): result of the game
             stats: (any): stats of the game"""
 
-        def callback(ready: bool):
+        def __res(ready: bool):
             if ready:
-                pass
+                matchmaking.match(self.id)
 
         return self.connection.notify_end(
-            result=result, stats=stats, return_callback=callback
+            result=result, stats=stats, return_callback=__res
         )

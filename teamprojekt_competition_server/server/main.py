@@ -1,8 +1,6 @@
 """run the server"""
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
-from .databases import GameDatabase
-
 
 # from .gymgame import GymGame
 # from .rock_paper_scissors import rock_paper_scissors
