@@ -2,6 +2,12 @@
 
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
+from .databases import GameDatabase
+
+
+# from .gymgame import GymGame
+# from .rock_paper_scissors import rock_paper_scissors
+from .laserhockeygame import LaserHockeyGame
 
 import logging
 
@@ -17,7 +23,7 @@ class ExampleGame(IGame):
         super().__init__(players=players)
         self.env = 0
 
-    def _update_enviroment(self):
+    def _update_environment(self):
         self.env += sum(self.current_actions)
 
     def _validate_action(self, action):
@@ -40,9 +46,21 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    server = COMPServer(ExampleGame)
+    server = COMPServer(LaserHockeyGame)
     server.start()
+
+
+def test_database():
+    """function to test database"""
+    game_db = GameDatabase()
+    gameID = game_db.insert_game(12, 23)
+    gameID = game_db.insert_game(52, 12)
+    print(gameID)
+    print(game_db.get_playerIDs(gameID=gameID))
+    print(game_db.get_gameIDs(playerID=12))
+    print(game_db.get_won_gameIDs(playerID=12))
 
 
 if __name__ == "__main__":
     main()
+    # test_database()

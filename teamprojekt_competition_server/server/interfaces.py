@@ -30,7 +30,7 @@ class IPlayer(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def notify_start(self):
+    def notify_start(self, game_id):
         """notifies player that the game has started"""
         ...
 
@@ -39,7 +39,7 @@ class IPlayer(abc.ABC):
         """gets an action from the player
 
         Args:
-            obv (Any): obserervation
+            obv (Any): observation
             result_callback (Callable): callback
 
         Returns:
@@ -60,7 +60,6 @@ class IGame(abc.ABC):
         self.players: list[IPlayer] = players
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
-
         self.id: GameID = id_generator.generate_game_id()
 
         self.finish_callbacks: list[Callable] = []
@@ -76,7 +75,7 @@ class IGame(abc.ABC):
         """
 
         for p in self.players:
-            p.notify_start()
+            p.notify_start(game_id=self.id)
         self._game_cycle()
 
     def end(self, reason="unknown"):
@@ -93,12 +92,12 @@ class IGame(abc.ABC):
             p.notify_end(result=self._player_won(i), stats=self._player_stats(i))
 
     @abc.abstractmethod
-    def _update_enviroment(self):
-        """works with the current_actions list to change the enviroment accordingly."""
+    def _update_environment(self):
+        """works with the current_actions list to change the environment accordingly."""
         ...
 
     def _game_cycle(self):
-        """collectes all actions and puts them in current_actions list"""
+        """collects all actions and puts them in current_actions list"""
         self.result_received = 0
 
         for i, p in enumerate(self.players):
@@ -109,14 +108,14 @@ class IGame(abc.ABC):
                 self.current_actions[index] = v
                 self.result_received += 1
                 if self.result_received == len(self.players):
-                    self._update_enviroment()
+                    self._update_environment()
 
                     if self._is_finished():
                         self.end()
                     else:
                         self._game_cycle()
 
-            p.get_action(obv=self._observation(), result_callback=__res)
+            p.get_action(obv=self._observation(index=i), result_callback=__res)
 
     @abc.abstractmethod
     def _validate_action(self, action) -> bool:
@@ -125,7 +124,7 @@ class IGame(abc.ABC):
 
     @abc.abstractmethod
     def _is_finished(self) -> bool:
-        """detirmens if the game has ended
+        """determines if the game has ended
 
         Returns:
             bool: returns true if game has ended
@@ -133,8 +132,8 @@ class IGame(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def _observation(self):
-        """retutns the observation for the players"""
+    def _observation(self, index: int = 0):
+        """returns the observation for the player"""
         ...
 
     @abc.abstractmethod

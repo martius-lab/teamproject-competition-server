@@ -1,5 +1,6 @@
 """Player"""
 
+from teamprojekt_competition_server.shared.types import GameID
 from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
 
@@ -9,7 +10,7 @@ from . import player_manager
 class COMPPlayer(IPlayer):
     """player of the game"""
 
-    def __init__(self, connection: COMPServerProtocol):
+    def __init__(self, connection: COMPServerProtocol) -> None:
         # init super to obtain id
         super().__init__()
 
@@ -37,21 +38,21 @@ class COMPPlayer(IPlayer):
     def authenticate(self, result_callback):
         """authenticates player
 
-        Args: resul_callback (callback function)
+        Args: result_callback (callback function)
 
         Returns: token (string)"""
-        return self.connection.get_token(result_callback)
+        self.connection.get_token(result_callback)
 
-    def notify_start(self):
+    def notify_start(self, game_id: GameID):
         """notifies start of game"""
-        self.connection.notify_start()
+        self.connection.notify_start(game_id=game_id)
 
     def get_action(self, obv, result_callback):
         """receive action from server
 
         Args:
             obv(any): observation"""
-        return self.connection.get_step(obv, result_callback)
+        self.connection.get_step(obv, result_callback)
 
     def notify_end(self, result, stats):
         """called when game ends

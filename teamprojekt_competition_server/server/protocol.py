@@ -7,9 +7,13 @@ from twisted.protocols import amp
 from twisted.internet.interfaces import IAddress
 from twisted.internet import reactor
 
+from teamprojekt_competition_server.shared.types import GameID
+
 from ..shared.commands import Auth, StartGame, EndGame, Step, Error
 
 TIMEOUT = 10
+
+VERSION: int = 1
 
 
 class COMPServerProtocol(amp.AMP):
@@ -41,7 +45,7 @@ class COMPServerProtocol(amp.AMP):
         """called upon connectionMade event"""
         addr: IAddress = self.transport.getPeer()  # type: ignore
         debug_msg = f"connected to client with IP: {addr.host}"
-        debug_msg_rest = f", Port: {addr.port} viae {addr.type}"
+        debug_msg_rest = f", Port: {addr.port} via {addr.type}"
         log.debug(debug_msg + debug_msg_rest)
         # broadcast to callbacks
         for c in self.connection_made_callbacks:
@@ -51,6 +55,7 @@ class COMPServerProtocol(amp.AMP):
 
     def connectionLost(self, reason):
         """called upon connectionLost event"""
+        log.debug("connection to client lost")
         for c in self.connection_lost_callbacks:
             c()
 
@@ -66,25 +71,32 @@ class COMPServerProtocol(amp.AMP):
         Args:
             game (Game): game that starts
         """
-        self.callRemote(Auth).addCallback(
-            callback=lambda res: return_callback(
-                res["token"].decode()
-            )  # caution, we need to decode the data otherwise wo receive bytes !
-        ).addTimeout(TIMEOUT, reactor, self.connectionTimeout)
 
-    def notify_start(self) -> None:
+        def callback(res):
+            if res["version"] == VERSION:
+                return_callback(res["token"].decode())
+            else:
+                log.error("Client with wrong version tried to authenticate.")
+                # TODO send error to client
+                self.transport.loseConnection()
+
+        self.callRemote(Auth).addCallback(callback=callback).addTimeout(
+            TIMEOUT, reactor, self.connectionTimeout
+        )
+
+    def notify_start(self, game_id: GameID) -> None:
         """starts the game
 
         Args:
             game (Game): game that starts
         """
-        return self.callRemote(StartGame, game_id=b"TODO:GAME_ID MISSING")
+        return self.callRemote(StartGame, game_id=game_id.bytes)
 
     def get_step(self, obv, return_callback: Callable[[list], None]) -> None:
-        """perfroms step requested by player"""
+        """performs step requested by player"""
 
         return (
-            self.callRemote(Step, obv=int(obv))
+            self.callRemote(Step, obv=obv)
             .addCallback(callback=lambda res: return_callback(res["action"]))
             .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
         )

@@ -17,7 +17,6 @@ class COMPServer:
     """class for server instance"""
 
     def __init__(self, game_type: Type[IGame]) -> None:
-        print("Set game_type")
         game_manager.set_game_type(game_type)
         self.factory = COMPServerFactory()
         self.is_running = False
