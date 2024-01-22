@@ -17,6 +17,7 @@ class rock_paper_scissors(IGame):
 
     def __init__(self, players: list[IPlayer]) -> None:
         super().__init__(players=players)
+
         self.env = list([0.0, 0.0])
 
     def _update_environment(self):

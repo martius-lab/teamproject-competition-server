@@ -41,8 +41,8 @@ class Step(Command):
 
     arguments = [(b"obv", ListOf(Float()))]
     response = [(b"action", ListOf(Float()))]
-
-
+    
+    
 class Error(Command):
     """Command interface for a generic error message"""
 

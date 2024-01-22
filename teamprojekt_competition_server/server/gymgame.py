@@ -40,6 +40,7 @@ class GymGame(IGame):
 
         super().__init__(players)
 
+
     def start(self):
         """
         notifies all players that the game has started
