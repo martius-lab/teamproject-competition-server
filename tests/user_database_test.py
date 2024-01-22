@@ -27,9 +27,9 @@ def user_database_tests():
           Token: {user[2]}, Mu: {user[3]}, Sigma: {user[4]}"
     )
 
-    user_db.update_user_TS(id=userID3, new_mu=24.000, new_sigma=9.333)
-    user = user_db.get_user(id=userID3)
-    assert user[3] == 24.000 and user[4] == 9.333
+    user_db.update_matchmaking_parameters(id=userID3, new_mu=24.000, new_sigma=9.333)
+    (mu, sigma) = user_db.get_matchmaking_parameters(id=userID3)
+    assert mu == 24.000 and sigma == 9.333
 
     user_db.delete_user(userID4)
     all_users = user_db.get_all_users()

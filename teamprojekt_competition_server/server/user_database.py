@@ -1,6 +1,7 @@
 """User-Database-Module"""
 
 import sqlite3
+import logging as log
 
 USER_DB_NAME = "user"
 
@@ -14,8 +15,8 @@ cursor.execute(
         user_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         token INTEGER NOT NULL,
-        TS_mu FLOAT NOT NULL,
-        TS_sigma FLOAT NOT NULL
+        mu FLOAT NOT NULL,
+        sigma FLOAT NOT NULL
     )"""
 )
 
@@ -41,14 +42,16 @@ def _is_token_taken(new_token: int) -> bool:
     return count > 0
 
 
-def add_user(user_name: str, user_token: int, mu=25.000, sigma=8.333) -> int | None:
+def add_user(
+    user_name: str, user_token: int, user_mu=25.000, user_sigma=8.333
+) -> int | None:
     """adds a new user to the database
 
     Args:
         user_name (str): name of the user
         user_token (int): token for the user (must be unique for every user)
-        mu (float, optional): needed for TrueSkill. Defaults to 25.000.
-        sigma (float, optional): needed for TrueSkill. Defaults to 8.333.
+        user_mu (float, optional): needed for Matchmaking. Defaults to 25.000.
+        user_sigma (float, optional): needed for Matchmaking. Defaults to 8.333.
 
     Returns:
         int | None: returns the user_id
@@ -56,11 +59,19 @@ def add_user(user_name: str, user_token: int, mu=25.000, sigma=8.333) -> int | N
     assert not _is_token_taken(user_token)
     cursor.execute(
         f"""
-        INSERT INTO {USER_DB_NAME}(name, token, TS_mu, TS_sigma) VALUES (?,?,?,?)""",
-        (user_name, user_token, mu, sigma),
+        INSERT INTO {USER_DB_NAME}(name, token, mu, sigma) VALUES (?,?,?,?)""",
+        (user_name, user_token, user_mu, user_sigma),
     )
     connection.commit()
-    return cursor.lastrowid
+    id = cursor.lastrowid
+    log.debug(
+        (
+            "inserted user("
+            f"user_id={id}, name={user_name}, token={user_token}, "
+            f"mu={user_mu}, sigma={user_sigma})"
+        )
+    )
+    return id
 
 
 def get_user(id: int) -> tuple:
@@ -70,7 +81,7 @@ def get_user(id: int) -> tuple:
         id (int): the id of the user
 
     Returns:
-        tuple: the database entry
+        tuple(int, string, int, float, float): the database entry (user_id, name, token, mu, sigma)
     """
     cursor.execute(
         f"""
@@ -105,7 +116,7 @@ def get_all_users() -> list[tuple]:
     """returns the database entries for all users
 
     Returns:
-        list[tuple]: database entries of all users
+        list[tuple(int, string, int, float, float)]: database entries of all users list[(user_id, name, token, mu, sigma)]
     """
     cursor.execute(
         f"""
@@ -116,8 +127,8 @@ def get_all_users() -> list[tuple]:
     return users
 
 
-def update_user_TS(id: int, new_mu: float, new_sigma: float):
-    """updates the mu and sigma entries required for TrueSkill for one user
+def update_matchmaking_parameters(id: int, new_mu: float, new_sigma: float):
+    """updates the mu and sigma entries required for Matchmaking for one user
 
     Args:
         id (int): user id
@@ -126,11 +137,22 @@ def update_user_TS(id: int, new_mu: float, new_sigma: float):
     """
     cursor.execute(
         f"""
-        UPDATE {USER_DB_NAME} SET TS_mu=?, TS_sigma=? WHERE user_id=?
+        UPDATE {USER_DB_NAME} SET mu=?, sigma=? WHERE user_id=?
     """,
         (new_mu, new_sigma, id),
     )
     connection.commit()
+
+
+def get_matchmaking_parameters(id: int) -> (float, float):
+    res = cursor.execute(
+        f"""
+        SELECT mu, sigma FROM {USER_DB_NAME} WHERE user_id = ?
+    """,
+        (id,),
+    )
+    parameters = res.fetchone()
+    return parameters
 
 
 def delete_user(id: int) -> None:
