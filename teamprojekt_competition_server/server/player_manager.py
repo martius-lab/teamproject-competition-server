@@ -1,6 +1,7 @@
+"""manages players connection to the server"""
+
 import logging as log
 from typing import Optional
-import uuid
 
 from .interfaces import IPlayer, PlayerID
 

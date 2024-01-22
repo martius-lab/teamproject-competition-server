@@ -101,4 +101,5 @@ class COMPServerProtocol(amp.AMP):
         )
 
     def send_error(self, msg: str):
+        """send an error string to the client"""
         self.callRemote(Error, msg=str.encode(msg))

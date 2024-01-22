@@ -66,6 +66,7 @@ class IGame(abc.ABC):
         self.finish_callbacks: list[Callable] = []
 
     def add_finish_callback(self, callback: Callable) -> None:
+        """link a callback to the end of a game"""
         self.finish_callbacks.append(callback)
 
     def start(self):

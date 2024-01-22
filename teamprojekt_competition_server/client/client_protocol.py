@@ -5,7 +5,6 @@ from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth, Error
-from ..shared.types import GameID
 
 
 class COMPClientProtocol(amp.AMP):
@@ -73,6 +72,11 @@ class COMPClientProtocol(amp.AMP):
     Auth.responder(auth)
 
     def error(self, msg):
+        """called if an error occoured on the server side
+
+        Args:
+            msg (_type_): error description
+        """
         pass
 
     Error.responder(error)

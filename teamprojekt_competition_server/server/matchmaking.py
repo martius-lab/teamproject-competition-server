@@ -1,10 +1,8 @@
 """contains matchmaking logic"""
 
-import logging as log
 from queue import Queue
 
 from . import game_manager
-from . import player_manager
 
 from teamprojekt_competition_server.shared.types import PlayerID
 

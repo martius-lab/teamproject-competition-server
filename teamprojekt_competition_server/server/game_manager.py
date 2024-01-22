@@ -54,4 +54,4 @@ def _game_ended(id: GameID):
         log.error("Stopping non registered game!")
         return
 
-    game = _running_games.pop(id)
+    _running_games.pop(id)
