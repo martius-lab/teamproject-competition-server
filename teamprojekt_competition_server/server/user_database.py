@@ -82,6 +82,25 @@ def get_user(id: int) -> tuple:
     return user
 
 
+def verify_user(user_token: int) -> int:
+    """returns the corresponding user_id for a token
+
+    Args:
+        user_token (int): token for which the user should be found
+
+    Returns:
+        int: user_id
+    """
+    res = cursor.execute(
+        f"""
+        SELECT user_id FROM {USER_DB_NAME} WHERE token = ?
+    """,
+        (user_token,),
+    )
+    (id,) = res.fetchone()
+    return id
+
+
 def get_all_users() -> list[tuple]:
     """returns the database entries for all users
 

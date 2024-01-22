@@ -19,6 +19,7 @@ def user_database_tests():
     all_users = user_db.get_all_users()
     print(all_users)
     assert len(all_users) == 4
+    assert user_db.verify_user(123) == userID1
 
     user = user_db.get_user(id=userID1)
     print(
