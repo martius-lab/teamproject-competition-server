@@ -81,7 +81,8 @@ def get_user(id: int) -> tuple:
         id (int): the id of the user
 
     Returns:
-        tuple(int, string, int, float, float): the database entry (user_id, name, token, mu, sigma)
+        tuple(int, string, int, float, float): database entry
+        (user_id, name, token, mu, sigma)
     """
     cursor.execute(
         f"""
@@ -116,7 +117,8 @@ def get_all_users() -> list[tuple]:
     """returns the database entries for all users
 
     Returns:
-        list[tuple(int, string, int, float, float)]: database entries of all users list[(user_id, name, token, mu, sigma)]
+        list[tuple(int, string, int, float, float)]: database entries of all users
+        list[(user_id, name, token, mu, sigma)]
     """
     cursor.execute(
         f"""
@@ -144,7 +146,7 @@ def update_matchmaking_parameters(id: int, new_mu: float, new_sigma: float):
     connection.commit()
 
 
-def get_matchmaking_parameters(id: int) -> (float, float):
+def get_matchmaking_parameters(id: int) -> tuple[float, float]:
     """gets the mu and sigma entries required for Matchmaking of the user
 
     Args:
