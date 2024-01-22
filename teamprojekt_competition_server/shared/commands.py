@@ -32,16 +32,12 @@ class EndGame(Command):
     arguments = [
         (b"result", Boolean()),
         (b"stats", Integer()),
-    ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
+    ]
     response = [(b"ready", Boolean())]
 
 
 class Step(Command):
     """Command for requesting the next step from the agent"""
 
-    arguments = [
-        (b"obv", ListOf(Float()))
-    ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
-    response = [
-        (b"action", ListOf(Float()))
-    ]  # Integer acts as a dummy type, we might want to create a custom data-type here!
+    arguments = [(b"obv", ListOf(Float()))]
+    response = [(b"action", ListOf(Float()))]
