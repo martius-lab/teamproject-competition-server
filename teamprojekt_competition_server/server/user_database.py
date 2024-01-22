@@ -145,6 +145,14 @@ def update_matchmaking_parameters(id: int, new_mu: float, new_sigma: float):
 
 
 def get_matchmaking_parameters(id: int) -> (float, float):
+    """gets the mu and sigma entries required for Matchmaking of the user
+
+    Args:
+        id (int): user_id
+
+    Returns:
+        (float, float): (mu, sigma)
+    """
     res = cursor.execute(
         f"""
         SELECT mu, sigma FROM {USER_DB_NAME} WHERE user_id = ?
