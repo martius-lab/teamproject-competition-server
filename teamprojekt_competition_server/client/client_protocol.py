@@ -9,8 +9,6 @@ from ..shared.commands import StartGame, EndGame, Step, Auth, Error
 
 VERSION = 1
 
-VERSION = 1
-
 
 class COMPClientProtocol(amp.AMP):
     """protocol for the client"""

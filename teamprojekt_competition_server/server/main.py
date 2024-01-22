@@ -45,3 +45,7 @@ def main():
     """main function for testing"""
     server = COMPServer(LaserHockeyGame)
     server.start()
+
+
+if __name__ == "__main__":
+    main()
