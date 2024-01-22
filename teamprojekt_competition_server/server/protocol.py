@@ -15,8 +15,6 @@ TIMEOUT = 10
 
 VERSION: int = 1
 
-VERSION: int = 1
-
 
 class COMPServerProtocol(amp.AMP):
     """amp protocol for a COMP server"""

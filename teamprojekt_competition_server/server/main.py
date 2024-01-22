@@ -8,11 +8,6 @@ from .databases import GameDatabase
 # from .rock_paper_scissors import rock_paper_scissors
 from .laserhockeygame import LaserHockeyGame
 
-
-# from .gymgame import GymGame
-# from .rock_paper_scissors import rock_paper_scissors
-from .laserhockeygame import LaserHockeyGame
-
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -23,8 +18,8 @@ logging.basicConfig(level=logging.DEBUG)
 class ExampleGame(IGame):
     """example for a game"""
 
-    def __init__(self, players: list[IPlayer], game_id) -> None:
-        super().__init__(players=players, game_id=game_id)
+    def __init__(self, players: list[IPlayer]) -> None:
+        super().__init__(players=players)
         self.env = 0
 
     def _update_environment(self):

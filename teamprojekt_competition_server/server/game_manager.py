@@ -23,7 +23,7 @@ def set_game_type(T: Type[IGame]) -> None:
     global _game_type
     _game_type = T
 
-    
+
 def start_game(player_ids: list[PlayerID]) -> None:
     """start a game with the given id's
 

@@ -56,7 +56,7 @@ class IPlayer(abc.ABC):
 class IGame(abc.ABC):
     """game interface"""
 
-    def __init__(self, players: list[IPlayer], game_id: int) -> None:
+    def __init__(self, players: list[IPlayer]) -> None:
         self.players: list[IPlayer] = players
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
@@ -68,7 +68,6 @@ class IGame(abc.ABC):
         """link a callback to the end of a game"""
         self.finish_callbacks.append(callback)
 
-
     def start(self):
         """
         notifies all players that the game has started
@@ -77,7 +76,7 @@ class IGame(abc.ABC):
 
         for p in self.players:
             p.notify_start(game_id=self.id)
-            
+
         self._game_cycle()
 
     def end(self, reason="unknown"):
