@@ -5,7 +5,8 @@ from twisted.internet.protocol import Protocol, ServerFactory
 
 from .protocol import COMPServerProtocol
 from .player import COMPPlayer
-from .game_manager import game_manager
+
+from . import player_manager
 
 
 class COMPServerFactory(ServerFactory):
@@ -16,6 +17,6 @@ class COMPServerFactory(ServerFactory):
         protocol: COMPServerProtocol = COMPServerProtocol()
 
         new_player = COMPPlayer(protocol)
-        game_manager.add_player(new_player)
+        player_manager.register(new_player)
 
         return protocol

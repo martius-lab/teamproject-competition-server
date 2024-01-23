@@ -14,7 +14,7 @@ from .interfaces import IGame, IPlayer
 class LaserHockeyGame(IGame):
     """game class with the game logic being the laser-hockey env"""
 
-    def __init__(self, players: list[IPlayer], game_id: int) -> None:
+    def __init__(self, players: list[IPlayer]) -> None:
         """create a game
 
         Args:
@@ -32,7 +32,7 @@ class LaserHockeyGame(IGame):
 
         log.debug("created a new gym env")
 
-        super().__init__(players, game_id)
+        super().__init__(players)
 
     def start(self):
         """

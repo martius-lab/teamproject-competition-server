@@ -38,7 +38,7 @@ class GymGame(IGame):
 
         log.debug("created a new gym env")
 
-        super().__init__(players, game_id)
+        super().__init__(players)
 
     def start(self):
         """

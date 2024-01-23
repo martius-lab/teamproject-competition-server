@@ -1,29 +1,40 @@
 """Player"""
 
+from teamprojekt_competition_server.shared.types import GameID
 from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
 
-from .game_manager import game_manager
+from . import player_manager
+from . import matchmaking
 
 
 class COMPPlayer(IPlayer):
     """player of the game"""
 
     def __init__(self, connection: COMPServerProtocol) -> None:
+        # init super to obtain id
+        super().__init__()
+
+        # set the networing connection
         self.connection: COMPServerProtocol = connection
 
-        def connected():
+        def __auth():
             """Connects player to server"""
             self.authenticate(
-                result_callback=lambda x: game_manager.add_player_to_queue(self.id)
+                result_callback=lambda token: player_manager.authenticate(
+                    self.id, token
+                )
             )
 
-        def disconnected():
-            """remove the player from the game manager"""
-            game_manager.delete_player(player_id=self.id)
+        # when connection made we want to authenticate
+        self.connection.addConnectionMadeCallback(
+            __auth
+        )  # add the callback for authentication
 
-        self.connection.addConnectionMadeCallback(connected)
-        self.connection.addConnectionLostCallback(disconnected)
+        # if we lose connection we also need to notify the manager
+        self.connection.addConnectionLostCallback(
+            lambda: player_manager.remove(self.id)
+        )  # add the callback for loosing the connection
 
     def authenticate(self, result_callback):
         """authenticates player
@@ -33,7 +44,7 @@ class COMPPlayer(IPlayer):
         Returns: token (string)"""
         self.connection.get_token(result_callback)
 
-    def notify_start(self, game_id: int):
+    def notify_start(self, game_id: GameID):
         """notifies start of game"""
         self.connection.notify_start(game_id=game_id)
 
@@ -51,10 +62,10 @@ class COMPPlayer(IPlayer):
             result (any): result of the game
             stats: (any): stats of the game"""
 
-        def callback(ready: bool):
+        def __res(ready: bool):
             if ready:
-                game_manager.add_player_to_queue(self.id)
+                matchmaking.match(self.id)
 
         return self.connection.notify_end(
-            result=result, stats=stats, return_callback=callback
+            result=result, stats=stats, return_callback=__res
         )

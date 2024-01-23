@@ -15,8 +15,9 @@ class rock_paper_scissors(IGame):
     This class represents a rock-paper-scissors game.
     """
 
-    def __init__(self, players: list[IPlayer], game_id: int) -> None:
-        super().__init__(players=players, game_id=game_id)
+    def __init__(self, players: list[IPlayer]) -> None:
+        super().__init__(players=players)
+
         self.env = list([0.0, 0.0])
 
     def _update_environment(self):

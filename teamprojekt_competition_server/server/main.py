@@ -1,8 +1,6 @@
 """run the server"""
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
-from .game_manager import game_manager
-
 
 # from .gymgame import GymGame
 # from .rock_paper_scissors import rock_paper_scissors
@@ -18,8 +16,8 @@ logging.basicConfig(level=logging.DEBUG)
 class ExampleGame(IGame):
     """example for a game"""
 
-    def __init__(self, players: list[IPlayer], game_id) -> None:
-        super().__init__(players=players, game_id=game_id)
+    def __init__(self, players: list[IPlayer]) -> None:
+        super().__init__(players=players)
         self.env = 0
 
     def _update_environment(self):
@@ -45,8 +43,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    game_manager.GameClass = LaserHockeyGame  # GymGame, rock_paper_scissors
-    server = COMPServer()
+    server = COMPServer(LaserHockeyGame)
     server.start()
 
 

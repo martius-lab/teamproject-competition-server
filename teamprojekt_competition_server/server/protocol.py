@@ -5,9 +5,13 @@ from typing import Callable
 
 from twisted.protocols import amp
 from twisted.internet.interfaces import IAddress
+from twisted.internet import reactor
 
+from teamprojekt_competition_server.shared.types import GameID
 
-from ..shared.commands import Auth, StartGame, EndGame, Step
+from ..shared.commands import Auth, StartGame, EndGame, Step, Error
+
+TIMEOUT = 10
 
 VERSION: int = 1
 
@@ -17,6 +21,7 @@ class COMPServerProtocol(amp.AMP):
 
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
+
         self.connection_made_callbacks: list[Callable[[], None]] = []
         self.connection_lost_callbacks: list[Callable[[], None]] = []
 
@@ -56,6 +61,10 @@ class COMPServerProtocol(amp.AMP):
 
         return super().connectionLost(reason)
 
+    def connectionTimeout(self, failure, timeout):
+        """called upon timeout"""
+        pass
+
     def get_token(self, return_callback: Callable[[str], None]) -> None:
         """get token from client to authenticate
 
@@ -65,27 +74,31 @@ class COMPServerProtocol(amp.AMP):
 
         def callback(res):
             if res["version"] == VERSION:
-                return_callback(res["token"])
+                return_callback(res["token"].decode())
             else:
                 log.error("Client with wrong version tried to authenticate.")
                 # TODO send error to client
                 self.transport.loseConnection()
 
-        self.callRemote(Auth).addCallback(callback=callback)
+        self.callRemote(Auth).addCallback(callback=callback).addTimeout(
+            TIMEOUT, reactor, self.connectionTimeout
+        )
 
-    def notify_start(self, game_id: int) -> None:
+    def notify_start(self, game_id: GameID) -> None:
         """starts the game
 
         Args:
             game (Game): game that starts
         """
-        return self.callRemote(StartGame, game_id=game_id)
+        return self.callRemote(StartGame, game_id=game_id.bytes)
 
     def get_step(self, obv, return_callback: Callable[[list], None]) -> None:
         """performs step requested by player"""
 
-        return self.callRemote(Step, obv=obv).addCallback(
-            callback=lambda res: return_callback(res["action"])
+        return (
+            self.callRemote(Step, obv=obv)
+            .addCallback(callback=lambda res: return_callback(res["action"]))
+            .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
         )
 
     def notify_end(
@@ -93,6 +106,12 @@ class COMPServerProtocol(amp.AMP):
     ) -> None:
         """ends the game"""
 
-        return self.callRemote(EndGame, result=result, stats=stats).addCallback(
-            callback=lambda res: return_callback(res["ready"])
+        return (
+            self.callRemote(EndGame, result=result, stats=stats)
+            .addCallback(callback=lambda res: return_callback(res["ready"]))
+            .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
         )
+
+    def send_error(self, msg: str):
+        """send an error string to the client"""
+        self.callRemote(Error, msg=str.encode(msg))

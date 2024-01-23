@@ -5,7 +5,7 @@ from twisted.internet.interfaces import IAddress
 from twisted.protocols import amp
 from twisted.internet.protocol import ClientFactory, Protocol
 
-from ..shared.commands import StartGame, EndGame, Step, Auth
+from ..shared.commands import StartGame, EndGame, Step, Auth, Error
 
 VERSION = 1
 
@@ -34,7 +34,7 @@ class COMPClientProtocol(amp.AMP):
         """is called when the server starts the game
 
         Args:
-            game_id (int): ID of the game
+            game_id (str (UUID)): ID of the game
 
         Returns:
             {"ready": boolean}: true if the client is ready to start the game
@@ -83,6 +83,16 @@ class COMPClientProtocol(amp.AMP):
         return {"token": str.encode(self.token), "version": VERSION}
 
     Auth.responder(auth)
+
+    def error(self, msg):
+        """called if an error occoured on the server side
+
+        Args:
+            msg (_type_): error description
+        """
+        pass
+
+    Error.responder(error)
 
 
 class COMPClientFactory(ClientFactory):

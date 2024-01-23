@@ -22,7 +22,7 @@ class Auth(Command):
 class StartGame(Command):
     """Command to notify the client that the game starts"""
 
-    arguments = [(b"game_id", Integer())]
+    arguments = [(b"game_id", String())]
     response = [(b"ready", Boolean())]
 
 
@@ -41,3 +41,9 @@ class Step(Command):
 
     arguments = [(b"obv", ListOf(Float()))]
     response = [(b"action", ListOf(Float()))]
+
+
+class Error(Command):
+    """Command interface for a generic error message"""
+
+    arguments = [(b"msg", String())]
