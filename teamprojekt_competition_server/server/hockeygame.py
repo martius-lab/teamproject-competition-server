@@ -58,7 +58,7 @@ class HockeyGame(IGame):
 
     def _update_environment(self):
         """perform one gym step, using the actions collected by _game_cycle"""
-        #self.env.render(mode="human")  # (un)comment to render or not
+        self.env.render(mode="human")  # (un)comment to render or not
         (
             self.obs_player_left,
             self.reward,
@@ -84,7 +84,6 @@ class HockeyGame(IGame):
             # check if it was the last round
             if self.remaining_rounds == 0:
                 self.finished = True
-                
 
     def _validate_action(self, action) -> bool:
         return self.env.action_space.contains(
@@ -110,10 +109,10 @@ class HockeyGame(IGame):
 
         # determine winner using score
         if index == 0:
-            return self.score[0]> self.score[1]
+            return self.score[0] > self.score[1]
         if index == 1:
-            return self.score[1]> self.score[0]
+            return self.score[1] > self.score[0]
         return False
 
     def _player_stats(self, index) -> int:
-        return self.score[index] 
+        return self.score[index]
