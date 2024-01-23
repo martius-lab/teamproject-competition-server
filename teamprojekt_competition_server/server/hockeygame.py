@@ -59,22 +59,33 @@ class HockeyGame(IGame):
     def _update_environment(self):
         """perform one gym step, using the actions collected by _game_cycle"""
         self.env.render(mode="human")  # (un)comment to render or not
+
+        if self.sides_swapped:  # change order of actions if sides are changed
+            self.action = np.hstack(np.flip(self.current_actions, 0))
+        else:
+            self.action = np.hstack(self.current_actions)
         (
             self.obs_player_left,
             self.reward,
             self.terminated,
             self.truncated,
             self.info,
-        ) = self.env.step(np.hstack(self.current_actions))
+        ) = self.env.step(self.action)
 
         # check if current round has ended
         if self.terminated or self.truncated:
             # update score
             self.winner = self.info["winner"]
             if self.winner == 1:
-                self.score[0] = self.score[0] + 1
+                if self.sides_swapped:
+                    self.score[1] = self.score[1] + 1
+                else:
+                    self.score[0] = self.score[0] + 1
             if self.winner == -1:
-                self.score[1] = self.score[0] + 1
+                if self.sides_swapped:
+                    self.score[0] = self.score[0] + 1
+                else:
+                    self.score[1] = self.score[1] + 1
 
             # reset env, swap player side and decrease remaining rounds
             self.obs_player_left, self.info = self.env.reset()
