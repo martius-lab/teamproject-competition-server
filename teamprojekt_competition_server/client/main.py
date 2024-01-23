@@ -9,5 +9,5 @@ log.basicConfig(level=log.DEBUG)
 # run with "python -m teamprojekt_competition_server.client.main"
 
 if __name__ == "__main__":
-    agent = Strong_Hockey_Agent()  
+    agent = Strong_Hockey_Agent()
     agent.run("HelloWorldToken")
