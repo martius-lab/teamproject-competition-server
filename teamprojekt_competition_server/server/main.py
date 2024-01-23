@@ -4,7 +4,7 @@ from .interfaces import IGame, IPlayer
 
 # from .gymgame import GymGame
 # from .rock_paper_scissors import rock_paper_scissors
-from .laserhockeygame import LaserHockeyGame
+from .hockeygame import HockeyGame
 
 import logging
 
@@ -43,7 +43,7 @@ class ExampleGame(IGame):
 
 def main():
     """main function for testing"""
-    server = COMPServer(LaserHockeyGame)
+    server = COMPServer(HockeyGame)
     server.start()
 
 
