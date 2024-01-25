@@ -93,8 +93,13 @@ class LaserHockeyGame(IGame):
 
     def _player_stats(self, index) -> int:
         return 0  # TODO where tf is th score stored?
-    
+
     def get_game_results(self) -> GameResult:
+        """get the results of the game
+
+        Returns:
+            GameResult: results and statistics of the game
+        """
         return GameResult(
             game_id=self.id,
             user1_id=player_manager.get_user_id(self.players[0].id),
@@ -103,5 +108,5 @@ class LaserHockeyGame(IGame):
             score_user_2=0.0,
             end_state=GameEndState.WIN.value,
             is_user1_winner=self._player_won(0),
-            start_time=self.start_time
+            start_time=self.start_time,
         )

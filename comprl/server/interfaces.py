@@ -83,7 +83,7 @@ class IGame(abc.ABC):
         """
 
         self.start_time = datetime.now()
-        
+
         for p in self.players:
             p.notify_start(game_id=self.id)
 
@@ -165,4 +165,3 @@ class IGame(abc.ABC):
     def get_game_results(self) -> GameResult:
         """returns the result and the statistics of the game"""
         ...
-

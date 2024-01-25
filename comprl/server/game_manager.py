@@ -54,8 +54,6 @@ def _game_ended(id: GameID):
     if id not in _running_games:
         log.error("Stopping non registered game!")
         return
-    
+
     game = _running_games.pop(id)
     game_database.insert_game(game.get_game_results())
-
-    

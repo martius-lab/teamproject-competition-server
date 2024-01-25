@@ -1,6 +1,7 @@
 """Class to store the result of a game"""
 
 from datetime import datetime
+from typing import Optional
 from enum import Enum
 from uuid import UUID
 
@@ -13,8 +14,8 @@ class GameResult:
     def __init__(
         self,
         game_id: UUID,
-        user1_id: int,
-        user2_id: int,
+        user1_id: Optional[int],
+        user2_id: Optional[int],
         score_user_1: float,
         score_user_2: float,
         start_time=None,

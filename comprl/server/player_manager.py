@@ -46,6 +46,7 @@ def authenticate(id: PlayerID, token: str) -> None:
             _connected_players[id].disconnect(
                 reason="Authentication with the provided token failed"
             )
+            remove(id)
 
 
 def remove(id: PlayerID) -> None:
@@ -77,7 +78,8 @@ def get_player_by_id(id: PlayerID) -> Optional[IPlayer]:
     log.error("Tried access of not authenticated player!")
     return None
 
-def get_user_id(id: PlayerID) -> Optional[IPlayer]:
+
+def get_user_id(id: PlayerID) -> Optional[int]:
     """get the object of a authenticated player
 
     Args:
