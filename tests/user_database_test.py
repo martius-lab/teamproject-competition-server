@@ -1,4 +1,4 @@
-import teamprojekt_competition_server.server.user_database as user_db
+import comprl.server.user_database as user_db
 import logging
 
 # run with python -m tests.user_database_test

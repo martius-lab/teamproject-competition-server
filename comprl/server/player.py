@@ -1,6 +1,6 @@
 """Player"""
 
-from teamprojekt_competition_server.shared.types import GameID
+from comprl.shared.types import GameID
 from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
 

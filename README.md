@@ -30,11 +30,11 @@ lest.
 # General
   To run the server use:
   ```
-  python -m teamprojekt_competition_server.server.main
+  python -m comprl.server.main
   ```
   To run the client use:
   ```
-  python -m teamprojekt_competition_server.client.main
+  python -m comprl.client.main
   ```
 
   ## Naming-Conventions
