@@ -44,6 +44,9 @@ if __name__ == "__main__":
             print(random.choice([0.0, 1.0, 2.0]))
             return [random.choice([0.0, 1.0, 2.0])]
             # Action Space Box(-2.0, 2.0, (1,), float32)
+    
+    token1 = "e3a0222f-2b8b-49e2-8305-7c5a3c9b48c6"
+    token2 = "1a11abc1-774d-4582-9519-4ae28c5ae4d3"
 
     agent = Laserhockey_Agent()  # Rock_Paper_Scissors_Agent()
-    agent.run("HelloWorldToken")
+    agent.run(token1)

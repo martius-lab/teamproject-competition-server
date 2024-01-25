@@ -44,7 +44,7 @@ def authenticate(id: PlayerID, token: str) -> None:
         )
         if id in _connected_players:
             _connected_players[id].disconnect(
-                reason="could not authenticate with this token"
+                reason="Authentication with the provided token failed"
             )
 
 
@@ -74,5 +74,20 @@ def get_player_by_id(id: PlayerID) -> Optional[IPlayer]:
     if id in _authenticated_players:
         return _connected_players[id]
 
-    log.error("Tried acsess of not authenticated player!")
+    log.error("Tried access of not authenticated player!")
+    return None
+
+def get_user_id(id: PlayerID) -> Optional[IPlayer]:
+    """get the object of a authenticated player
+
+    Args:
+        id (PlayerID): id of the player
+
+    Returns:
+        Optional[IPlayer]: contains the IPlayer object if authenticated
+    """
+    if id in _authenticated_players:
+        return _authenticated_players[id]
+
+    log.error("Tried access of not authenticated player!")
     return None

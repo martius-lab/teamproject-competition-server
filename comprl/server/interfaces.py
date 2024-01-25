@@ -3,9 +3,11 @@
 import logging as log
 import abc
 from typing import Callable
+from datetime import datetime
 
 from ..shared.types import GameID, PlayerID
 from . import id_generator
+from .game_result import GameResult
 
 
 class IAction:
@@ -66,6 +68,7 @@ class IGame(abc.ABC):
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
         self.id: GameID = id_generator.generate_game_id()
+        self.start_time = None
 
         self.finish_callbacks: list[Callable] = []
 
@@ -79,6 +82,8 @@ class IGame(abc.ABC):
         and starts the game cycle
         """
 
+        self.start_time = datetime.now()
+        
         for p in self.players:
             p.notify_start(game_id=self.id)
 
@@ -153,5 +158,11 @@ class IGame(abc.ABC):
 
     @abc.abstractmethod
     def _player_stats(self, index) -> int:
-        """retutns the player stats"""
+        """returns the player stats"""
         ...
+
+    @abc.abstractmethod
+    def get_game_results(self) -> GameResult:
+        """returns the result and the statistics of the game"""
+        ...
+

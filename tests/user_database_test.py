@@ -38,6 +38,13 @@ def user_database_tests():
 
     # print(user_db.verify_user(uuid.uuid4()))
 
+def insert_users():
+    token1 = "e3a0222f-2b8b-49e2-8305-7c5a3c9b48c6"
+    token2 = "1a11abc1-774d-4582-9519-4ae28c5ae4d3"
+    user_db.add_user(user_name="hallo", user_token=token1)
+    user_db.add_user(user_name="hey", user_token=token2)
+
 if __name__ == "__main__":
-    user_database_tests()  # only enable for manual testing
+    insert_users()
+    # user_database_tests()  # only enable for manual testing
     pass

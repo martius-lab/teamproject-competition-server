@@ -7,6 +7,9 @@ import laserhockey.laser_hockey_env as lh
 # import gymnasium as gym
 from importlib import reload
 
+from . import player_manager
+from comprl.server.game_result import GameResult, GameEndState
+
 
 from .interfaces import IGame, IPlayer
 
@@ -90,3 +93,15 @@ class LaserHockeyGame(IGame):
 
     def _player_stats(self, index) -> int:
         return 0  # TODO where tf is th score stored?
+    
+    def get_game_results(self) -> GameResult:
+        return GameResult(
+            game_id=self.id,
+            user1_id=player_manager.get_user_id(self.players[0].id),
+            user2_id=player_manager.get_user_id(self.players[1].id),
+            score_user_1=0.0,
+            score_user_2=0.0,
+            end_state=GameEndState.WIN.value,
+            is_user1_winner=self._player_won(0),
+            start_time=self.start_time
+        )
