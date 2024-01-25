@@ -1,6 +1,5 @@
 """defines interfaces for the server logic"""
 
-import logging as log
 import abc
 from typing import Callable
 
@@ -104,7 +103,7 @@ class IGame(abc.ABC):
         for i, p in enumerate(self.players):
 
             def __res(v: IAction, index=i):
-                log.debug(f"got action {v} from player {index}")
+                # log.debug(f"got action {v} from player {index}")
                 # TODO: add validation here!
                 self.current_actions[index] = v
                 self.result_received += 1
