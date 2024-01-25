@@ -13,9 +13,20 @@ logging.basicConfig(level=logging.DEBUG)
 
 def database_tests():
     gameID1, gameID2, gameID3 = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
-    game1=GameResult(game_id=gameID1, user1_id=23, user2_id=4, score_user_1=3, score_user_2=6)
-    game2=GameResult(game_id=gameID2, user1_id=43, user2_id=23, score_user_1=6, score_user_2=7)
-    game3=GameResult(game_id=gameID3, user1_id=1, user2_id=23, score_user_1=6, score_user_2=7, end_state=GameEndState.DISCONNECTED.value)
+    game1 = GameResult(
+        game_id=gameID1, user1_id=23, user2_id=4, score_user_1=3, score_user_2=6
+    )
+    game2 = GameResult(
+        game_id=gameID2, user1_id=43, user2_id=23, score_user_1=6, score_user_2=7
+    )
+    game3 = GameResult(
+        game_id=gameID3,
+        user1_id=1,
+        user2_id=23,
+        score_user_1=6,
+        score_user_2=7,
+        end_state=GameEndState.DISCONNECTED.value,
+    )
     game_db.insert_game(game_result=game1)
     game_db.insert_game(game_result=game2)
     game_db.insert_game(game_result=game3)
