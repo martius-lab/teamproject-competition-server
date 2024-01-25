@@ -3,12 +3,11 @@
 import sqlite3
 import logging as log
 from uuid import UUID
-from enum import Enum
 from datetime import datetime
 
-GAME_DB_NAME = "game"
-GameEndState = Enum("GameEndState", ["WIN", "DRAW", "DISCONNECTED"])
+from .game_result import GameEndState
 
+GAME_DB_NAME = "game"
 
 # Connect to the database:
 connection = sqlite3.connect("comprl/server/COMP_database.db")
