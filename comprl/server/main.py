@@ -10,7 +10,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-# run with "python -m teamprojekt_competition_server.server.main"
+# run with "python -m comprl.server.main"
 
 
 class ExampleGame(IGame):

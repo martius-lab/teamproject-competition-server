@@ -1,4 +1,4 @@
-import teamprojekt_competition_server.server.game_database as game_db
+import comprl.server.game_database as game_db
 import logging
 import uuid
 

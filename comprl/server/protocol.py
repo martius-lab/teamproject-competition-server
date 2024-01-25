@@ -7,7 +7,7 @@ from twisted.protocols import amp
 from twisted.internet.interfaces import IAddress
 from twisted.internet import reactor
 
-from teamprojekt_competition_server.shared.types import GameID
+from comprl.shared.types import GameID
 
 from ..shared.commands import Auth, StartGame, EndGame, Step, Error
 
