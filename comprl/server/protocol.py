@@ -117,4 +117,5 @@ class COMPServerProtocol(amp.AMP):
         self.callRemote(Error, msg=str.encode(msg))
 
     def disconnect(self):
+        """disconnects the client from the server"""
         self.transport.loseConnection()

@@ -57,7 +57,10 @@ def add_user(
     Returns:
         int | None: returns the user_id
     """
-    if _is_token_taken(user_token): raise Exception(f'Tried to insert already used token {user_token} into user database')
+    if _is_token_taken(user_token):
+        raise Exception(
+            f"Tried to insert already used token {user_token} into user database"
+        )
 
     cursor.execute(
         f"""
@@ -112,7 +115,8 @@ def verify_user(user_token: UUID) -> int:
         (str(user_token),),
     )
     fetched_result = res.fetchone()
-    if (fetched_result is None): raise Exception(f'Could not verify {user_token} in the user database')
+    if fetched_result is None:
+        raise Exception(f"Could not verify {user_token} in the user database")
     (id,) = fetched_result
     return id
 

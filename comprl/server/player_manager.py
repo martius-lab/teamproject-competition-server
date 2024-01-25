@@ -38,11 +38,14 @@ def authenticate(id: PlayerID, token: str) -> None:
         if id in _connected_players:
             _authenticated_players[id] = user_id
             matchmaking.match(id)
-    except:
-        log.debug(f"Player with id {id} tried to authenticate with unknown token: {token}")
+    except Exception:
+        log.debug(
+            f"Player with id {id} " f"tried to authenticate with unknown token: {token}"
+        )
         if id in _connected_players:
-            _connected_players[id].disconnect(reason="could not authenticate with this token")
-    
+            _connected_players[id].disconnect(
+                reason="could not authenticate with this token"
+            )
 
 
 def remove(id: PlayerID) -> None:

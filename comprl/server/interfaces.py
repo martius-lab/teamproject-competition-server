@@ -51,7 +51,7 @@ class IPlayer(abc.ABC):
     def notify_end(self, result, stats):
         """notifies player that the game has ended"""
         ...
-    
+
     @abc.abstractmethod
     def disconnect(self, reason: str):
         """disconnect the player"""
