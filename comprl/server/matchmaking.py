@@ -4,7 +4,7 @@ from queue import Queue
 
 from . import game_manager
 
-from teamprojekt_competition_server.shared.types import PlayerID
+from comprl.shared.types import PlayerID
 
 _queue: Queue[PlayerID] = Queue()
 

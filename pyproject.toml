@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "teamprojekt_competition_server"
+name = "comprl"
 version = "0.1.0"
 description = "Competition Server for Reinforcement Agents -- Teamprojekt WS 23/24"
 authors = [
@@ -28,8 +28,8 @@ mypy = ["mypy"]  # here you can also list `types-*` stub packages for third-part
 
 # For convenience: Install all development-dependencies
 dev = [
-    "teamprojekt_competition_server[test]",
-    "teamprojekt_competition_server[mypy]",
+    "comprl[test]",
+    "comprl[mypy]",
     "ruff",
 ]
 

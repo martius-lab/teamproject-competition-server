@@ -8,7 +8,7 @@ import random
 log.basicConfig(level=log.DEBUG)
 
 
-# run with "python -m teamprojekt_competition_server.client.main"
+# run with "python -m comprl.client.main"
 
 if __name__ == "__main__":
 

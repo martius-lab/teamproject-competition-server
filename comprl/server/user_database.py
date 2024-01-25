@@ -7,7 +7,7 @@ USER_DB_NAME = "user"
 
 
 # Connect to the database:
-connection = sqlite3.connect("teamprojekt_competition_server/server/COMP_database.db")
+connection = sqlite3.connect("comprl/server/COMP_database.db")
 cursor = connection.cursor()
 cursor.execute(
     f"""

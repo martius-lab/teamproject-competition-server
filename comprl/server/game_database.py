@@ -11,7 +11,7 @@ GameEndState = Enum("GameEndState", ["WIN", "DRAW", "DISCONNECTED"])
 
 
 # Connect to the database:
-connection = sqlite3.connect("teamprojekt_competition_server/server/COMP_database.db")
+connection = sqlite3.connect("comprl/server/COMP_database.db")
 cursor = connection.cursor()
 cursor.execute(
     f"""SELECT name FROM sqlite_master 
