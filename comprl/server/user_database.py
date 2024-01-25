@@ -2,6 +2,7 @@
 
 import sqlite3
 import logging as log
+from uuid import UUID
 
 USER_DB_NAME = "user"
 
@@ -21,7 +22,7 @@ cursor.execute(
 )
 
 
-def _is_token_taken(new_token: int) -> bool:
+def _is_token_taken(new_token: UUID) -> bool:
     """tests whether a token has already been assigned to another user
 
     Args:
@@ -36,31 +37,32 @@ def _is_token_taken(new_token: int) -> bool:
         f"""
         SELECT COUNT(*) FROM {USER_DB_NAME} WHERE token=?
     """,
-        (new_token,),
+        (str(new_token),),
     )
     count = cursor.fetchone()[0]
     return count > 0
 
 
 def add_user(
-    user_name: str, user_token: int, user_mu=25.000, user_sigma=8.333
+    user_name: str, user_token: UUID, user_mu=25.000, user_sigma=8.333
 ) -> int | None:
     """adds a new user to the database
 
     Args:
         user_name (str): name of the user
-        user_token (int): token for the user (must be unique for every user)
+        user_token (UUID): token for the user (must be unique for every user)
         user_mu (float, optional): needed for Matchmaking. Defaults to 25.000.
         user_sigma (float, optional): needed for Matchmaking. Defaults to 8.333.
 
     Returns:
         int | None: returns the user_id
     """
-    assert not _is_token_taken(user_token)
+    if _is_token_taken(user_token): raise Exception(f'Tried to insert already used token {user_token} into user database')
+
     cursor.execute(
         f"""
         INSERT INTO {USER_DB_NAME}(name, token, mu, sigma) VALUES (?,?,?,?)""",
-        (user_name, user_token, user_mu, user_sigma),
+        (user_name, str(user_token), user_mu, user_sigma),
     )
     connection.commit()
     id = cursor.lastrowid
@@ -94,11 +96,11 @@ def get_user(id: int) -> tuple:
     return user
 
 
-def verify_user(user_token: int) -> int:
+def verify_user(user_token: UUID) -> int:
     """returns the corresponding user_id for a token
 
     Args:
-        user_token (int): token for which the user should be found
+        user_token (UUID): token for which the user should be found
 
     Returns:
         int: user_id
@@ -107,9 +109,11 @@ def verify_user(user_token: int) -> int:
         f"""
         SELECT user_id FROM {USER_DB_NAME} WHERE token = ?
     """,
-        (user_token,),
+        (str(user_token),),
     )
-    (id,) = res.fetchone()
+    fetched_result = res.fetchone()
+    if (fetched_result is None): raise Exception(f'Could not verify {user_token} in the user database')
+    (id,) = fetched_result
     return id
 
 

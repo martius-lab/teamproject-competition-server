@@ -1,25 +1,26 @@
 import comprl.server.user_database as user_db
 import logging
-
+import uuid
 # run with python -m tests.user_database_test
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 def user_database_tests():
-    userID1 = user_db.add_user(user_name="player_1", user_token=123)
-    userID2 = user_db.add_user(user_name="player_2", user_token=456)
-    userID3 = user_db.add_user(user_name="player_3", user_token=789)
-    userID4 = user_db.add_user(user_name="player_4", user_token=444)
+    tokens = [uuid.uuid4() for _ in range(4)]
+    userID1 = user_db.add_user(user_name="player_1", user_token=tokens[0])
+    userID2 = user_db.add_user(user_name="player_2", user_token=tokens[1])
+    userID3 = user_db.add_user(user_name="player_3", user_token=tokens[2])
+    userID4 = user_db.add_user(user_name="player_4", user_token=tokens[3])
     print(userID1, userID2, userID3, userID4)
 
     assert (
-        userID1 % 3 == 1 and userID2 % 3 == 2 and userID3 % 3 == 0 and userID4 % 3 == 1
+        userID1 % 4 == 1 and userID2 % 4 == 2 and userID3 % 4 == 3 and userID4 % 4 == 0
     )
     all_users = user_db.get_all_users()
     print(all_users)
     assert len(all_users) == 4
-    assert user_db.verify_user(123) == userID1
+    assert user_db.verify_user(tokens[0]) == userID1
 
     user = user_db.get_user(id=userID1)
     print(
@@ -35,7 +36,8 @@ def user_database_tests():
     all_users = user_db.get_all_users()
     assert len(all_users) == 3
 
+    # print(user_db.verify_user(uuid.uuid4()))
 
 if __name__ == "__main__":
-    # user_database_tests()  # only enable for manual testing
+    user_database_tests()  # only enable for manual testing
     pass

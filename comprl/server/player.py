@@ -69,3 +69,7 @@ class COMPPlayer(IPlayer):
         return self.connection.notify_end(
             result=result, stats=stats, return_callback=__res
         )
+    
+    def disconnect(self, reason: str):
+        self.connection.send_error(reason)
+        self.connection.disconnect()

@@ -2,13 +2,15 @@
 
 import logging as log
 from typing import Optional
+from uuid import UUID
 
 from .interfaces import IPlayer, PlayerID
 
 from . import matchmaking
+from . import user_database
 
 _connected_players: dict[PlayerID, IPlayer] = {}
-_authenticated_players: dict[PlayerID, bool] = {}
+_authenticated_players: dict[PlayerID, int] = {}
 
 
 def register(player: IPlayer) -> None:
@@ -26,13 +28,21 @@ def authenticate(id: PlayerID, token: str) -> None:
 
     Args:
         id (PlayerID): id of the player to authenticate
-        token (str): autheticaten token
+        token (str): authenticate token
     """
-    log.debug(f"Player authenticated with id:{id} authenticated with token:{token}")
+    try:
+        converted_token = UUID(token)
+        user_id = user_database.verify_user(user_token=converted_token)
+        log.debug(f"Player authenticated with id:{id} authenticated with token:{token}")
 
-    if id in _connected_players:
-        _authenticated_players[id] = True
-        matchmaking.match(id)
+        if id in _connected_players:
+            _authenticated_players[id] = user_id
+            matchmaking.match(id)
+    except:
+        log.debug(f"Player with id {id} tried to authenticate with unknown token: {token}")
+        if id in _connected_players:
+            _connected_players[id].disconnect(reason="could not authenticate with this token")
+    
 
 
 def remove(id: PlayerID) -> None:
@@ -50,7 +60,7 @@ def remove(id: PlayerID) -> None:
 
 
 def get_player_by_id(id: PlayerID) -> Optional[IPlayer]:
-    """get the obejct of a authenticated player
+    """get the object of a authenticated player
 
     Args:
         id (PlayerID): id of the player
