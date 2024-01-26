@@ -136,13 +136,17 @@ class HockeyGame(IGame):
         Returns:
             GameResult: results and statistics of the game
         """
+        end_state = GameEndState.WIN.value
+        if self.score[0] == self.score[1]:
+            end_state = GameEndState.DRAW.value
+
         return GameResult(
             game_id=self.id,
             user1_id=player_manager.get_user_id(self.players[0].id),
             user2_id=player_manager.get_user_id(self.players[1].id),
-            score_user_1=0.0,
-            score_user_2=0.0,
-            end_state=GameEndState.WIN.value,
+            score_user_1=self.score[0],
+            score_user_2=self.score[1],
+            end_state=end_state,
             is_user1_winner=self._player_won(0),
             start_time=self.start_time,
         )
