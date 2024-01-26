@@ -56,4 +56,4 @@ def _game_ended(id: GameID):
         return
 
     game = _running_games.pop(id)
-    game_database.insert_game(game.get_game_results())
+    game_database.insert_game(game.get_results())

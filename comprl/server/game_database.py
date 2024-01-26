@@ -115,7 +115,7 @@ def get_won_game_ids(user_id: int) -> list[UUID]:
         list[int]: IDs of the games
     """
     res = cursor.execute(
-        f"SELECT game_ID FROM {GAME_DB_NAME} WHERE winner=? AND end_state=1",
+        f"SELECT game_ID FROM {GAME_DB_NAME} WHERE winner=?",
         (user_id,),
     )
     games = []

@@ -3,6 +3,7 @@
 import sqlite3
 import logging as log
 from uuid import UUID
+from typing import Optional
 
 USER_DB_NAME = "user"
 
@@ -99,7 +100,7 @@ def get_user(id: int) -> tuple:
     return user
 
 
-def verify_user(user_token: UUID) -> int:
+def verify_user(user_token: str) -> Optional[int]:
     """returns the corresponding user_id for a token
 
     Args:
@@ -116,7 +117,8 @@ def verify_user(user_token: UUID) -> int:
     )
     fetched_result = res.fetchone()
     if fetched_result is None:
-        raise Exception(f"Could not verify {user_token} in the user database")
+        return None
+
     (id,) = fetched_result
     return id
 

@@ -2,7 +2,6 @@
 
 import logging as log
 from typing import Optional
-from uuid import UUID
 
 from .interfaces import IPlayer, PlayerID
 
@@ -30,23 +29,25 @@ def authenticate(id: PlayerID, token: str) -> None:
         id (PlayerID): id of the player to authenticate
         token (str): authenticate token
     """
-    try:
-        converted_token = UUID(token)
-        user_id = user_database.verify_user(user_token=converted_token)
+    user_id = user_database.verify_user(user_token=token)
+
+    if id not in _connected_players:
+        return
+
+    if user_id is None:
+        log.debug(
+            f"Player with id {id} " f"tried to authenticate with unknown token: {token}"
+        )
+        _connected_players[id].disconnect(
+            reason="Authentication with the provided token failed"
+        )
+        remove(id)
+    else:
         log.debug(f"Player authenticated with id:{id} authenticated with token:{token}")
 
         if id in _connected_players:
             _authenticated_players[id] = user_id
             matchmaking.match(id)
-    except Exception:
-        log.debug(
-            f"Player with id {id} " f"tried to authenticate with unknown token: {token}"
-        )
-        if id in _connected_players:
-            _connected_players[id].disconnect(
-                reason="Authentication with the provided token failed"
-            )
-            remove(id)
 
 
 def remove(id: PlayerID) -> None:

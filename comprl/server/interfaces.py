@@ -161,6 +161,6 @@ class IGame(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def get_game_results(self) -> GameResult:
+    def get_results(self) -> GameResult:
         """returns the result and the statistics of the game"""
         ...

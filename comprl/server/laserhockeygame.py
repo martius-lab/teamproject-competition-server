@@ -94,7 +94,7 @@ class LaserHockeyGame(IGame):
     def _player_stats(self, index) -> int:
         return 0  # TODO where tf is th score stored?
 
-    def get_game_results(self) -> GameResult:
+    def get_results(self) -> GameResult:
         """get the results of the game
 
         Returns:
