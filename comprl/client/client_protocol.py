@@ -1,4 +1,5 @@
 """class for client protocol"""
+
 import logging as log
 
 from twisted.internet.interfaces import IAddress
@@ -90,7 +91,7 @@ class COMPClientProtocol(amp.AMP):
         Args:
             msg (_type_): error description
         """
-        pass
+        raise Exception(msg)
 
     Error.responder(error)
 

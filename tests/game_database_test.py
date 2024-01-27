@@ -1,6 +1,10 @@
-import comprl.server.game_database as game_db
 import logging
 import uuid
+
+import comprl.server.game_database as game_db
+from comprl.server.game_result import GameEndState, GameResult
+
+game_db.GAME_DB_FILE = "comprl/server/COMP_database_test.db"
 
 # run with python -m tests.game_database_test
 
@@ -9,23 +13,23 @@ logging.basicConfig(level=logging.DEBUG)
 
 def database_tests():
     gameID1, gameID2, gameID3 = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
-    game_db.insert_won_game(
-        game_id=gameID1, winner_id=23, loser_id=4, score_winner=3, score_loser=6
+    game1 = GameResult(
+        game_id=gameID1, user1_id=23, user2_id=4, score_user_1=3, score_user_2=6
     )
-    game_db.insert_won_game(
-        game_id=gameID2,
-        winner_id=43,
-        loser_id=23,
-        score_winner=6,
-        score_loser=7,
+    game2 = GameResult(
+        game_id=gameID2, user1_id=43, user2_id=23, score_user_1=6, score_user_2=7
     )
-    game_db.insert_disconnected_game(
+    game3 = GameResult(
         game_id=gameID3,
-        disconnected_user_id=1,
-        other_user_id=23,
-        score_disconnected_user=6,
-        score_other_user=7,
+        user1_id=1,
+        user2_id=23,
+        score_user_1=6,
+        score_user_2=7,
+        end_state=GameEndState.DISCONNECTED.value,
     )
+    game_db.insert_game(game_result=game1)
+    game_db.insert_game(game_result=game2)
+    game_db.insert_game(game_result=game3)
 
     assert game_db.get_user_ids(game_id=gameID2) == (43, 23)
 
@@ -47,5 +51,5 @@ def database_tests():
 
 
 if __name__ == "__main__":
-    # database_tests()  # only enable for manual testing
+    database_tests()  # only enable for manual testing
     pass

@@ -6,9 +6,10 @@ from typing import Optional
 from .interfaces import IPlayer, PlayerID
 
 from . import matchmaking
+from . import user_database
 
 _connected_players: dict[PlayerID, IPlayer] = {}
-_authenticated_players: dict[PlayerID, bool] = {}
+_authenticated_players: dict[PlayerID, int] = {}
 
 
 def register(player: IPlayer) -> None:
@@ -26,13 +27,27 @@ def authenticate(id: PlayerID, token: str) -> None:
 
     Args:
         id (PlayerID): id of the player to authenticate
-        token (str): autheticaten token
+        token (str): authenticate token
     """
-    log.debug(f"Player authenticated with id:{id} authenticated with token:{token}")
+    user_id = user_database.verify_user(user_token=token)
 
-    if id in _connected_players:
-        _authenticated_players[id] = True
-        matchmaking.match(id)
+    if id not in _connected_players:
+        return
+
+    if user_id is None:
+        log.debug(
+            f"Player with id {id} " f"tried to authenticate with unknown token: {token}"
+        )
+        _connected_players[id].disconnect(
+            reason="Authentication with the provided token failed"
+        )
+        remove(id)
+    else:
+        log.debug(f"Player authenticated with id:{id} authenticated with token:{token}")
+
+        if id in _connected_players:
+            _authenticated_players[id] = user_id
+            matchmaking.match(id)
 
 
 def remove(id: PlayerID) -> None:
@@ -50,7 +65,7 @@ def remove(id: PlayerID) -> None:
 
 
 def get_player_by_id(id: PlayerID) -> Optional[IPlayer]:
-    """get the obejct of a authenticated player
+    """get the object of a authenticated player
 
     Args:
         id (PlayerID): id of the player
@@ -61,5 +76,21 @@ def get_player_by_id(id: PlayerID) -> Optional[IPlayer]:
     if id in _authenticated_players:
         return _connected_players[id]
 
-    log.error("Tried acsess of not authenticated player!")
+    log.error("Tried access of not authenticated player!")
+    return None
+
+
+def get_user_id(id: PlayerID) -> Optional[int]:
+    """get the object of a authenticated player
+
+    Args:
+        id (PlayerID): id of the player
+
+    Returns:
+        Optional[IPlayer]: contains the IPlayer object if authenticated
+    """
+    if id in _authenticated_players:
+        return _authenticated_players[id]
+
+    log.error("Tried access of not authenticated player!")
     return None

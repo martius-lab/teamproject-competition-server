@@ -4,8 +4,12 @@ This is the game logic of a dummy game (rock-paper-scissors).
     1: paper
     2: scissors
 """
+
 from enum import Enum
+
 from .interfaces import IGame, IPlayer
+from .game_result import GameEndState, GameResult
+from . import player_manager
 
 Sign = Enum("Sign", ["ROCK", "PAPER", "SCISSORS"])
 
@@ -54,3 +58,20 @@ class rock_paper_scissors(IGame):
 
     def _player_stats(self, index) -> int:
         return self.env[index]
+
+    def get_results(self) -> GameResult:
+        """get the results of the game
+
+        Returns:
+            GameResult: results and statistics of the game
+        """
+        return GameResult(
+            game_id=self.id,
+            user1_id=player_manager.get_user_id(self.players[0].id),
+            user2_id=player_manager.get_user_id(self.players[1].id),
+            score_user_1=0.0,
+            score_user_2=0.0,
+            end_state=GameEndState.WIN.value,
+            is_user1_winner=self._player_won(0),
+            start_time=self.start_time,
+        )

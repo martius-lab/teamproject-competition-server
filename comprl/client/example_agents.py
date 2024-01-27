@@ -1,4 +1,5 @@
 """Several examples for agents for different games"""
+
 from .agent import COMPAgent
 
 import laserhockey.hockey_env as h_env

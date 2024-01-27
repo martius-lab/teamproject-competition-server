@@ -1,4 +1,5 @@
 """handles the creation of id's"""
+
 import uuid
 
 from ..shared.types import GameID, PlayerID

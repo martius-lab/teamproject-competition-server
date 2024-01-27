@@ -77,7 +77,7 @@ class COMPServerProtocol(amp.AMP):
                 return_callback(res["token"].decode())
             else:
                 log.error("Client with wrong version tried to authenticate.")
-                # TODO send error to client
+                self.send_error(msg="Tried to connect with wrong version")
                 self.transport.loseConnection()
 
         self.callRemote(Auth).addCallback(callback=callback).addTimeout(
@@ -115,3 +115,7 @@ class COMPServerProtocol(amp.AMP):
     def send_error(self, msg: str):
         """send an error string to the client"""
         self.callRemote(Error, msg=str.encode(msg))
+
+    def disconnect(self):
+        """disconnects the client from the server"""
+        self.transport.loseConnection()
