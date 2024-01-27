@@ -1,13 +1,11 @@
-"""Game using the laser-hockey env from https://github.com/martius-lab/laser-hockey-env.git"""
-
 import numpy as np
+from comprl.server import player_manager
+from comprl.server.game_result import GameEndState, GameResult
+from comprl.server.interfaces import IGame, IPlayer
+
 import laserhockey.hockey_env as h_env
 
-# import gymnasium as gym
-
-from . import player_manager
-from .interfaces import IGame, IPlayer
-from .game_result import GameResult, GameEndState
+from comprl.server.server import COMPServer
 
 
 class HockeyGame(IGame):
@@ -150,3 +148,7 @@ class HockeyGame(IGame):
             is_user1_winner=self._player_won(0),
             start_time=self.start_time,
         )
+
+
+server = COMPServer(HockeyGame)
+server.start()

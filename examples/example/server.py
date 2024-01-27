@@ -1,17 +1,5 @@
-"""run the server"""
-
-from .server import COMPServer
-from .interfaces import IGame, IPlayer
-
-# from .gymgame import GymGame
-# from .rock_paper_scissors import rock_paper_scissors
-from .hockeygame import HockeyGame
-
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
-# run with "python -m comprl.server.main"
+from comprl.server.interfaces import IGame, IPlayer
+from comprl.server.server import COMPServer
 
 
 class ExampleGame(IGame):
@@ -42,11 +30,5 @@ class ExampleGame(IGame):
         return False
 
 
-def main():
-    """main function for testing"""
-    server = COMPServer(HockeyGame)
-    server.start()
-
-
-if __name__ == "__main__":
-    main()
+server = COMPServer(ExampleGame)
+server.start()
