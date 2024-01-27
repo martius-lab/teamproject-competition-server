@@ -1,4 +1,5 @@
 """run the server"""
+
 from .server import COMPServer
 from .interfaces import IGame, IPlayer
 

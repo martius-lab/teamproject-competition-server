@@ -4,6 +4,7 @@ This is the game logic of a dummy game (rock-paper-scissors).
     1: paper
     2: scissors
 """
+
 from enum import Enum
 
 from .interfaces import IGame, IPlayer

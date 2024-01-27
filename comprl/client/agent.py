@@ -1,4 +1,5 @@
 """base class for agent"""
+
 from typing import final
 from .client import COMPClient
 
