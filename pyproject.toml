@@ -16,7 +16,7 @@ dependencies = [
     "twisted==23.10.0",
     "numpy==1.26.2",
     #"gymnasium==0.29.1",
-    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git"
+    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git",
     "openskill==5.1.0"
 ]
 
