@@ -5,7 +5,6 @@ from .protocol import COMPServerProtocol
 from .interfaces import IPlayer
 
 from . import player_manager
-from . import matchmaking
 
 
 class COMPPlayer(IPlayer):

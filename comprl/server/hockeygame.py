@@ -60,7 +60,7 @@ class HockeyGame(IGame):
 
     def _update_environment(self):
         """perform one gym step, using the actions collected by _game_cycle"""
-        #self.env.render(mode="human")  # (un)comment to render or not
+        # self.env.render(mode="human")  # (un)comment to render or not
 
         if self.sides_swapped:  # change order of actions if sides are changed
             self.action = np.hstack(np.flip(self.current_actions, 0))

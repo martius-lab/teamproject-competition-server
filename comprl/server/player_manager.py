@@ -48,10 +48,12 @@ def authenticate(id: PlayerID, token: str) -> None:
         if id in _connected_players:
             _authenticated_players[id] = user_id
             matchmaking.match(id, user_id)
-            
+
+
 def match_player_by_id(player_id: PlayerID) -> None:
     """add player to matchmaking"""
     matchmaking.match(player_id, _authenticated_players[player_id])
+
 
 def remove(id: PlayerID) -> None:
     """remove player from the manager
