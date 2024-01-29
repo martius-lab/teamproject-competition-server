@@ -16,7 +16,7 @@ cursor.execute(
     CREATE TABLE IF NOT EXISTS {USER_DB_NAME} (
         user_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        token INTEGER NOT NULL,
+        token TEXT NOT NULL,
         mu FLOAT NOT NULL,
         sigma FLOAT NOT NULL
     )"""

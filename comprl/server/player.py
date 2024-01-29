@@ -64,7 +64,7 @@ class COMPPlayer(IPlayer):
 
         def __res(ready: bool):
             if ready:
-                matchmaking.match(self.id)
+                player_manager.match_player_by_id(self.id)
 
         return self.connection.notify_end(
             result=result, stats=stats, return_callback=__res
