@@ -14,7 +14,7 @@ class COMPPlayer(IPlayer):
         # init super to obtain id
         super().__init__()
 
-        # set the networing connection
+        # set the networking connection
         self.connection: COMPServerProtocol = connection
 
         def __auth():

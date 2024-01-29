@@ -3,12 +3,13 @@
 import logging as log
 from typing import Type
 
-from twisted.internet import reactor
+from twisted.internet import reactor, task
 from twisted.internet.endpoints import TCP4ServerEndpoint
 
 from .factory import COMPServerFactory
 from .interfaces import IGame
 from . import game_manager
+from .matchmaking import update
 
 PORT = 65335  # TODO move this in config
 
@@ -29,6 +30,15 @@ class COMPServer:
         self.endpoint.listen(self.factory)
         log.debug(f"Server listening on port {port}")  # TODO some more info here
         self.is_running = True
+
+        def update_matchmaking() -> None:
+            """update the matchmaking queue"""
+            update()
+
+        # Schedule the update_matchmaking() to be called regularly
+        looping_call = task.LoopingCall(update_matchmaking)
+        looping_call.start(15)  # Call the function every 15 seconds
+
         reactor.run()  # type: ignore[attr-defined]
 
     def stop(self) -> None:
