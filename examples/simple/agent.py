@@ -1,4 +1,4 @@
-from comprl.client.agent import COMPAgent
+from comprl.client import agent
 
 
 class ExampleAgent(COMPAgent):
