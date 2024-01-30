@@ -70,9 +70,9 @@ def _rate_match_quality(
     # TODO play with this function. Maybe even use polynomial or exponential growth,
     # depending on waiting time
 
-    p1 = model.create_rating([mu_p1, sigma_p1], "player1")
-    p2 = model.create_rating([mu_p2, sigma_p2], "player2")
-    draw_prob = model.predict_draw([[p1], [p2]])
+    rating_p1 = model.create_rating([mu_p1, sigma_p1], "player1")
+    rating_p2 = model.create_rating([mu_p2, sigma_p2], "player2")
+    draw_prob = model.predict_draw([[rating_p1], [rating_p2]])
     return draw_prob + waiting_bonus
 
 

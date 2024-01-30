@@ -25,3 +25,5 @@ venv/
 # vscode settings
 .vscode
 
+# Database
+*.db
