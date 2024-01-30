@@ -66,7 +66,7 @@ def _game_ended(id: GameID):
     game_database.insert_game(game.get_results())
 
 
-def get_stored_game(game_id: GameID) -> np.array:
+def get_stored_actions(game_id: GameID) -> np.array:
     """get a game from the log file
 
     Args:
