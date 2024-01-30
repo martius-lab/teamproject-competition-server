@@ -3,6 +3,7 @@
 import abc
 from typing import Callable
 from datetime import datetime
+import numpy as np 
 
 from ..shared.types import GameID, PlayerID
 from . import id_generator
@@ -163,4 +164,9 @@ class IGame(abc.ABC):
     @abc.abstractmethod
     def get_results(self) -> GameResult:
         """returns the result and the statistics of the game"""
+        ...
+        
+    @abc.abstractmethod
+    def get_actions(self) -> np.array:
+        """returns the actions of the game"""
         ...

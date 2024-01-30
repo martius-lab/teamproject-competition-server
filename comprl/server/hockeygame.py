@@ -36,6 +36,11 @@ class HockeyGame(IGame):
 
         # Bool if all rounds are finished
         self.finished = False
+        
+        # array storing all actions to be saved later.
+        # The array contains one subarray per round.
+        self.actions = np.array([])
+        self.actions_this_round = np.array([])
 
         super().__init__(players)
 
@@ -73,6 +78,8 @@ class HockeyGame(IGame):
             self.truncated,
             self.info,
         ) = self.env.step(self.action)
+        #append actions to actions this round array
+        self.actions_this_round = np.append(self.actions_this_round, self.action)
 
         # check if current round has ended
         if self.terminated or self.truncated:
@@ -93,10 +100,15 @@ class HockeyGame(IGame):
             self.obs_player_left, self.info = self.env.reset()
             self.sides_swapped = not self.sides_swapped
             self.remaining_rounds = self.remaining_rounds - 1
+                
+            #append actions this round to actions array and actions this round is reset
+            self.actions = np.append(self.actions, self.actions_this_round)
+            self.actions_this_round = np.array([])
 
             # check if it was the last round
             if self.remaining_rounds == 0:
                 self.finished = True
+            
 
     def _validate_action(self, action) -> bool:
         return self.env.action_space.contains(
@@ -150,3 +162,11 @@ class HockeyGame(IGame):
             is_user1_winner=self._player_won(0),
             start_time=self.start_time,
         )
+    
+    def get_actions(self) -> np.array:
+        """get the actions of the game
+
+        Returns:
+            np.array: actions of the game
+        """
+        return self.actions

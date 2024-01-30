@@ -2,6 +2,8 @@
 
 import logging as log
 from typing import Type
+import numpy as np
+from pathlib import Path
 
 from .interfaces import IGame
 from ..shared.types import GameID, PlayerID
@@ -56,4 +58,21 @@ def _game_ended(id: GameID):
         return
 
     game = _running_games.pop(id)
+    
+    # store actions in a file 
+    path = Path("comprl/server/game_actions/" + str(id) + ".npy")
+    np.save(path, game.get_actions())
+    #write game to database
     game_database.insert_game(game.get_results())
+
+
+def get_stored_game(game_id: GameID) -> np.array:
+    """get a game from the log file
+
+    Args:
+        game_id (GameID): id of the game we want to get
+
+    Returns:
+        np.array: the array containing the actions
+    """
+    return np.load("comprl/server/game_actions/" + str(game_id) + ".npy")
