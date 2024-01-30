@@ -58,15 +58,15 @@ def _game_ended(id: GameID):
         return
 
     game = _running_games.pop(id)
-    
-    # store actions in a file 
+
+    # store actions in a file
     path = Path("comprl/server/game_actions/" + str(id) + ".npy")
     np.save(path, game.get_actions())
-    #write game to database
+    # write game to database
     game_database.insert_game(game.get_results())
 
 
-def get_stored_actions(game_id: GameID) -> np.array:
+def get_stored_actions(game_id: GameID) -> np.ndarray:
     """get a game from the log file
 
     Args:
