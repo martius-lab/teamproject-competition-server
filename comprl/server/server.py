@@ -1,4 +1,6 @@
-"""class for server"""
+"""
+class for server
+"""
 
 import argparse
 import logging as log
@@ -31,11 +33,18 @@ class Server(IServer):
         log.debug(f"Player {player.id} connected")
         self.player_manager.add(player)
 
+        def __auth(token):
+            if self.player_manager.auth(player.id, token):
+                self.matchmaking.match(player.id)
+
+        player.authenticate(__auth)
+
     def on_disconnect(self, player: IPlayer):
         """gets called when a player disconnects"""
         log.debug(f"Player {player.id} disconnected")
+        self.matchmaking.remove(player.id)
         self.player_manager.remove(player)
-        
+
     def on_update(self):
         """gets called every update cycle"""
         self.matchmaking.update()
@@ -45,10 +54,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Server arguments")
     parser.add_argument("--config", type=str, help="Config file")
     parser.add_argument("--port", type=int, help="Port to listen on")
-    parser.add_argument(
-        "--game", type=str, help="File containing the game to run", default="game.py"
-    )
-    parser.add_argument("--log", type=str, help="Log level", default="INFO")
+    parser.add_argument("--game", type=str, help="File containing the game to run")
+    parser.add_argument("--log", type=str, help="Log level")
     args = parser.parse_args()
 
     if args.config is not None:
@@ -56,7 +63,7 @@ if __name__ == "__main__":
         with open(args.config, "rb") as f:
             data = tomllib.load(f)
     else:
-        print("No config file provided")
+        print("No config file provided, using arguments or defaults")
 
     port = args.port or data["port"] or 65335
     game_type = args.game or data["game"] or "game"

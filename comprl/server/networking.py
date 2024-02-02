@@ -1,3 +1,5 @@
+"""contains the networking components of the server"""
+
 import logging as log
 from typing import Callable
 
@@ -43,10 +45,7 @@ class COMPServerProtocol(amp.AMP):
 
     def connectionMade(self) -> None:
         """called upon connectionMade event"""
-        addr: IAddress = self.transport.getPeer()  # type: ignore
-        debug_msg = f"connected to client with IP: {addr.host}"
-        debug_msg_rest = f", Port: {addr.port} via {addr.type}"
-        log.debug(debug_msg + debug_msg_rest)
+
         # broadcast to callbacks
         for c in self.connection_made_callbacks:
             c()
@@ -172,6 +171,14 @@ class COMPPlayer(IPlayer):
         self.connection.send_error(reason)
         self.connection.disconnect()
 
+    def notify_error(self, error: str):
+        """notifies the player of an error
+
+        Args:
+            error (str): error message
+        """
+        self.connection.send_error(error)
+
 
 class COMPFactory(ServerFactory):
     """Factory for COMP servers.
@@ -228,9 +235,10 @@ def launch_server(server: IServer, port: int = 65335) -> None:
 
     """
     log.info(f"Launching server on port {port}")
-    #setup and link the on_update event
-    LoopingCall(server.on_update).start(1.0)
 
     reactor.listenTCP(port, COMPFactory(server))  # type: ignore[attr-defined]
     reactor.addSystemEventTrigger("before", "shutdown", server.on_stop)  # type: ignore[attr-defined]
+
+    # setup and link the on_update event
+    LoopingCall(server.on_update).start(1.0)
     reactor.run()  # type: ignore[attr-defined]

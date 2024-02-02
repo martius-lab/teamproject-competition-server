@@ -1,4 +1,3 @@
-
 """
 This module contains utility functions for the server.
 """
@@ -6,6 +5,8 @@ This module contains utility functions for the server.
 import uuid
 
 from comprl.shared.types import GameID, PlayerID
+from comprl.server.data import ConnectionInfo
+
 
 class IDGenerator:
     """handles the creation of id's"""
@@ -27,3 +28,38 @@ class IDGenerator:
             GameID: obtained id
         """
         return uuid.uuid4()
+
+
+class ConfigProvider:
+    """provides configuration settings"""
+
+    __config = {
+        "port": 8080,
+        "timeout": 10,
+        "log_level": "INFO",
+        "game_path": "game",
+        "game_data": ConnectionInfo("data.db", "games"),
+        "user_data": ConnectionInfo("data.db", "users"),
+    }
+
+    @staticmethod
+    def get(key):
+        """gets a configuration setting
+
+        Args:
+            key (str): key of the setting
+
+        Returns:
+            Any: value of the setting
+        """
+        return ConfigProvider.__config[key]
+
+    @staticmethod
+    def set(key, value):
+        """sets a configuration setting
+
+        Args:
+            key (str): key of the setting
+            value (Any): value of the setting
+        """
+        ConfigProvider.__config[key] = value

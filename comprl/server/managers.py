@@ -1,9 +1,14 @@
-from typing import Optional, Type
+"""
+This module contains classes that manage game instances and players.
+"""
+
+from typing import Type
 from queue import Queue
-import logging as log
 
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
+from comprl.server.data import GameData, UserData
+from comprl.server.util import ConfigProvider
 
 
 class GameManager:
@@ -33,7 +38,7 @@ class GameManager:
         self.games[game.id] = game
 
         game.add_finish_callback(self.end_game)
-        game.start()
+        game.start() #TODO: I assume this is scuffed, due to this blocks until done
 
         return game.id
 
@@ -45,6 +50,9 @@ class GameManager:
             game_id (GameID): The ID of the game to be ended.
         """
         if game_id in self.games:
+            
+            GameData(ConfigProvider.get("game_data")).add(self.games[game_id].get_result())
+            
             del self.games[game_id]
 
 
@@ -54,7 +62,8 @@ class PlayerManager:
     """
 
     def __init__(self) -> None:
-        self.players: dict[PlayerID, tuple[IPlayer, bool, int]] = {}
+        self.auth_players: dict[PlayerID, tuple[IPlayer, int]] = {}
+        self.connected_players: dict[PlayerID, IPlayer] = {}
 
     def add(self, player: IPlayer) -> None:
         """
@@ -66,12 +75,28 @@ class PlayerManager:
         Returns:
             None
         """
-        self.players[player.id] = (player, False, -1)
+        self.connected_players[player.id] = player
 
-        def __auth(token):
-            self.players[player.id][1] = True
+    def auth(self, player_id: PlayerID, token: str) -> bool:
+            """
+            Authenticates a player using their player ID and token.
 
-        player.authenticate(__auth)
+            Args:
+                player_id (PlayerID): The ID of the player.
+                token (str): The authentication token.
+
+            Returns:
+                bool: True if the authentication is successful, False otherwise.
+            """
+            
+            data = UserData(ConfigProvider.get("user_data"))
+            if data.is_verified(token):
+                self.auth_players[player_id] = (
+                    self.connected_players[player_id],
+                    data.get_user_id(token),
+                )
+                return True
+            return False
 
     def remove(self, player: IPlayer) -> None:
         """
@@ -83,8 +108,11 @@ class PlayerManager:
         Returns:
             None
         """
-        if player.id in self.players:
-            del self.players[player.id]
+        if player.id in self.connected_players:
+            del self.connected_players[player.id]
+
+            if player.id in self.auth_players:
+                del self.auth_players[player.id]
 
     def get_user_id(self, player_id: PlayerID) -> int | None:
         """
@@ -96,8 +124,8 @@ class PlayerManager:
         Returns:
             Optional[int]: The user ID if found, None otherwise.
         """
-        if player_id in self.players:
-            return self.players[player_id][2]
+        if player_id in self.auth_players:
+            return self.auth_players[player_id][1]
         return None
 
     def get_player_by_id(self, player_id: PlayerID) -> IPlayer | None:
@@ -110,9 +138,37 @@ class PlayerManager:
         Returns:
             Optional[IPlayer]: The player object if found, None otherwise.
         """
-        if player_id in self.players:
-            return self.players[player_id][0]
+        if player_id in self.auth_players:
+            return self.auth_players[player_id][0]
         return None
+
+    def broadcast_error(self, msg: str) -> None:
+        """
+        Broadcasts a message to all connected players.
+
+        Args:
+            msg (str): The message to be broadcasted.
+
+        Returns:
+            None
+        """
+
+        for player in self.connected_players.values():
+            player.notify_error(msg)
+
+    def broadcast_error_auth(self, msg: str) -> None:
+        """
+        Broadcasts a message to all authenticated players.
+
+        Args:
+            msg (str): The message to be broadcasted.
+
+        Returns:
+            None
+        """
+        
+        for player, _ in self.auth_players.values():
+            player.notify_error(msg)
 
 
 class MatchmakingManager:
@@ -151,6 +207,15 @@ class MatchmakingManager:
             )
 
         self.queue.put(player_id)
+
+    def remove(self, player_id: PlayerID) -> None:
+        """
+        Removes a player from the matchmaking queue.
+
+        Args:
+            player_id (PlayerID): The ID of the player to be removed.
+        """
+        pass
 
     def update(self):
         """

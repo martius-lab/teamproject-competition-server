@@ -1,14 +1,15 @@
-"""defines interfaces for the server logic"""
+"""
+This module contains the interfaces for the non-networking logic.
+"""
 
 import abc
+from enum import IntEnum
 from typing import Callable
 from datetime import datetime
 
-import gymnasium as gym
-
 from comprl.shared.types import GameID, PlayerID
 from comprl.server import util
-from .game_result import GameResult
+
 
 class IAction:
     """Interface for an action"""
@@ -58,6 +59,78 @@ class IPlayer(abc.ABC):
     def disconnect(self, reason: str):
         """disconnect the player"""
         ...
+
+    @abc.abstractmethod
+    def notify_error(self, error: str):
+        """notifies the player of an error"""
+        ...
+
+
+class GameEndState(IntEnum):
+    """
+    Represents the possible end states of a game.
+
+    Attributes:
+        WIN: The game ended with a win.
+        DRAW: The game ended in a draw.
+        DISCONNECTED: The game ended due to a disconnection.
+    """
+
+    WIN = 0
+    DRAW = 1
+    DISCONNECTED = 2
+
+
+class GameResult:
+    """Result and statistics of a game"""
+
+    def __init__(
+        self,
+        game_id: GameID,
+        user1_id: int,
+        user2_id: int,
+        score_user_1: float,
+        score_user_2: float,
+        start_time=None,
+        end_state: GameEndState = GameEndState.WIN,
+        is_user1_winner: bool = True,
+        is_user1_disconnected: bool = True,
+    ) -> None:
+        """initialize a game result
+
+        Args:
+            game_id (UUID): id of the game
+            user1_id (int): id of the first user
+            user2_id (int): id of the second user
+            score_user_1 (float): score of the first user
+            score_user_2 (float): score of the second user
+            start_time (str, optional): time, when the game started.
+                Defaults to None (current time).
+            end_state (int, optional): end-state of the game.
+                Defaults to GameEndState.WIN.
+            is_user1_winner (bool, optional): is user 1 the winner?
+                Defaults to True.
+            is_user1_disconnected (bool, optional): is user 1 disconnected?
+                Defaults to True.
+        """
+        self.game_id = game_id
+        self.user1_id = user1_id
+        self.user2_id = user2_id
+        self.score_user_1 = score_user_1
+        self.score_user_2 = score_user_2
+        self.start_time = start_time
+        self.end_state = end_state
+
+        if self.start_time is None:
+            self.start_time = datetime.now()
+
+        self.winner_id = None
+        if end_state == GameEndState.WIN:
+            self.winner_id = user1_id if is_user1_winner else user2_id
+
+        self.disconnected_id = None
+        if end_state == GameEndState.DISCONNECTED:
+            self.disconnected_id = user1_id if is_user1_disconnected else user2_id
 
 
 class IGame(abc.ABC):
@@ -162,89 +235,9 @@ class IGame(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def get_results(self) -> GameResult:
+    def get_result(self) -> GameResult:
         """returns the result and the statistics of the game"""
         ...
-
-
-class GymGame(IGame):
-    """game class with the game logic being a gym env"""
-
-    def __init__(
-        self, players: list[IPlayer], game_id: int, env_name: str = "Pendulum-v1"
-    ) -> None:
-        """create a game
-
-        Args:
-            players (list[IPlayer]): list of players participating in this game.
-                                      Handled by the abstract class
-            env_name (str, optional): Name of the used gym env. Defaults to
-                                      "Pendulum-v1" for testing purposes.
-                                      The default might change later.
-        """
-        self.env = gym.make(
-            env_name, render_mode="human"
-        )  # add ', render_mode="human" ' to render the env.
-
-        # initialize terminated and truncated, so the game hasn't ended by default.
-        self.terminated = False
-        self.truncated = False
-        self.cycle_count = 0
-        self.MAX_CYCLE_COUNT = 1000
-
-        self.observation, self.info = self.env.reset()
-
-        super().__init__(players)
-
-    def start(self):
-        """
-        notifies all players that the game has started
-        and starts the game cycle
-        """
-        return super().start()
-
-    def end(self, reason="unknown"):
-        """notifies all players that the game has ended
-
-        Args:
-            reason (str, optional): reason why the game has ended.
-                                    Defaults to "unknown"
-        """
-        self.env.close()
-        return super().end(reason)
-
-    def _update_environment(self):
-        """perform one gym step, using the actions collected by _game_cycle"""
-        (
-            self.observation,
-            self.reward,
-            self.terminated,
-            self.truncated,
-            self.info,
-        ) = self.env.step(self.current_actions[1])
-        self.cycle_count += 1
-        if self.cycle_count > self.MAX_CYCLE_COUNT:
-            self.terminated = True
-
-    def _game_cycle(self):
-        return super()._game_cycle()
-
-    def _validate_action(self, action) -> bool:
-        return self.env.action_space.contains(
-            action
-        )  # check if the action is in the action space and thus valid
-
-    def _is_finished(self) -> bool:
-        return self.terminated or self.truncated
-
-    def _observation(self):
-        return self.observation.tolist()  # obs is an np array, we need list
-
-    def _player_won(self, index) -> bool:
-        return False  # TODO find the winner
-
-    def _player_stats(self, index) -> int:
-        return 0  # TODO
 
 
 class IServer:
