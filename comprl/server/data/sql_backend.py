@@ -5,7 +5,7 @@ Implementation of the data access objects for managing game and user data in SQL
 import dataclasses
 import sqlite3
 
-from comprl.server.interfaces import GameResult
+from comprl.server.data.interfaces import GameResult
 from comprl.shared.types import GameID
 
 
@@ -40,9 +40,11 @@ class GameData:
         # connect to the database
         self.connection = sqlite3.connect(connection.host)
         self.cursor = self.connection.cursor()
+        self.table = connection.table
+        
         self.cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS ? (
+            f"""
+            CREATE TABLE IF NOT EXISTS {self.table} (
             game_id TEXT NOT NULL PRIMARY KEY,
             user1, 
             user2, 
@@ -51,8 +53,7 @@ class GameData:
             start_time,
             end_state,
             winner,
-            disconnected)""",
-            (connection.table,),
+            disconnected)"""
         )
 
     def add(self, game_result: GameResult) -> None:
@@ -64,8 +65,7 @@ class GameData:
 
         """
         self.cursor.execute(
-            """INSERT INTO 
-        game VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            f"""INSERT INTO {self.table} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 str(game_result.game_id),
                 game_result.user1_id,
@@ -89,7 +89,7 @@ class GameData:
 
         """
         self.cursor.execute(
-            """DELETE FROM game WHERE game_id=?""",
+            f"""DELETE FROM {self.table} WHERE game_id=?""",
             (game_id,),
         )
         self.connection.commit()
@@ -120,17 +120,17 @@ class UserData:
         # connect to the database
         self.connection = sqlite3.connect(connection.host)
         self.cursor = self.connection.cursor()
+        self.table = connection.table
+        
         self.cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS ? (
+            f"""
+            CREATE TABLE IF NOT EXISTS {connection.table} (
             user_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             token TEXT NOT NULL,
             mu FLOAT NOT NULL,
             sigma FLOAT NOT NULL
-            )""",
-            (connection.table,),
-        )
+            )""")
 
     def add(
         self, user_name: str, user_token: str, user_mu=25.000, user_sigma=8.333
@@ -148,13 +148,11 @@ class UserData:
             int: The ID of the newly added user.
         """
         self.cursor.execute(
-            """
-                            INSERT INTO 
-                            user(name, token, mu, sigma) VALUES (?,?,?,?)""",
+            f"""INSERT INTO {self.table}(name, token, mu, sigma) VALUES (?,?,?,?)""",
             (user_name, user_token, user_mu, user_sigma),
         )
         self.cursor.execute(
-            """SELECT user_id FROM user WHERE token=?""",
+            f"""SELECT user_id FROM {self.table} WHERE token=?""",
             (user_token,),
         )
         self.connection.commit()
@@ -168,7 +166,7 @@ class UserData:
             user_id (int): The ID of the user to be removed.
         """
         self.cursor.execute(
-            """DELETE FROM user WHERE user_id=?""",
+            f"""DELETE FROM {self.table} WHERE user_id=?""",
             (user_id,),
         )
         self.connection.commit()
@@ -184,10 +182,11 @@ class UserData:
             bool: True if the user is verified, False otherwise.
         """
         self.cursor.execute(
-            """SELECT COUNT(*) FROM user WHERE token=?""",
+             f"""SELECT user_id FROM {self.table} WHERE token=?""",
             (user_token,),
         )
-        if self.cursor.fetchone()[0] is not None:
+        result = self.cursor.fetchone()
+        if result is not None:
             return True
         return False
 
@@ -199,13 +198,17 @@ class UserData:
             user_token (str): The token of the user.
 
         Returns:
-            int: The ID of the user.
+            int: The ID of the user, or -1 if the user is not found.
         """
         self.cursor.execute(
-            """SELECT user_id FROM user WHERE token=?""",
+            f"""SELECT user_id FROM {self.table} WHERE token=?""",
             (user_token,),
         )
-        return self.cursor.fetchone()[0]
+        result = self.cursor.fetchone()
+        if result is not None:
+            return result[0]
+        
+        return -1
 
     def get_matchmaking_parameters(self, user_id: int) -> tuple[float, float]:
         """
@@ -218,7 +221,7 @@ class UserData:
             tuple[float, float]: The mu and sigma values of the user.
         """
         self.cursor.execute(
-            """SELECT mu, sigma FROM user WHERE user_id=?""",
+            f"""SELECT mu, sigma FROM {self.table} WHERE user_id=?""",
             (user_id,),
         )
         return self.cursor.fetchone()
@@ -233,7 +236,7 @@ class UserData:
             sigma (float): The new sigma value of the user.
         """
         self.cursor.execute(
-            """UPDATE user SET mu=?, sigma=? WHERE user_id=?""",
+            f"""UPDATE {self.table} SET mu=?, sigma=? WHERE user_id=?""",
             (mu, sigma, user_id),
         )
         self.connection.commit()

@@ -89,21 +89,21 @@ class ClientProtocol(amp.AMP):
 
     EndGame.responder(end_game)
 
-    def step(self, obv):
+    def step(self, obv : list[float]):
         """Called when the server wants the client to make a step.
 
         Args:
-            obv (int): The environment given by the server.
+            obv (list[float])): The environment given by the server.
 
         Returns:
             dict: A dictionary containing the action that should be executed.
                 Example: {"action": 1}
         """
-        return {"action": self.agent.step(obv=obv)}
+        return {"action": self.agent.get_step(obv)}
 
     Step.responder(step)
 
-    def error(self, msg):
+    def on_error(self, msg):
         """Called if an error occurred on the server side.
 
         Args:
@@ -111,7 +111,7 @@ class ClientProtocol(amp.AMP):
         """
         self.agent.on_error(msg=msg)
 
-    Error.responder(error)
+    Error.responder(on_error)
 
 
 def connect_agent(agent: IAgent, host: str = "localhost", port: int = 65335):

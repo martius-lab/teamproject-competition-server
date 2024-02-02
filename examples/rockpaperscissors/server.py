@@ -10,7 +10,7 @@ from enum import Enum
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.server.game_result import GameEndState, GameResult
 from comprl.server import player_manager
-from comprl.server.server import COMPServer
+from comprl.server.app import COMPServer
 
 Sign = Enum("Sign", ["ROCK", "PAPER", "SCISSORS"])
 

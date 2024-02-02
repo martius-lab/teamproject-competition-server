@@ -1,5 +1,5 @@
+from comprl.server.data.interfaces import GameEndState, GameResult
 from comprl.server.interfaces import IGame, IPlayer
-from comprl.server.server import COMPServer
 
 
 class ExampleGame(IGame):
@@ -10,7 +10,7 @@ class ExampleGame(IGame):
         self.env = 0
 
     def _update_environment(self):
-        self.env += sum(self.current_actions)
+        self.env += sum(sum(self.current_actions, []))
 
     def _validate_action(self, action):
         return isinstance(action, int)
@@ -18,8 +18,8 @@ class ExampleGame(IGame):
     def _is_finished(self) -> bool:
         return self.env > 10
 
-    def _observation(self):
-        return self.env
+    def _observation(self, index: int = 0) -> list[float]:
+        return [float(self.env)]
 
     def _player_stats(self, index) -> int:
         return 0
@@ -28,7 +28,6 @@ class ExampleGame(IGame):
         if index == 0:
             return True
         return False
-
-
-server = COMPServer(ExampleGame)
-server.start()
+    
+    def get_result(self) -> GameResult:
+        return GameResult(self.id, -1, -1, 0,0, None, GameEndState.DRAW, True, True)

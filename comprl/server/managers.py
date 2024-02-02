@@ -2,6 +2,7 @@
 This module contains classes that manage game instances and players.
 """
 
+import logging as log
 from typing import Type
 from queue import Queue
 
@@ -38,7 +39,7 @@ class GameManager:
         self.games[game.id] = game
 
         game.add_finish_callback(self.end_game)
-        game.start() #TODO: I assume this is scuffed, due to this blocks until done
+        game.start()  # TODO: I assume this is scuffed, due to this blocks until done
 
         return game.id
 
@@ -50,9 +51,11 @@ class GameManager:
             game_id (GameID): The ID of the game to be ended.
         """
         if game_id in self.games:
-            
-            GameData(ConfigProvider.get("game_data")).add(self.games[game_id].get_result())
-            
+
+            GameData(ConfigProvider.get("game_data")).add(
+                self.games[game_id].get_result()
+            )
+
             del self.games[game_id]
 
 
@@ -78,25 +81,26 @@ class PlayerManager:
         self.connected_players[player.id] = player
 
     def auth(self, player_id: PlayerID, token: str) -> bool:
-            """
-            Authenticates a player using their player ID and token.
+        """
+        Authenticates a player using their player ID and token.
 
-            Args:
-                player_id (PlayerID): The ID of the player.
-                token (str): The authentication token.
+        Args:
+            player_id (PlayerID): The ID of the player.
+            token (str): The authentication token.
 
-            Returns:
-                bool: True if the authentication is successful, False otherwise.
-            """
-            
-            data = UserData(ConfigProvider.get("user_data"))
-            if data.is_verified(token):
-                self.auth_players[player_id] = (
-                    self.connected_players[player_id],
-                    data.get_user_id(token),
-                )
-                return True
-            return False
+        Returns:
+            bool: True if the authentication is successful, False otherwise.
+        """
+
+        data = UserData(ConfigProvider.get("user_data"))
+        if data.is_verified(token):
+            self.auth_players[player_id] = (
+                self.connected_players[player_id],
+                data.get_user_id(token),
+            )
+            log.info(f"Player {player_id} authenticated")
+            return True
+        return False
 
     def remove(self, player: IPlayer) -> None:
         """
@@ -166,7 +170,7 @@ class PlayerManager:
         Returns:
             None
         """
-        
+
         for player, _ in self.auth_players.values():
             player.notify_error(msg)
 

@@ -37,7 +37,7 @@ class ConfigProvider:
         "port": 8080,
         "timeout": 10,
         "log_level": "INFO",
-        "game_path": "game",
+        "game_type": None,
         "game_data": ConnectionInfo("data.db", "games"),
         "user_data": ConnectionInfo("data.db", "users"),
     }

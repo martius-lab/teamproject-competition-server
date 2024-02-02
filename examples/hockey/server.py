@@ -5,7 +5,7 @@ from comprl.server.interfaces import IGame, IPlayer
 
 import laserhockey.hockey_env as h_env
 
-from comprl.server.server import COMPServer
+from comprl.server.app import COMPServer
 
 
 class HockeyGame(IGame):

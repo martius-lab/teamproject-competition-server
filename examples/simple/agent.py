@@ -1,13 +1,10 @@
-from comprl.client import agent
+from comprl.client import Agent
+
+bob = Agent()
 
 
-class ExampleAgent(COMPAgent):
-    """Dummy Agent for testing. Returns random action"""
+@bob.event
+def get_step(obv: list[float]):
+    return [float(input("enter action: "))]
 
-    def step(self, obv: list[float]) -> list[float]:
-        """exampel step function with human interaction"""
-        return [input("enter action: ")]
-
-
-bob = ExampleAgent()
-bob.run("ExampleToken")
+bob.run(["HelloWorld", "HelloMoon"][int(input("enter agent: "))])

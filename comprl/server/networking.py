@@ -91,7 +91,7 @@ class COMPServerProtocol(amp.AMP):
         """
         return self.callRemote(StartGame, game_id=game_id.bytes)
 
-    def get_step(self, obv, return_callback: Callable[[list], None]) -> None:
+    def get_step(self, obv : list[float], return_callback: Callable[[list], None]) -> None:
         """performs step requested by player"""
 
         return (
@@ -237,7 +237,6 @@ def launch_server(server: IServer, port: int = 65335) -> None:
     log.info(f"Launching server on port {port}")
 
     reactor.listenTCP(port, COMPFactory(server))  # type: ignore[attr-defined]
-    reactor.addSystemEventTrigger("before", "shutdown", server.on_stop)  # type: ignore[attr-defined]
 
     # setup and link the on_update event
     LoopingCall(server.on_update).start(1.0)
