@@ -1,42 +1,73 @@
 """class for server"""
 
+import argparse
 import logging as log
-from typing import Type
+import tomllib
+import pydoc
 
-from twisted.internet import reactor
-from twisted.internet.endpoints import TCP4ServerEndpoint
-
-from .factory import COMPServerFactory
-from .interfaces import IGame
-from . import game_manager
-
-PORT = 65335  # TODO move this in config
+from comprl.server.interfaces import IPlayer, IServer
+from comprl.server import networking
+from comprl.server.managers import GameManager, PlayerManager, MatchmakingManager
 
 
-class COMPServer:
-    """class for server instance"""
+class Server(IServer):
+    """class for server"""
 
-    def __init__(self, game_type: Type[IGame]) -> None:
-        game_manager.set_game_type(game_type)
-        self.factory = COMPServerFactory()
-        self.is_running = False
+    def __init__(self):
+        self.game_manager = GameManager()
+        self.player_manager = PlayerManager()
+        self.matchmaking = MatchmakingManager(self.player_manager, self.game_manager)
 
-    def start(self) -> None:
-        """starts the server, so we can wait for clients to connect"""
+    def on_start(self):
+        """gets called when the server starts"""
+        log.info("Starting server")
 
-        port = PORT
-        self.endpoint = TCP4ServerEndpoint(reactor, port)
-        self.endpoint.listen(self.factory)
-        log.debug(f"Server listening on port {port}")  # TODO some more info here
-        self.is_running = True
-        reactor.run()  # type: ignore[attr-defined]
+    def on_stop(self):
+        """gets called when the server stops"""
+        log.info("Stopping server")
 
-    def stop(self) -> None:
-        """terminates server."""
-        if self.is_running:
-            log.debug("Server Stopped")
-            reactor.stop()  # type: ignore[attr-defined]
-            self.is_running = False
+    def on_connect(self, player: IPlayer):
+        """gets called when a player connects"""
+        log.debug(f"Player {player.id} connected")
+        self.player_manager.add(player)
 
-    def __del__(self):
-        pass  # TODO: cleanup here ?
+    def on_disconnect(self, player: IPlayer):
+        """gets called when a player disconnects"""
+        log.debug(f"Player {player.id} disconnected")
+        self.player_manager.remove(player)
+        
+    def on_update(self):
+        """gets called every update cycle"""
+        self.matchmaking.update()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Server arguments")
+    parser.add_argument("--config", type=str, help="Config file")
+    parser.add_argument("--port", type=int, help="Port to listen on")
+    parser.add_argument(
+        "--game", type=str, help="File containing the game to run", default="game.py"
+    )
+    parser.add_argument("--log", type=str, help="Log level", default="INFO")
+    args = parser.parse_args()
+
+    if args.config is not None:
+        # load config file
+        with open(args.config, "rb") as f:
+            data = tomllib.load(f)
+    else:
+        print("No config file provided")
+
+    port = args.port or data["port"] or 65335
+    game_type = args.game or data["game"] or "game"
+    log_level = args.log or data["log"] or "INFO"
+
+    # set up logging
+    log.basicConfig(level=log_level)
+
+    game_type = pydoc.safeimport(game_type)
+    if game_type is None:
+        raise Exception(f"Could not locate game at {game_type}")
+
+    server = Server()
+    networking.launch_server(server, args.port)

@@ -5,6 +5,8 @@ Contains all networking related classes and functions for the client.
 import logging as log
 
 from twisted.protocols import amp
+from twisted.internet import reactor
+from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 
 from ..shared.commands import StartGame, EndGame, Step, Auth, Error
 
@@ -12,10 +14,11 @@ from .interfaces import IAgent
 
 VERSION = 1
 
-class COMPClientProtocol(amp.AMP):
+
+class ClientProtocol(amp.AMP):
     """Protocol for the client.
 
-    This class represents the protocol used by the client to communicate with the server.
+    Represents the protocol used by the client to communicate with the server.
     """
 
     def __init__(self, agent: IAgent, boxReceiver=None, locator=None):
@@ -109,3 +112,27 @@ class COMPClientProtocol(amp.AMP):
         self.agent.on_error(msg=msg)
 
     Error.responder(error)
+
+
+def connect_agent(agent: IAgent, host: str = "localhost", port: int = 65335):
+    """Connects the client to the server.
+
+    This method connects the client to the server using the specified token, host,
+    and port. It internally calls the `run` method of the base class to establish
+    the connection.
+
+    Args:
+        token (str): The token used for authentication.
+        host (str): The host address of the server. Defaults to "localhost".
+        port (int): The port number of the server. Defaults to 65335.
+
+    Returns:
+        None
+
+    """
+    connectProtocol(
+        TCP4ClientEndpoint(reactor, host, port),
+        ClientProtocol(agent),
+        # we lose the protocol here, is this a problem?
+    )
+    reactor.run()  # type: ignore[attr-defined]

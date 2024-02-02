@@ -4,11 +4,9 @@ This module contains the Agent class, used by the end-user connecting to the ser
 
 from typing import final
 
-from twisted.internet import reactor
-from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 
 from comprl.client.interfaces import IAgent
-from comprl.client.networking import COMPClientProtocol
+from comprl.client import networking
 
 
 class Agent(IAgent):
@@ -39,8 +37,8 @@ class Agent(IAgent):
     def run(self, token: str, host: str = "localhost", port: int = 65335) -> None:
         """Connects the client to the server.
 
-        This method connects the client to the server using the specified token, host, 
-        and port. It internally calls the `run` method of the base class to establish 
+        This method connects the client to the server using the specified token, host,
+        and port. It internally calls the `run` method of the base class to establish
         the connection.
 
         Args:
@@ -53,9 +51,4 @@ class Agent(IAgent):
 
         """
         super().run(token)
-
-        connectProtocol(
-            TCP4ClientEndpoint(reactor, host, port), COMPClientProtocol(self) 
-            #we lose the protocol here, is this a problem?
-        )
-        reactor.run() # type: ignore[attr-defined]
+        networking.connect_agent(self, host, port)
