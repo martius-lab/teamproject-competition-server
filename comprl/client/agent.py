@@ -52,3 +52,7 @@ class Agent(IAgent):
         """
         super().run(token)
         networking.connect_agent(self, host, port)
+
+    def on_error(self, msg):
+        """Called if an error occurred on the server side."""
+        print(f"Error: {msg}")

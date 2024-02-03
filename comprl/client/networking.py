@@ -89,7 +89,7 @@ class ClientProtocol(amp.AMP):
 
     EndGame.responder(end_game)
 
-    def step(self, obv : list[float]):
+    def step(self, obv: list[float]):
         """Called when the server wants the client to make a step.
 
         Args:

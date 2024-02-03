@@ -27,9 +27,6 @@ class GameData:
     """
     Represents a data access object for managing game data in a SQLite database.
 
-    Args:
-        connection (SQLiteConnectionInfo): The connection information for the SQLite database.
-
     Attributes:
         connection (sqlite3.Connection): The connection to the SQLite database.
         cursor (sqlite3.Cursor): The cursor for executing SQL queries.
@@ -41,7 +38,7 @@ class GameData:
         self.connection = sqlite3.connect(connection.host)
         self.cursor = self.connection.cursor()
         self.table = connection.table
-        
+
         self.cursor.execute(
             f"""
             CREATE TABLE IF NOT EXISTS {self.table} (
@@ -102,9 +99,6 @@ class UserData:
     """
     Represents a data access object for managing game data in a SQLite database.
 
-    Args:
-        connection (SQLiteConnectionInfo): The connection information for the SQLite database.
-
     Attributes:
         connection (sqlite3.Connection): The connection to the SQLite database.
         cursor (sqlite3.Cursor): The cursor for executing SQL queries.
@@ -115,13 +109,13 @@ class UserData:
         Initializes a new instance of the UserData class.
 
         Args:
-            connection (SQLiteConnectionInfo): The connection information for the SQLite database.
+            connection (SQLiteConnectionInfo): The connection information for SQLite.
         """
         # connect to the database
         self.connection = sqlite3.connect(connection.host)
         self.cursor = self.connection.cursor()
         self.table = connection.table
-        
+
         self.cursor.execute(
             f"""
             CREATE TABLE IF NOT EXISTS {connection.table} (
@@ -130,7 +124,8 @@ class UserData:
             token TEXT NOT NULL,
             mu FLOAT NOT NULL,
             sigma FLOAT NOT NULL
-            )""")
+            )"""
+        )
 
     def add(
         self, user_name: str, user_token: str, user_mu=25.000, user_sigma=8.333
@@ -141,8 +136,8 @@ class UserData:
         Args:
             user_name (str): The name of the user.
             user_token (str): The token of the user.
-            user_mu (float, optional): The mu value of the user's rating. Defaults to 25.000.
-            user_sigma (float, optional): The sigma value of the user's rating. Defaults to 8.333.
+            user_mu (float, optional): The mu value of the user. Defaults to 25.
+            user_sigma (float, optional): The sigma value of the user. Defaults to 8.33.
 
         Returns:
             int: The ID of the newly added user.
@@ -182,7 +177,7 @@ class UserData:
             bool: True if the user is verified, False otherwise.
         """
         self.cursor.execute(
-             f"""SELECT user_id FROM {self.table} WHERE token=?""",
+            f"""SELECT user_id FROM {self.table} WHERE token=?""",
             (user_token,),
         )
         result = self.cursor.fetchone()
@@ -207,7 +202,7 @@ class UserData:
         result = self.cursor.fetchone()
         if result is not None:
             return result[0]
-        
+
         return -1
 
     def get_matchmaking_parameters(self, user_id: int) -> tuple[float, float]:

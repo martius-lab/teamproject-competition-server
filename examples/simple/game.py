@@ -10,7 +10,8 @@ class ExampleGame(IGame):
         self.env = 0
 
     def _update_environment(self):
-        self.env += sum(sum(self.current_actions, []))
+        for action in self.current_actions:
+            self.env += sum(action)
 
     def _validate_action(self, action):
         return isinstance(action, int)
@@ -28,6 +29,6 @@ class ExampleGame(IGame):
         if index == 0:
             return True
         return False
-    
+
     def get_result(self) -> GameResult:
-        return GameResult(self.id, -1, -1, 0,0, None, GameEndState.DRAW, True, True)
+        return GameResult(self.id, -1, -1, 0, 0, None, GameEndState.DRAW, True, True)

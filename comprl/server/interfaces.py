@@ -10,6 +10,7 @@ from comprl.shared.types import GameID, PlayerID
 from comprl.server import util
 from comprl.server.data.interfaces import GameResult
 
+
 class IAction:
     """Interface for an action"""
 

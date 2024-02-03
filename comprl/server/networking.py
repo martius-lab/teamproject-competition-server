@@ -91,7 +91,9 @@ class COMPServerProtocol(amp.AMP):
         """
         return self.callRemote(StartGame, game_id=game_id.bytes)
 
-    def get_step(self, obv : list[float], return_callback: Callable[[list], None]) -> None:
+    def get_step(
+        self, obv: list[float], return_callback: Callable[[list], None]
+    ) -> None:
         """performs step requested by player"""
 
         return (

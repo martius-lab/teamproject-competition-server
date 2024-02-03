@@ -55,37 +55,41 @@ class Server(IServer):
         self.matchmaking.update()
 
 
-def load_class(module_path : str, class_name : str):
+def load_class(module_path: str, class_name: str):
     """
     Loads a a class from a module.
     """
-    #get the module name by splitting the path and removing the file extension
+    # get the module name by splitting the path and removing the file extension
     name = module_path.split(os.sep)[-1].split(".")[0]
-    
-    #load the module
+
+    # load the module
     spec = importlib.util.spec_from_file_location(name, module_path)
-    
-    #check if the module could be loaded
+
+    # check if the module could be loaded
     if spec is None:
         return None
-    
-    #create the module
+
+    # create the module
     module = importlib.util.module_from_spec(spec)
-    
-    #this is for mypy
-    assert isinstance(spec.loader, importlib.abc.Loader)
-    
-    #exec the module
+
+    # this is for mypy
+    if not isinstance(spec.loader, importlib.abc.Loader):
+        return None
+
+    # exec the module
     spec.loader.exec_module(module)
-    
-    #finally get the class
+
+    # finally get the class
     return getattr(module, class_name)
+
 
 def main():
     """
     Main function to start the server.
     """
-    parser = argparse.ArgumentParser(description="The following arguments are supported:")
+    parser = argparse.ArgumentParser(
+        description="The following arguments are supported:"
+    )
     parser.add_argument("--config", type=str, help="Config file")
     parser.add_argument("--port", type=int, help="Port to listen on")
     parser.add_argument("--game_path", type=str, help="File containing the game to run")
@@ -107,13 +111,13 @@ def main():
 
     # set up logging
     log.basicConfig(level=log_level)
-    
-    #get working directory
+
+    # get working directory
     full_path = os.path.join(os.getcwd(), game_path)
-    
-    #try to load the game class
+
+    # try to load the game class
     game_type = load_class(full_path, game_class)
-    #check if the class could be loaded
+    # check if the class could be loaded
     if game_type is None:
         log.error(f"Could not load game class from {full_path}")
         return

@@ -25,7 +25,7 @@ class GameManager:
         self.games: dict[GameID, IGame] = {}
         self.game_type = game_type
 
-    def start_game(self, players: list[IPlayer]) -> GameID:
+    def start_game(self, players: list[IPlayer]) -> IGame:
         """
         Starts a new game instance with the given players.
 
@@ -39,9 +39,9 @@ class GameManager:
         self.games[game.id] = game
 
         game.add_finish_callback(self.end_game)
-        game.start()  # TODO: I assume this is scuffed, due to this blocks until done
+        game.start()
 
-        return game.id
+        return game
 
     def end_game(self, game_id: GameID) -> None:
         """
@@ -50,6 +50,7 @@ class GameManager:
         Args:
             game_id (GameID): The ID of the game to be ended.
         """
+
         if game_id in self.games:
 
             GameData(ConfigProvider.get("game_data")).add(
@@ -57,6 +58,18 @@ class GameManager:
             )
 
             del self.games[game_id]
+
+    def get(self, game_id: GameID) -> IGame | None:
+        """
+        Retrieves the game instance with the specified ID.
+
+        Args:
+            game_id (GameID): The ID of the game to be retrieved.
+
+        Returns:
+            Optional[IGame]: The game instance if found, None otherwise.
+        """
+        return self.games.get(game_id, None)
 
 
 class PlayerManager:
@@ -100,6 +113,9 @@ class PlayerManager:
             )
             log.info(f"Player {player_id} authenticated")
             return True
+        # disconnect player if authentication failed
+        self.connected_players[player_id].disconnect("Authentication failed")
+
         return False
 
     def remove(self, player: IPlayer) -> None:
@@ -174,6 +190,20 @@ class PlayerManager:
         for player, _ in self.auth_players.values():
             player.notify_error(msg)
 
+    def disconnect_all(self, reason: str) -> None:
+        """
+        Disconnects all connected players.
+
+        Args:
+            reason (str): The reason for disconnection.
+
+        Returns:
+            None
+        """
+
+        for player in self.connected_players.values():
+            player.disconnect(reason)
+
 
 class MatchmakingManager:
     """handles matchmaking between players and starts the game"""
@@ -200,15 +230,19 @@ class MatchmakingManager:
         Args:
             player_id (PlayerID): The ID of the player to be matched.
         """
+        log.debug(f"Player {player_id} is being matched")
+
         if not self.queue.empty():
             players = [
                 self.player_manager.get_player_by_id(p_id)
                 for p_id in [self.queue.get(), player_id]
             ]
 
-            self.game_manager.start_game(
-                [player for player in players if player is not None]
-            )
+            filtered_players = [player for player in players if player is not None]
+
+            self.game_manager.start_game(filtered_players)
+
+            # TODO: requeue players if the game ended
 
         self.queue.put(player_id)
 

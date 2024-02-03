@@ -73,4 +73,3 @@ class GameResult:
         self.disconnected_id = None
         if end_state == GameEndState.DISCONNECTED:
             self.disconnected_id = user1_id if is_user1_disconnected else user2_id
-
