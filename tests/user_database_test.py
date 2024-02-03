@@ -16,7 +16,10 @@
 #     print(userID1, userID2, userID3, userID4)
 
 #     assert (
-#         userID1 % 4 == 1 and userID2 % 4 == 2 and userID3 % 4 == 3 and userID4 % 4 == 0
+#           userID1 % 4 == 1 and 
+#           userID2 % 4 == 2 and 
+#           userID3 % 4 == 3 and 
+#           userID4 % 4 == 0
 #     )
 #     all_users = user_db.get_all_users()
 #     print(all_users)

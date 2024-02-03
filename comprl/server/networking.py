@@ -161,7 +161,7 @@ class COMPPlayer(IPlayer):
         self.connection.notify_end(
             result=result,
             stats=stats,
-            return_callback=lambda res: res,  # TODO: what to do with the result?
+            return_callback=lambda res: True,  # TODO: what to do with the result?
         )
 
     def disconnect(self, reason: str):
