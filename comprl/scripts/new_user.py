@@ -1,3 +1,4 @@
+""" script to add new user to the user database"""
 import comprl.server.user_database as user_db
 import logging
 import uuid
