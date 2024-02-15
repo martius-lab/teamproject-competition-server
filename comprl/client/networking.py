@@ -46,6 +46,7 @@ class ClientProtocol(amp.AMP):
         log.debug(f"Disconnected from the server. Reason: {reason}")
         return super().connectionLost(reason)
 
+    @Auth.responder
     def auth(self):
         """Called for authenticating the client.
 
@@ -55,8 +56,7 @@ class ClientProtocol(amp.AMP):
         """
         return {"token": str.encode(self.agent.auth()), "version": VERSION}
 
-    Auth.responder(auth)
-
+    @StartGame.responder
     def start_game(self, game_id: int):
         """Called when the server starts the game.
 
@@ -70,8 +70,7 @@ class ClientProtocol(amp.AMP):
         self.agent.on_start_game(game_id)
         return {"ready": True}  # dummy, ready to return to queue
 
-    StartGame.responder(start_game)
-
+    @EndGame.responder
     def end_game(self, result, stats):
         """Called when the server ends the game.
 
@@ -87,8 +86,7 @@ class ClientProtocol(amp.AMP):
             "ready": self.agent.on_end_game(result=result, stats=stats)
         }  # dummy ready
 
-    EndGame.responder(end_game)
-
+    @Step.responder
     def step(self, obv: list[float]):
         """Called when the server wants the client to make a step.
 
@@ -101,8 +99,7 @@ class ClientProtocol(amp.AMP):
         """
         return {"action": self.agent.get_step(obv)}
 
-    Step.responder(step)
-
+    @Error.responder
     def on_error(self, msg):
         """Called if an error occurred on the server side.
 
@@ -110,8 +107,6 @@ class ClientProtocol(amp.AMP):
             msg (object): The error description.
         """
         self.agent.on_error(msg=msg)
-
-    Error.responder(on_error)
 
 
 def connect_agent(agent: IAgent, host: str = "localhost", port: int = 65335):
