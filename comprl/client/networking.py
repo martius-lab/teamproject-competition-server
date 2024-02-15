@@ -8,7 +8,7 @@ from twisted.protocols import amp
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 
-from ..shared.commands import StartGame, EndGame, Step, Auth, Error
+from comprl.shared.commands import Ready, StartGame, EndGame, Step, Auth, Error
 
 from .interfaces import IAgent
 
@@ -44,6 +44,7 @@ class ClientProtocol(amp.AMP):
             reason (object): The reason for the lost connection.
         """
         log.debug(f"Disconnected from the server. Reason: {reason}")
+        reactor.stop()
         return super().connectionLost(reason)
 
     @Auth.responder
@@ -55,6 +56,16 @@ class ClientProtocol(amp.AMP):
                 Example: {"token": b'...', "version": 1}
         """
         return {"token": str.encode(self.agent.auth()), "version": VERSION}
+
+    @Ready.responder
+    def ready(self):
+        """Called when the server wants to know if the client is ready.
+
+        Returns:
+            dict: A dictionary indicating if the client is ready.
+                Example: {"ready": True}
+        """
+        return {"ready": self.agent.is_ready()}
 
     @StartGame.responder
     def start_game(self, game_id: int):
@@ -68,7 +79,7 @@ class ClientProtocol(amp.AMP):
                 Example: {"ready": True}
         """
         self.agent.on_start_game(game_id)
-        return {"ready": True}  # dummy, ready to return to queue
+        return {}
 
     @EndGame.responder
     def end_game(self, result, stats):
@@ -82,9 +93,8 @@ class ClientProtocol(amp.AMP):
             dict: A dictionary indicating if the client is ready to start a new game.
                 Example: {"ready": True}
         """
-        return {
-            "ready": self.agent.on_end_game(result=result, stats=stats)
-        }  # dummy ready
+        self.agent.on_end_game(result=result, stats=stats)
+        return {}
 
     @Step.responder
     def step(self, obv: list[float]):
@@ -107,6 +117,7 @@ class ClientProtocol(amp.AMP):
             msg (object): The error description.
         """
         self.agent.on_error(msg=msg)
+        return {}
 
 
 def connect_agent(agent: IAgent, host: str = "localhost", port: int = 65335):

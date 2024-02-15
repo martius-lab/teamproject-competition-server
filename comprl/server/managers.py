@@ -4,7 +4,6 @@ This module contains classes that manage game instances and players.
 
 import logging as log
 from typing import Type
-from queue import Queue
 
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
@@ -38,12 +37,14 @@ class GameManager:
         game = self.game_type(players)
         self.games[game.id] = game
 
+        log.debug("Game started with players: " + str([p.id for p in players]))
+
         game.add_finish_callback(self.end_game)
         game.start()
 
         return game
 
-    def end_game(self, game_id: GameID) -> None:
+    def end_game(self, game: IGame) -> None:
         """
         Ends the game instance with the specified ID.
 
@@ -51,13 +52,13 @@ class GameManager:
             game_id (GameID): The ID of the game to be ended.
         """
 
-        if game_id in self.games:
+        if game.id in self.games:
 
             GameData(ConfigProvider.get("game_data")).add(
-                self.games[game_id].get_result()
+                self.games[game.id].get_result()
             )
 
-            del self.games[game_id]
+            del self.games[game.id]
 
     def get(self, game_id: GameID) -> IGame | None:
         """
@@ -176,20 +177,6 @@ class PlayerManager:
         for player in self.connected_players.values():
             player.notify_error(msg)
 
-    def broadcast_error_auth(self, msg: str) -> None:
-        """
-        Broadcasts a message to all authenticated players.
-
-        Args:
-            msg (str): The message to be broadcasted.
-
-        Returns:
-            None
-        """
-
-        for player, _ in self.auth_players.values():
-            player.notify_error(msg)
-
     def disconnect_all(self, reason: str) -> None:
         """
         Disconnects all connected players.
@@ -221,7 +208,23 @@ class MatchmakingManager:
         self.player_manager = player_manager
         self.game_manager = game_manager
 
-        self.queue: Queue[PlayerID] = Queue()
+        self.queue: list[PlayerID] = []
+
+    def try_match(self, player_id: PlayerID) -> None:
+        """
+        Tries to match a player with the given player ID.
+
+        Args:
+            player_id (PlayerID): The ID of the player to match.
+
+        Returns:
+            None
+        """
+        player = self.player_manager.get_player_by_id(player_id)
+
+        if player is not None:
+            # FIXME: we might wan't to kick the player
+            player.is_ready(lambda res: self.match(player_id) if res else None)
 
     def match(self, player_id: PlayerID) -> None:
         """
@@ -232,19 +235,19 @@ class MatchmakingManager:
         """
         log.debug(f"Player {player_id} is being matched")
 
-        if not self.queue.empty():
+        if len(self.queue) > 0:
             players = [
                 self.player_manager.get_player_by_id(p_id)
-                for p_id in [self.queue.get(), player_id]
+                for p_id in [self.queue.pop(0), player_id]
             ]
 
             filtered_players = [player for player in players if player is not None]
 
-            self.game_manager.start_game(filtered_players)
+            game = self.game_manager.start_game(filtered_players)
+            game.add_finish_callback(self._end_game)
+            return
 
-            # TODO: requeue players if the game ended
-
-        self.queue.put(player_id)
+        self.queue.append(player_id)
 
     def remove(self, player_id: PlayerID) -> None:
         """
@@ -260,3 +263,13 @@ class MatchmakingManager:
         Updates the matchmaking manager.
         """
         pass
+
+    def _end_game(self, game: IGame) -> None:
+        """
+        Ends the game with the specified ID.
+
+        Args:
+            game (IGame): The game to be ended.
+        """
+        for p in game.players:
+            self.try_match(p.id)

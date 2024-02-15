@@ -10,7 +10,7 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
 from comprl.server.interfaces import IPlayer, IServer
-from comprl.shared.commands import Auth, EndGame, Error, StartGame, Step
+from comprl.shared.commands import Auth, EndGame, Error, Ready, StartGame, Step
 from comprl.shared.types import GameID
 
 TIMEOUT = 10
@@ -83,6 +83,18 @@ class COMPServerProtocol(amp.AMP):
             TIMEOUT, reactor, self.connectionTimeout
         )
 
+    def is_ready(self, return_callback: Callable[[bool], None]) -> bool:
+        """checks if the player is ready to play
+
+        Returns:
+            bool: returns true if the player is ready to play
+        """
+        return (
+            self.callRemote(Ready)
+            .addCallback(callback=lambda res: return_callback(res["ready"]))
+            .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
+        )
+
     def notify_start(self, game_id: GameID) -> None:
         """starts the game
 
@@ -102,15 +114,11 @@ class COMPServerProtocol(amp.AMP):
             .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
         )
 
-    def notify_end(
-        self, result, stats, return_callback: Callable[[bool], None]
-    ) -> None:
+    def notify_end(self, result, stats) -> None:
         """ends the game"""
 
-        return (
-            self.callRemote(EndGame, result=result, stats=stats)
-            .addCallback(callback=lambda res: return_callback(res["ready"]))
-            .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
+        return self.callRemote(EndGame, result=result, stats=stats).addTimeout(
+            TIMEOUT, reactor, self.connectionTimeout
         )
 
     def send_error(self, msg: str):
@@ -140,6 +148,14 @@ class COMPPlayer(IPlayer):
         Returns: token (string)"""
         self.connection.get_token(result_callback)
 
+    def is_ready(self, result_callback) -> bool:
+        """checks if the player is ready to play
+
+        Returns:
+            bool: returns true if the player is ready to play
+        """
+        return self.connection.is_ready(result_callback)
+
     def notify_start(self, game_id: GameID):
         """notifies start of game"""
         self.connection.notify_start(game_id=game_id)
@@ -158,11 +174,7 @@ class COMPPlayer(IPlayer):
             result (any): result of the game
             stats: (any): stats of the game"""
 
-        self.connection.notify_end(
-            result=result,
-            stats=stats,
-            return_callback=lambda res: True,  # TODO: what to do with the result?
-        )
+        self.connection.notify_end(result=result, stats=stats)
 
     def disconnect(self, reason: str):
         """disconnect the player

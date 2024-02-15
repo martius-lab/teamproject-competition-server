@@ -3,7 +3,7 @@ This module contains the interfaces for the non-networking logic.
 """
 
 import abc
-from typing import Callable
+from typing import Callable, Self
 from datetime import datetime
 
 from comprl.shared.types import GameID, PlayerID
@@ -29,6 +29,15 @@ class IPlayer(abc.ABC):
 
         Args:
             result_callback (Callable): callback
+        """
+        ...
+
+    @abc.abstractmethod
+    def is_ready(self, result_callback) -> bool:
+        """checks if the player is ready to play
+
+        Returns:
+            bool: returns true if the player is ready to play
         """
         ...
 
@@ -78,7 +87,7 @@ class IGame(abc.ABC):
 
         self.finish_callbacks: list[Callable] = []
 
-    def add_finish_callback(self, callback: Callable) -> None:
+    def add_finish_callback(self, callback: Callable[[Self], None]) -> None:
         """link a callback to the end of a game"""
         self.finish_callbacks.append(callback)
 
@@ -101,8 +110,11 @@ class IGame(abc.ABC):
         Args:
             reason (str, optional): reason why the game has ended. Defaults to "unknown"
         """
+        for p in self.players:
+            p.notify_end(result=False, stats=1)
+
         for c in self.finish_callbacks:
-            c(self.id)
+            c(self)
 
     @abc.abstractmethod
     def _update_environment(self):

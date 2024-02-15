@@ -24,7 +24,16 @@ class IAgent:
         """
         return self.token
 
-    def on_start_game(self, game_id: int):
+    def is_ready(self) -> bool:
+        """
+        Returns if the agent is ready to play.
+
+        Returns:
+            bool: True if the agent is ready to play, False otherwise.
+        """
+        return True
+
+    def on_start_game(self, game_id: int) -> None:
         """
         Called when a new game starts.
 
@@ -34,7 +43,7 @@ class IAgent:
         Returns:
             bool: True if the agent is ready to play, False otherwise.
         """
-        return True
+        pass
 
     def get_step(self, obv: list[float]) -> list[float]:
         """
@@ -48,7 +57,7 @@ class IAgent:
         """
         raise NotImplementedError("step function not implemented")
 
-    def on_end_game(self, result, stats) -> bool:
+    def on_end_game(self, result, stats) -> None:
         """
         Called when a game ends.
 
@@ -59,7 +68,7 @@ class IAgent:
         Returns:
             bool: True if the agent handled the end of the game, False otherwise.
         """
-        return True
+        pass
 
     def on_error(self, msg):
         """

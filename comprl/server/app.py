@@ -40,7 +40,7 @@ class Server(IServer):
 
         def __auth(token):
             if self.player_manager.auth(player.id, token):
-                self.matchmaking.match(player.id)
+                self.matchmaking.try_match(player.id)
 
         player.authenticate(__auth)
 
@@ -77,7 +77,10 @@ def load_class(module_path: str, class_name: str):
         return None
 
     # exec the module
-    spec.loader.exec_module(module)
+    try:
+        spec.loader.exec_module(module)
+    except FileNotFoundError:
+        return None
 
     # finally get the class
     return getattr(module, class_name)
@@ -97,6 +100,7 @@ def main():
     parser.add_argument("--log", type=str, help="Log level")
     args = parser.parse_args()
 
+    data = None
     if args.config is not None:
         # load config file
         with open(args.config, "rb") as f:
@@ -104,10 +108,10 @@ def main():
     else:
         print("No config file provided, using arguments or defaults")
 
-    port = args.port or data["port"] or 65335
-    game_path = args.game_path or data["game_path"] or "game"
-    game_class = args.game_class or data["game_class"] or "Game"
-    log_level = args.log or data["log"] or "INFO"
+    port = args.port or data["port"] if data else 65335
+    game_path = args.game_path or data["game_path"] if data else "game.py"
+    game_class = args.game_class or data["game_class"] if data else "Game"
+    log_level = args.log or data["log"] if data else "INFO"
 
     # set up logging
     log.basicConfig(level=log_level)
