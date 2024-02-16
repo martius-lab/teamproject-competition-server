@@ -10,10 +10,9 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
 from comprl.server.interfaces import IPlayer, IServer
+from comprl.server.util import ConfigProvider
 from comprl.shared.commands import Auth, EndGame, Error, Ready, StartGame, Step
 from comprl.shared.types import GameID
-
-TIMEOUT = 10
 
 VERSION: int = 1
 
@@ -80,7 +79,7 @@ class COMPServerProtocol(amp.AMP):
                 self.transport.loseConnection()
 
         self.callRemote(Auth).addCallback(callback=callback).addTimeout(
-            TIMEOUT, reactor, self.connectionTimeout
+            ConfigProvider.get("timeout"), reactor, self.connectionTimeout
         )
 
     def is_ready(self, return_callback: Callable[[bool], None]) -> bool:
@@ -92,7 +91,7 @@ class COMPServerProtocol(amp.AMP):
         return (
             self.callRemote(Ready)
             .addCallback(callback=lambda res: return_callback(res["ready"]))
-            .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
+            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
         )
 
     def notify_start(self, game_id: GameID) -> None:
@@ -111,14 +110,14 @@ class COMPServerProtocol(amp.AMP):
         return (
             self.callRemote(Step, obv=obv)
             .addCallback(callback=lambda res: return_callback(res["action"]))
-            .addTimeout(TIMEOUT, reactor, self.connectionTimeout)
+            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
         )
 
     def notify_end(self, result, stats) -> None:
         """ends the game"""
 
         return self.callRemote(EndGame, result=result, stats=stats).addTimeout(
-            TIMEOUT, reactor, self.connectionTimeout
+            ConfigProvider.get("timeout"), reactor, self.connectionTimeout
         )
 
     def send_error(self, msg: str):
@@ -137,7 +136,7 @@ class COMPPlayer(IPlayer):
         # init super to obtain id
         super().__init__()
 
-        # set the networing connection
+        # set the networking connection
         self.connection: COMPServerProtocol = connection
 
     def authenticate(self, result_callback):

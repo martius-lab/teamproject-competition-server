@@ -53,7 +53,6 @@ class GameManager:
         """
 
         if game.id in self.games:
-
             GameData(ConfigProvider.get("game_data")).add(
                 self.games[game.id].get_result()
             )

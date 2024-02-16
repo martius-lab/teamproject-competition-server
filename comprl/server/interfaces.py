@@ -3,11 +3,11 @@ This module contains the interfaces for the non-networking logic.
 """
 
 import abc
-from typing import Callable, Self
+from typing import Callable
 from datetime import datetime
 
 from comprl.shared.types import GameID, PlayerID
-from comprl.server import util
+from comprl.server.util import IDGenerator
 from comprl.server.data.interfaces import GameResult
 
 
@@ -21,7 +21,7 @@ class IPlayer(abc.ABC):
     """Interface for a player"""
 
     def __init__(self) -> None:
-        self.id: PlayerID = util.IDGenerator.generate_player_id()
+        self.id: PlayerID = IDGenerator.generate_player_id()
 
     @abc.abstractmethod
     def authenticate(self, result_callback):
@@ -82,12 +82,12 @@ class IGame(abc.ABC):
         self.players: list[IPlayer] = players
         self.current_actions: list = [None for _ in players]
         self.result_received: int = 0
-        self.id: GameID = util.IDGenerator.generate_game_id()
+        self.id: GameID = IDGenerator.generate_game_id()
         self.start_time = None
 
-        self.finish_callbacks: list[Callable] = []
+        self.finish_callbacks: list[Callable[["IGame"], None]] = []
 
-    def add_finish_callback(self, callback: Callable[[Self], None]) -> None:
+    def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:
         """link a callback to the end of a game"""
         self.finish_callbacks.append(callback)
 

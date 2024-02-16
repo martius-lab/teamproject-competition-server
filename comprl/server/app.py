@@ -5,7 +5,12 @@ class for server
 import os
 import argparse
 import logging as log
-import tomllib
+
+try:
+    import tomllib  # type: ignore[import-not-found]
+except ImportError:
+    # tomllib was added in Python 3.11.  Older versions can use tomli
+    import tomli as tomllib  # type: ignore[no-redef]
 
 import importlib.util
 import importlib.abc
@@ -95,6 +100,9 @@ def main():
     )
     parser.add_argument("--config", type=str, help="Config file")
     parser.add_argument("--port", type=int, help="Port to listen on")
+    parser.add_argument(
+        "--timeout", type=int, help="Seconds to wait for a player to answer"
+    )
     parser.add_argument("--game_path", type=str, help="File containing the game to run")
     parser.add_argument("--game_class", type=str, help="Classname of the game")
     parser.add_argument("--log", type=str, help="Log level")
@@ -109,6 +117,7 @@ def main():
         print("No config file provided, using arguments or defaults")
 
     port = args.port or data["port"] if data else 65335
+    timeout = args.timeout or data["timeout"] if data else 10
     game_path = args.game_path or data["game_path"] if data else "game.py"
     game_class = args.game_class or data["game_class"] if data else "Game"
     log_level = args.log or data["log"] if data else "INFO"
@@ -128,6 +137,7 @@ def main():
 
     # write the config to the ConfigProvider
     ConfigProvider.set("port", port)
+    ConfigProvider.set("timeout", timeout)
     ConfigProvider.set("log_level", log_level)
     ConfigProvider.set("game_type", game_type)
     ConfigProvider.set("game_data", ConnectionInfo("games.db", "data"))

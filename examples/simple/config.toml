@@ -1,5 +1,6 @@
 [CompetitionServer]
     port = 65335
+    timeout = 10
     log = "DEBUG"
     game_path = "examples\\simple\\game.py"
     game_class = "ExampleGame"
