@@ -1,11 +1,15 @@
+import random
+import logging as log
+
 from comprl.client import Agent
 
+log.basicConfig(level=log.DEBUG)
 bob = Agent()
 
 
 @bob.event
 def get_step(obv: list[float]):
-    return [float(input("enter action: "))]
+    return [float(random.randint(0, 3))]
 
 
 @bob.event

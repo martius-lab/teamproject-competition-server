@@ -5,6 +5,7 @@ class for server
 import os
 import argparse
 import logging as log
+import time
 
 try:
     import tomllib  # type: ignore[import-not-found]
@@ -33,10 +34,17 @@ class Server(IServer):
     def on_start(self):
         """gets called when the server starts"""
         log.info("Server started")
+        self.start_time = time.time()
 
     def on_stop(self):
         """gets called when the server stops"""
         log.info("Server stopped")
+
+        self.game_manager.shutdown()
+        delta = time.time() - self.start_time
+        log.info(
+            f"Played approx. {self.game_manager.games_played / delta} games per second"
+        )
 
     def on_connect(self, player: IPlayer):
         """gets called when a player connects"""

@@ -5,6 +5,7 @@ This module contains classes that manage game instances and players.
 import logging as log
 from typing import Type
 
+from comprl.server import parallel
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.data import GameData, UserData
@@ -24,6 +25,12 @@ class GameManager:
         self.games: dict[GameID, IGame] = {}
         self.game_type = game_type
 
+        self.write_consumer = parallel.Consumer[IGame](
+            worker=self.write_worker, batch_size=10
+        )
+
+        self.games_played = 0
+
     def start_game(self, players: list[IPlayer]) -> IGame:
         """
         Starts a new game instance with the given players.
@@ -40,9 +47,21 @@ class GameManager:
         log.debug("Game started with players: " + str([p.id for p in players]))
 
         game.add_finish_callback(self.end_game)
+
         game.start()
 
         return game
+
+    def write_worker(self, games: list[IGame]) -> None:
+        """
+        Writes the game result to the database.
+
+        Args:
+            game (IGame): The game to be written.
+        """
+        db = GameData(ConfigProvider.get("game_data"))
+        for game in games:
+            db.add(game.get_result())
 
     def end_game(self, game: IGame) -> None:
         """
@@ -51,13 +70,12 @@ class GameManager:
         Args:
             game_id (GameID): The ID of the game to be ended.
         """
+        self.games_played += 1
 
         if game.id in self.games:
-            GameData(ConfigProvider.get("game_data")).add(
-                self.games[game.id].get_result()
-            )
-
             del self.games[game.id]
+
+        self.write_consumer.add(game)
 
     def get(self, game_id: GameID) -> IGame | None:
         """
@@ -70,6 +88,12 @@ class GameManager:
             Optional[IGame]: The game instance if found, None otherwise.
         """
         return self.games.get(game_id, None)
+
+    def shutdown(self) -> None:
+        """
+        Shuts down the game manager.
+        """
+        self.write_consumer.stop()
 
 
 class PlayerManager:
@@ -189,6 +213,12 @@ class PlayerManager:
 
         for player in self.connected_players.values():
             player.disconnect(reason)
+
+    def shutdown(self) -> None:
+        """
+        Shuts down the player manager.
+        """
+        self.disconnect_all("Server shutting down")
 
 
 class MatchmakingManager:
