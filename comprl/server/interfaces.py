@@ -184,7 +184,7 @@ class IGame(abc.ABC):
         Returns the observation for the player.
 
         Args:
-            index (int, optional): The index of the player. Defaults to 0.
+            id (PlayerID): The ID of the player for which the observation is requested.
 
         Returns:
             list[float]: The observation for the player.
@@ -197,7 +197,7 @@ class IGame(abc.ABC):
         Checks whether the player has won.
 
         Args:
-            index: The index of the player.
+            id (PlayerID): The ID of the player to be checked.
 
         Returns:
             bool: True if the player has won, False otherwise.
@@ -207,13 +207,13 @@ class IGame(abc.ABC):
     @abc.abstractmethod
     def get_player_result(self, id: PlayerID) -> int:
         """
-        Returns the player's statistics.
+        Retrieves the result of a player with the given ID.
 
         Args:
-            index: The index of the player.
+            id (PlayerID): The ID of the player.
 
         Returns:
-            int: The player's statistics.
+            int: The result of the player.
         """
         ...
 
@@ -229,31 +229,48 @@ class IGame(abc.ABC):
 
 
 class IServer:
-    """Interface for the server"""
+    """
+    Interface for the server.
+
+    This interface defines the methods that a server implementation should provide.
+    """
 
     @abc.abstractmethod
     def on_start(self):
-        """Runs the server"""
+        """
+        Gets called when the server starts.
+        """
         ...
 
     @abc.abstractmethod
     def on_stop(self):
-        """Stops the server"""
+        """
+        Gets called when the server stops.
+        """
         ...
 
     @abc.abstractmethod
     def on_connect(self, player: IPlayer):
-        """Connects a player to the server"""
+        """
+        Gets called when a player connects.
+        Args:
+            player (IPlayer): The player that has connected.
+        """
         ...
 
     @abc.abstractmethod
     def on_disconnect(self, player: IPlayer):
-        """Disconnects a player from the server"""
+        """
+        Gets called when a player disconnects.
+        Args:
+            player (IPlayer): The player that has disconnected.
+        """
         ...
 
     @abc.abstractmethod
     def on_update(self):
         """
-        Updates the server, called every tick (depends on the server implementation)
+        Gets called when the server updates.
+        Frequency depends on the final implementation.
         """
         ...
