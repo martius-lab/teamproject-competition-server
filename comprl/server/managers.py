@@ -104,17 +104,20 @@ class PlayerManager:
         Returns:
             bool: True if the authentication is successful, False otherwise.
         """
+        player = self.connected_players.get(player_id, None)
+        # the player might have disconnected?
+        if player is None:
+            return False
 
-        data = UserData(ConfigProvider.get("user_data"))
-        if data.is_verified(token):
-            self.auth_players[player_id] = (
-                self.connected_players[player_id],
-                data.get_user_id(token),
-            )
-            log.info(f"Player {player_id} authenticated")
+        id = UserData(ConfigProvider.get("user_data")).get_user_id(token)
+
+        if id is not None:
+            # add player to authenticated players
+            self.auth_players[player_id] = (self.connected_players[player_id], id)
+            # set user_id of player
+            player.user_id = id
+            log.debug(f"Player {player_id} authenticated")
             return True
-        # disconnect player if authentication failed
-        self.connected_players[player_id].disconnect("Authentication failed")
 
         return False
 
@@ -151,6 +154,7 @@ class PlayerManager:
     def get_player_by_id(self, player_id: PlayerID) -> IPlayer | None:
         """
         Retrieves the player object associated with a player ID.
+        This only works for authenticated players.
 
         Args:
             player_id (PlayerID): The ID of the player.
@@ -270,5 +274,5 @@ class MatchmakingManager:
         Args:
             game (IGame): The game to be ended.
         """
-        for p in game.players:
+        for _, p in game.players.items():
             self.try_match(p.id)

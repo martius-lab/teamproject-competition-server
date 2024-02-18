@@ -18,7 +18,18 @@ VERSION: int = 1
 
 
 class COMPServerProtocol(amp.AMP):
-    """amp protocol for a COMP server"""
+    """
+    Represents the server-side protocol for the COMP server.
+
+    This class extends the `amp.AMP` class and provides methods for handling
+    various events and interactions with the client.
+
+    Attributes:
+        connection_made_callbacks (list[Callable[[], None]]): List of callbacks
+            to be executed when the connection is made.
+        connection_lost_callbacks (list[Callable[[], None]]): List of callbacks
+            to be executed when the connection is lost.
+    """
 
     def __init__(self, boxReceiver=None, locator=None):
         super().__init__(boxReceiver, locator)
@@ -31,20 +42,31 @@ class COMPServerProtocol(amp.AMP):
 
         Args:
             callback (function): callback to execute, when the connection is made
+
+        Returns:
+            None
         """
         self.connection_made_callbacks.append(callback)
 
     def addConnectionLostCallback(self, callback):
-        """adds callback that is executed, when the connection is lost
+        """
+        Adds a callback function to be executed when the connection is lost.
 
         Args:
-            callback (function): callback to execute, when the connection is lost
+            callback: The callback function to be added.
+
+        Returns:
+            None
         """
         self.connection_lost_callbacks.append(callback)
 
     def connectionMade(self) -> None:
-        """called upon connectionMade event"""
+        """
+        Called when the connection to the client is established.
 
+        Returns:
+            None
+        """
         # broadcast to callbacks
         for c in self.connection_made_callbacks:
             c()
@@ -52,22 +74,44 @@ class COMPServerProtocol(amp.AMP):
         return super().connectionMade()
 
     def connectionLost(self, reason):
-        """called upon connectionLost event"""
+        """
+        Called when the connection to the client is lost.
+
+        Args:
+            reason: The reason for the connection loss.
+
+        Returns:
+            None
+        """
         log.debug("connection to client lost")
         for c in self.connection_lost_callbacks:
             c()
 
-        return super().connectionLost(reason)
+        super().connectionLost(reason)
 
-    def connectionTimeout(self, failure, timeout):
-        """called upon timeout"""
+    def connectionTimeout(self, failure, timeout) -> None:
+        """
+        Handles the timeout event for a connection.
+
+        Args:
+            failure: The failure object representing the timeout.
+            timeout: The timeout value in seconds.
+        Returns:
+            None
+        """
         pass
 
     def get_token(self, return_callback: Callable[[str], None]) -> None:
-        """get token from client to authenticate
+        """
+        Retrieves a token from the client and calls the return_callback
+        function with the token.
 
         Args:
-            game (Game): game that starts
+            return_callback (Callable[[str], None]): A callback function that takes
+            a string parameter.
+
+        Returns:
+            None
         """
 
         def callback(res):
@@ -76,17 +120,22 @@ class COMPServerProtocol(amp.AMP):
             else:
                 log.error("Client with wrong version tried to authenticate.")
                 self.send_error(msg="Tried to connect with wrong version")
-                self.transport.loseConnection()
+                self.disconnect()
 
         self.callRemote(Auth).addCallback(callback=callback).addTimeout(
             ConfigProvider.get("timeout"), reactor, self.connectionTimeout
         )
 
     def is_ready(self, return_callback: Callable[[bool], None]) -> bool:
-        """checks if the player is ready to play
+        """
+        Checks if the client is ready.
+
+        Args:
+            return_callback (Callable[[bool], None]): A callback function that will
+            be called with the result of the check.
 
         Returns:
-            bool: returns true if the player is ready to play
+            bool: Containing the information if the client is ready.
         """
         return (
             self.callRemote(Ready)
@@ -95,18 +144,29 @@ class COMPServerProtocol(amp.AMP):
         )
 
     def notify_start(self, game_id: GameID) -> None:
-        """starts the game
+        """
+        Notifies the client that a game has started.
 
         Args:
-            game (Game): game that starts
+            game_id (GameID): The ID of the game that has started.
         """
         return self.callRemote(StartGame, game_id=game_id.bytes)
 
     def get_step(
         self, obv: list[float], return_callback: Callable[[list], None]
     ) -> None:
-        """performs step requested by player"""
+        """
+        Sends an observation to the remote client and retrieves the corresponding
+        action.
 
+        Args:
+            obv (list[float]): The observation to send to the client.
+            return_callback (Callable[[list], None]): The callback function to be
+                called with the retrieved action.
+
+        Returns:
+            None
+        """
         return (
             self.callRemote(Step, obv=obv)
             .addCallback(callback=lambda res: return_callback(res["action"]))
@@ -114,81 +174,121 @@ class COMPServerProtocol(amp.AMP):
         )
 
     def notify_end(self, result, stats) -> None:
-        """ends the game"""
+        """
+        Notifies the remote client about the end of the game.
 
+        Args:
+            result: The result of the game.
+            stats: The statistics of the game.
+
+        Returns:
+            None
+        """
         return self.callRemote(EndGame, result=result, stats=stats).addTimeout(
             ConfigProvider.get("timeout"), reactor, self.connectionTimeout
         )
 
     def send_error(self, msg: str):
-        """send an error string to the client"""
+        """
+        Send an error string to the client.
+
+        Args:
+            msg (str): The error message to send.
+
+        Returns:
+            None
+        """
         self.callRemote(Error, msg=str.encode(msg))
 
     def disconnect(self):
-        """disconnects the client from the server"""
+        """
+        Disconnects the client from the server.
+
+        Returns:
+            None
+        """
         self.transport.loseConnection()
 
 
 class COMPPlayer(IPlayer):
-    """player of the game"""
+    """Represents a player in the COMP game.
+
+    Attributes:
+        connection (COMPServerProtocol): The networking connection for the player.
+    """
 
     def __init__(self, connection: COMPServerProtocol) -> None:
-        # init super to obtain id
-        super().__init__()
+        """Initialize the COMPPlayer instance.
 
-        # set the networking connection
+        Args:
+            connection (COMPServerProtocol): The networking connection for the player.
+        """
+        super().__init__()
         self.connection: COMPServerProtocol = connection
 
     def authenticate(self, result_callback):
-        """authenticates player
+        """Authenticates the player.
 
-        Args: result_callback (callback function)
+        Args:
+            result_callback (callback function):
+                The callback to handle the authentication result.
 
-        Returns: token (string)"""
+        Returns:
+            token (string): The authentication token.
+        """
         self.connection.get_token(result_callback)
 
     def is_ready(self, result_callback) -> bool:
-        """checks if the player is ready to play
+        """Checks if the player is ready to play.
+
+        Args:
+            result_callback (callback function): The callback to handle the result.
 
         Returns:
-            bool: returns true if the player is ready to play
+            bool: True if the player is ready to play, False otherwise.
         """
         return self.connection.is_ready(result_callback)
 
     def notify_start(self, game_id: GameID):
-        """notifies start of game"""
+        """Notifies the player about the start of the game.
+
+        Args:
+            game_id (GameID): The ID of the game.
+        """
         self.connection.notify_start(game_id=game_id)
 
     def get_action(self, obv, result_callback):
-        """receive action from server
+        """Receives the action from the server.
 
         Args:
-            obv(any): observation"""
+            obv (any): The observation.
+            result_callback (callback function): The callback to handle the result.
+        """
         self.connection.get_step(obv, result_callback)
 
     def notify_end(self, result, stats):
-        """called when game ends
+        """Called when the game ends.
 
         Args:
-            result (any): result of the game
-            stats: (any): stats of the game"""
-
+            result (any): The result of the game.
+            stats (any): The stats of the game.
+        """
         self.connection.notify_end(result=result, stats=stats)
 
     def disconnect(self, reason: str):
-        """disconnect the player
+        """Disconnects the player.
 
         Args:
-            reason (str): reason why it disconnects
+            reason (str): The reason for the disconnection.
         """
         self.connection.send_error(reason)
         self.connection.disconnect()
 
     def notify_error(self, error: str):
-        """notifies the player of an error
+        """Notifies the player of an error.
 
         Args:
-            error (str): error message
+            error (str): The error message.
         """
         self.connection.send_error(error)
 

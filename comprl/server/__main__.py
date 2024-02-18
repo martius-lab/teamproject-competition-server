@@ -10,7 +10,7 @@ try:
     import tomllib  # type: ignore[import-not-found]
 except ImportError:
     # tomllib was added in Python 3.11.  Older versions can use tomli
-    import tomli as tomllib  # type: ignore[no-redef]
+    import tomli as tomllib  # type: ignore[import-not-found, no-redef]
 
 import importlib.util
 import importlib.abc
@@ -46,6 +46,8 @@ class Server(IServer):
         def __auth(token):
             if self.player_manager.auth(player.id, token):
                 self.matchmaking.try_match(player.id)
+            else:
+                player.disconnect("Authentication failed")
 
         player.authenticate(__auth)
 

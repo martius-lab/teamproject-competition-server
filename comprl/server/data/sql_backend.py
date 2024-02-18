@@ -185,7 +185,7 @@ class UserData:
             return True
         return False
 
-    def get_user_id(self, user_token: str) -> int:
+    def get_user_id(self, user_token: str) -> int | None:
         """
         Retrieves the ID of a user based on their token.
 
@@ -203,7 +203,7 @@ class UserData:
         if result is not None:
             return result[0]
 
-        return -1
+        return None
 
     def get_matchmaking_parameters(self, user_id: int) -> tuple[float, float]:
         """

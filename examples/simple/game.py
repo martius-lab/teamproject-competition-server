@@ -1,34 +1,43 @@
 from comprl.server.data.interfaces import GameEndState, GameResult
 from comprl.server.interfaces import IGame, IPlayer
+from comprl.shared.types import PlayerID
 
 
 class ExampleGame(IGame):
-    """example for a game"""
+    """Example game class"""
 
     def __init__(self, players: list[IPlayer]) -> None:
-        super().__init__(players=players)
-        self.env = 0
+        super().__init__(players)
+        self.env: float = 0.0
 
-    def _update_environment(self):
-        for action in self.current_actions:
-            self.env += sum(action)
+    def update(self, actions: dict[PlayerID, list[float]]) -> bool:
+        for _, v in actions.items():
+            self.env += v[0]
 
-    def _validate_action(self, action):
-        return isinstance(action, int)
-
-    def _is_finished(self) -> bool:
-        return self.env > 10
-
-    def _observation(self, index: int = 0) -> list[float]:
-        return [float(self.env)]
-
-    def _player_stats(self, index) -> int:
-        return 0
-
-    def _player_won(self, index) -> bool:
-        if index == 0:
+        if self.env > 10:
             return True
         return False
 
+    def get_observation(self, id: PlayerID) -> list[float]:
+        return [self.env]
+
     def get_result(self) -> GameResult:
-        return GameResult(self.id, -1, -1, 0, 0, None, GameEndState.DRAW, True, True)
+        # still dunno about this generally lol
+        return GameResult(
+            self.id,
+            list(self.players.values())[0].user_id or -1,
+            list(self.players.values())[1].user_id or -1,
+            0.0,
+            0.0,
+            self.start_time,
+            GameEndState.WIN,
+        )
+
+    def _player_won(self, id: PlayerID) -> bool:
+        return False
+
+    def _validate_action(self, action) -> bool:
+        return True
+
+    def get_player_result(self, id: PlayerID) -> int:
+        return 0
