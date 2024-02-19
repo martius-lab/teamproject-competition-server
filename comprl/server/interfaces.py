@@ -136,7 +136,9 @@ class IGame(abc.ABC):
             callback(self)
 
         for player in self.players.values():
-            player.notify_end(False, 1)
+            player.notify_end(
+                self._player_won(player.id), self.get_player_result(player.id)
+            )
 
     @abc.abstractmethod
     def update(self, actions: dict[PlayerID, list[float]]) -> bool:
