@@ -2,7 +2,6 @@
 
 import comprl.server.user_database as user_db
 import logging
-import uuid
 
 # run with python -m comprl.scripts.dummy_user
 
