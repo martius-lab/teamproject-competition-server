@@ -1,12 +1,14 @@
-"""defines interfaces for the server logic"""
+"""
+This module contains the interfaces for the non-networking logic.
+"""
 
 import abc
-from typing import Callable
+from typing import Callable, Optional
 from datetime import datetime
 
-from ..shared.types import GameID, PlayerID
-from . import id_generator
-from .game_result import GameResult
+from comprl.shared.types import GameID, PlayerID
+from comprl.server.util import IDGenerator
+from comprl.server.data.interfaces import GameResult
 
 
 class IAction:
@@ -19,7 +21,8 @@ class IPlayer(abc.ABC):
     """Interface for a player"""
 
     def __init__(self) -> None:
-        self.id: PlayerID = id_generator.generate_player_id()
+        self.id: PlayerID = IDGenerator.generate_player_id()
+        self.user_id: Optional[int] = None
 
     @abc.abstractmethod
     def authenticate(self, result_callback):
@@ -27,6 +30,15 @@ class IPlayer(abc.ABC):
 
         Args:
             result_callback (Callable): callback
+        """
+        ...
+
+    @abc.abstractmethod
+    def is_ready(self, result_callback) -> bool:
+        """checks if the player is ready to play
+
+        Returns:
+            bool: returns true if the player is ready to play
         """
         ...
 
@@ -58,109 +70,209 @@ class IPlayer(abc.ABC):
         """disconnect the player"""
         ...
 
+    @abc.abstractmethod
+    def notify_error(self, error: str):
+        """notifies the player of an error"""
+        ...
+
 
 class IGame(abc.ABC):
-    """game interface"""
+    """
+    Interface for a game.
 
+    Attributes:
+        id (GameID):
+            The unique identifier of the game.
+        players (dict[PlayerID, IPlayer]):
+            A dictionary of players participating in the game.
+        start_time (datetime):
+            The start time of the game.
+        finish_callbacks (list[Callable[["IGame"], None]]):
+            A list of callbacks to be executed when the game ends.
+    """
+
+    @abc.abstractmethod
     def __init__(self, players: list[IPlayer]) -> None:
-        self.players: list[IPlayer] = players
-        self.current_actions: list = [None for _ in players]
-        self.result_received: int = 0
-        self.id: GameID = id_generator.generate_game_id()
-        self.start_time = None
+        """
+        Initializes a new instance of the IGame class.
 
-        self.finish_callbacks: list[Callable] = []
+        Args:
+            players (list[IPlayer]): A list of players participating in the game.
+        """
+        self.id: GameID = IDGenerator.generate_game_id()
+        self.players = {p.id: p for p in players}
+        self.start_time = datetime.now()
+        self.finish_callbacks: list[Callable[["IGame"], None]] = []
 
-    def add_finish_callback(self, callback: Callable) -> None:
-        """link a callback to the end of a game"""
+    def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:
+        """
+        Adds a callback function to be executed when the game ends.
+
+        Args:
+            callback (Callable[["IGame"], None]): The callback function to be added.
+        """
         self.finish_callbacks.append(callback)
 
     def start(self):
         """
-        notifies all players that the game has started
-        and starts the game cycle
+        Notifies all players that the game has started and starts the game cycle.
         """
-
         self.start_time = datetime.now()
 
-        for p in self.players:
-            p.notify_start(game_id=self.id)
+        for player in self.players.values():
+            player.notify_start(self.id)
 
-        self._game_cycle()
+        self._run()
 
     def end(self, reason="unknown"):
-        """notifies all players that the game has ended
+        """
+        Notifies all players that the game has ended.
 
         Args:
-            reason (str, optional): reason why the game has ended. Defaults to "unknown"
+            reason (str): The reason why the game has ended. Defaults to "unknown".
         """
-        for c in self.finish_callbacks:
-            c(self.id)
 
-        # we might want to move this
-        for i, p in enumerate(self.players):
-            p.notify_end(result=self._player_won(i), stats=self._player_stats(i))
+        for callback in self.finish_callbacks:
+            callback(self)
+
+        for player in self.players.values():
+            player.notify_end(
+                self._player_won(player.id), self.get_player_result(player.id)
+            )
 
     @abc.abstractmethod
-    def _update_environment(self):
-        """works with the current_actions list to change the environment accordingly."""
-        ...
+    def update(self, actions: dict[PlayerID, list[float]]) -> bool:
+        """
+        Updates the game with the players' actions.
 
-    def _game_cycle(self):
-        """collects all actions and puts them in current_actions list"""
-        self.result_received = 0
+        Returns:
+            bool: True if the game is over, False otherwise.
+        """
+        return False
 
-        for i, p in enumerate(self.players):
+    def _run(self):
+        """
+        Collects all actions and puts them in the current_actions list.
+        """
+        actions = {}
+        for p in self.players.values():
 
-            def __res(v: IAction, index=i):
-                # log.debug(f"got action {v} from player {index}")
-                # TODO: add validation here!
-                self.current_actions[index] = v
-                self.result_received += 1
-                if self.result_received == len(self.players):
-                    self._update_environment()
+            def _res(value, id=p.id):
+                # TODO: validate action here ?
+                actions[id] = value
+                if len(actions) == len(self.players):
+                    # all players have submitted their actions
+                    # update the game, and if the game is over, end it
+                    self._run() if not self.update(actions) else self.end()
 
-                    if self._is_finished():
-                        self.end()
-                    else:
-                        self._game_cycle()
-
-            p.get_action(obv=self._observation(index=i), result_callback=__res)
+            p.get_action(self.get_observation(p.id), _res)
 
     @abc.abstractmethod
     def _validate_action(self, action) -> bool:
-        """check weather an action is valid"""
-        ...
+        """
+        Checks whether an action is valid.
 
-    @abc.abstractmethod
-    def _is_finished(self) -> bool:
-        """determines if the game has ended
+        Args:
+            action: The action to be validated.
 
         Returns:
-            bool: returns true if game has ended
+            bool: True if the action is valid, False otherwise.
         """
         ...
 
     @abc.abstractmethod
-    def _observation(self, index: int = 0):
-        """returns the observation for the player"""
-        ...
+    def get_observation(self, id: PlayerID) -> list[float]:
+        """
+        Returns the observation for the player.
 
-    @abc.abstractmethod
-    def _player_won(self, index) -> bool:
-        """check wether the player has won
+        Args:
+            id (PlayerID): The ID of the player for which the observation is requested.
 
         Returns:
-            bool: returns true if player has won
+            list[float]: The observation for the player.
         """
         ...
 
     @abc.abstractmethod
-    def _player_stats(self, index) -> int:
-        """returns the player stats"""
+    def _player_won(self, id: PlayerID) -> bool:
+        """
+        Checks whether the player has won.
+
+        Args:
+            id (PlayerID): The ID of the player to be checked.
+
+        Returns:
+            bool: True if the player has won, False otherwise.
+        """
         ...
 
     @abc.abstractmethod
-    def get_results(self) -> GameResult:
-        """returns the result and the statistics of the game"""
+    def get_player_result(self, id: PlayerID) -> int:
+        """
+        Retrieves the result of a player with the given ID.
+
+        Args:
+            id (PlayerID): The ID of the player.
+
+        Returns:
+            int: The result of the player.
+        """
+        ...
+
+    @abc.abstractmethod
+    def get_result(self) -> GameResult:
+        """
+        Returns the result of the game.
+
+        Returns:
+            GameResult: The result of the game.
+        """
+        ...
+
+
+class IServer:
+    """
+    Interface for the server.
+
+    This interface defines the methods that a server implementation should provide.
+    """
+
+    @abc.abstractmethod
+    def on_start(self):
+        """
+        Gets called when the server starts.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_stop(self):
+        """
+        Gets called when the server stops.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_connect(self, player: IPlayer):
+        """
+        Gets called when a player connects.
+        Args:
+            player (IPlayer): The player that has connected.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_disconnect(self, player: IPlayer):
+        """
+        Gets called when a player disconnects.
+        Args:
+            player (IPlayer): The player that has disconnected.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_update(self):
+        """
+        Gets called when the server updates.
+        Frequency depends on the final implementation.
+        """
         ...
