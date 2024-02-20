@@ -16,14 +16,22 @@ class Auth(Command):
         uuid (Integer): UUID assigned by the server to the client
     """
 
+    arguments = []
     response = [(b"token", String()), (b"version", Integer())]
+
+
+class Ready(Command):
+    """Command to check if the client is ready to start the game"""
+
+    arguments = []
+    response = [(b"ready", Boolean())]
 
 
 class StartGame(Command):
     """Command to notify the client that the game starts"""
 
     arguments = [(b"game_id", String())]
-    response = [(b"ready", Boolean())]
+    response = []
 
 
 class EndGame(Command):
@@ -33,7 +41,7 @@ class EndGame(Command):
         (b"result", Boolean()),
         (b"stats", Integer()),
     ]
-    response = [(b"ready", Boolean())]
+    response = []
 
 
 class Step(Command):
@@ -47,3 +55,4 @@ class Error(Command):
     """Command interface for a generic error message"""
 
     arguments = [(b"msg", String())]
+    response = []
