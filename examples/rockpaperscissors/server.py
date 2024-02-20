@@ -7,14 +7,15 @@ This is the game logic of a dummy game (rock-paper-scissors).
 
 from enum import Enum
 
-from .interfaces import IGame, IPlayer
-from .game_result import GameEndState, GameResult
-from . import player_manager
+from comprl.server.interfaces import IGame, IPlayer
+from comprl.server.game_result import GameEndState, GameResult
+from comprl.server import player_manager
+from comprl.server.app import COMPServer
 
 Sign = Enum("Sign", ["ROCK", "PAPER", "SCISSORS"])
 
 
-class rock_paper_scissors(IGame):
+class RPSServer(IGame):
     """
     This class represents a rock-paper-scissors game.
     """
@@ -75,3 +76,7 @@ class rock_paper_scissors(IGame):
             is_user1_winner=self._player_won(0),
             start_time=self.start_time,
         )
+
+
+server = COMPServer(RPSServer)
+server.start()

@@ -1,11 +1,26 @@
-"""Class to store the result of a game"""
+"""
+This module contains the interfaces for the game data.
+"""
 
 from datetime import datetime
-from typing import Optional
-from enum import Enum
-from uuid import UUID
+from enum import IntEnum
 
-GameEndState = Enum("GameEndState", ["WIN", "DRAW", "DISCONNECTED"])
+from comprl.shared.types import GameID
+
+
+class GameEndState(IntEnum):
+    """
+    Represents the possible end states of a game.
+
+    Attributes:
+        WIN: The game ended with a win.
+        DRAW: The game ended in a draw.
+        DISCONNECTED: The game ended due to a disconnection.
+    """
+
+    WIN = 0
+    DRAW = 1
+    DISCONNECTED = 2
 
 
 class GameResult:
@@ -13,13 +28,13 @@ class GameResult:
 
     def __init__(
         self,
-        game_id: UUID,
-        user1_id: Optional[int],
-        user2_id: Optional[int],
+        game_id: GameID,
+        user1_id: int,
+        user2_id: int,
         score_user_1: float,
         score_user_2: float,
         start_time=None,
-        end_state: int = GameEndState.WIN.value,
+        end_state: GameEndState = GameEndState.WIN,
         is_user1_winner: bool = True,
         is_user1_disconnected: bool = True,
     ) -> None:
@@ -34,7 +49,7 @@ class GameResult:
             start_time (str, optional): time, when the game started.
                 Defaults to None (current time).
             end_state (int, optional): end-state of the game.
-                Defaults to GameEndState.WIN.value.
+                Defaults to GameEndState.WIN.
             is_user1_winner (bool, optional): is user 1 the winner?
                 Defaults to True.
             is_user1_disconnected (bool, optional): is user 1 disconnected?
@@ -52,9 +67,9 @@ class GameResult:
             self.start_time = datetime.now()
 
         self.winner_id = None
-        if end_state == GameEndState.WIN.value:
+        if end_state == GameEndState.WIN:
             self.winner_id = user1_id if is_user1_winner else user2_id
 
         self.disconnected_id = None
-        if end_state == GameEndState.DISCONNECTED.value:
+        if end_state == GameEndState.DISCONNECTED:
             self.disconnected_id = user1_id if is_user1_disconnected else user2_id
