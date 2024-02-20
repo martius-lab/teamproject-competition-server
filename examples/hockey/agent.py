@@ -1,10 +1,7 @@
-"""Several examples for agents for different games"""
-
-from .agent import COMPAgent
+import numpy as np
+from comprl.client.agent import COMPAgent
 
 import laserhockey.hockey_env as h_env
-import numpy as np
-import random
 
 
 class Weak_Hockey_Agent(COMPAgent):
@@ -61,22 +58,7 @@ class Random_Hockey_Agent(COMPAgent):
         """
 
         return np.random.uniform(-1, 1, 4).tolist()
-        # Action Space Box(-1.0, 1.0, (4,), float32)
 
 
-class Rock_Paper_Scissors_Agent(COMPAgent):
-    """Dummy Agent for testing. Returns random action"""
-
-    def step(self, obv: list[float]) -> list[float]:
-        """dummy step function
-
-        Args:
-            obv (list[float]): observation
-
-        Returns:
-            list(float): action
-        """
-        # return float(input(f"Observation: {obv} | Enter a move: "))
-        print(random.choice([0.0, 1.0, 2.0]))
-        return [random.choice([0.0, 1.0, 2.0])]
-        # Action Space Box(-2.0, 2.0, (1,), float32)
+bob = Weak_Hockey_Agent()
+bob.run("ExampleToken")
