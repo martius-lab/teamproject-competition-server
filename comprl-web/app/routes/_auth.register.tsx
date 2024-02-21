@@ -1,21 +1,38 @@
-import { Box, Button, Link, TextField, Typography } from "@mui/material";
-import { ActionFunctionArgs } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Alert, AlertColor, Box, Button, Link, TextField, Typography } from "@mui/material";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import { Form, useActionData } from "@remix-run/react";
+import { useState } from "react";
 import { addUser } from "~/db/sqlite.data";
 import { USERNAME_PASSWORD_STRATEGY, authenticator } from "~/services/auth.server";
 
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData()
+  const key = formData.get("key") as string;
+  const username = formData.get("username") as string;
+  const password = formData.get("password") as string;
 
-  addUser(formData.get("username") as string, formData.get("password") as string);
+  if (key !== "1234") {
+    return {
+      alerts: [{ severity: "error", message: "Invalid key" }]
+    }
+  }
 
-  return await authenticator.authenticate(USERNAME_PASSWORD_STRATEGY, request, {
-    successRedirect: "/dashboard",
-    context: { formData },
-  });
+  try {
+    await addUser(username, password);
+  } catch (error) {
+    return {
+      alerts: [{ severity: "error", message: "Username is already taken" }]
+    }
+  }
+  return redirect("/login");
 }
 
-export default function Login() {
+export default function Register() {
+  const data = useActionData<typeof action>();
+
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
 
   return (
     <Form method="POST">
@@ -34,6 +51,18 @@ export default function Login() {
         label="Password"
         type="password"
         name="password"
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <TextField
+        margin="normal"
+        required
+        fullWidth
+        label="Repeat Password"
+        type="password"
+        name="repeatPassword"
+        onChange={(e) => setRepeatPassword(e.target.value)}
+        error={password !== repeatPassword}
+        helperText={password !== repeatPassword ? "Passwords do not match" : ""}
       />
       <TextField
         margin="normal"
@@ -43,17 +72,20 @@ export default function Login() {
         type="password"
         name="key"
       />
+      {data?.alerts?.map((alert, i) =>
+        <Alert sx={{ mt: 1 }} key={i} severity={alert.severity as AlertColor}>{alert.message}</Alert>
+      )}
       <Button
         type="submit"
         fullWidth
         variant="contained"
         color="primary"
-        sx={{ mt: 2 }}
+        sx={{ mt: 1 }}
       >
         Create Account
       </Button>
       <Box
-        mt={2}
+        m={2}
         sx={{
           display: 'flex',
           flexWrap: 'wrap',

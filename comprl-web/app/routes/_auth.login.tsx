@@ -1,21 +1,28 @@
-import { Box, Button, Link, TextField, Typography } from "@mui/material";
+import { Alert, AlertColor, Box, Button, Link, TextField, Typography } from "@mui/material";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
+import { AuthorizationError } from "remix-auth";
 import { USERNAME_PASSWORD_STRATEGY, authenticator } from "~/services/auth.server";
 
 
 export async function action({ request }: ActionFunctionArgs) {
-
-
-
-  return await authenticator.authenticate(USERNAME_PASSWORD_STRATEGY, request, {
-    successRedirect: "/dashboard",
-    failureRedirect: "/login",
-  });
+  try {
+    return await authenticator.authenticate(USERNAME_PASSWORD_STRATEGY, request, {
+      successRedirect: "/dashboard",
+      throwOnError: true,
+    });
+  } catch (error) {
+    if (error instanceof Response) return error;
+    if (error instanceof AuthorizationError) {
+      return {
+        alerts: [{ severity: "error", message: error.message }]
+      }
+    }
+  }
 }
 
 export default function Login() {
-
+  const data = useActionData<typeof action>();
   return (
     <Form method="POST">
       <Typography align="center" variant="h5">Sign In</Typography>
@@ -34,6 +41,7 @@ export default function Login() {
         type="password"
         name="password"
       />
+      {data?.alerts?.map((alert, i) => <Alert sx={{ mt: 1 }} key={i} severity={alert.severity as AlertColor}>{alert.message}</Alert>)}
       <Button
         type="submit"
         fullWidth

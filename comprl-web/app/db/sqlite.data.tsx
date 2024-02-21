@@ -1,6 +1,5 @@
 import Database from 'better-sqlite3';
 
-
 console.log('Creating users.db');
 const db = new Database('users.db', { verbose: console.log });
 db.prepare(`
@@ -18,8 +17,7 @@ db.close();
 export async function addUser(username: string, password: string, role: string = 'user') {
     const db = new Database('users.db', { verbose: console.log });
     const stmt = db.prepare('INSERT INTO users(username, password, role) VALUES (?, ?, ?)');
-    const info = stmt.run(username, password, role);
-    console.log(info);
+    stmt.run(username, password, role);
     db.close();
 }
 
