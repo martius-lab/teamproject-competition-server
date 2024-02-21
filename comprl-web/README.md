@@ -1,4 +1,4 @@
-# Welcome to COMPRL-Web!
+# Welcome to COMPRL-Frontend!
 
 This Repository contains the web interface for the [comprl](https://github.com/martius-lab/teamproject-competition-server) server.
 This repository eventually will be deleted or moved if we can decide on a fitting location.

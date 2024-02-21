@@ -1,11 +1,14 @@
-import { Button, TextField, Typography } from "@mui/material";
+import { Box, Button, Link, TextField, Typography } from "@mui/material";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { useNavigate } from "@remix-run/react";
-import { authenticator } from "~/services/auth.server";
+import { Form } from "@remix-run/react";
+import { USERNAME_PASSWORD_STRATEGY, authenticator } from "~/services/auth.server";
 
 
 export async function action({ request }: ActionFunctionArgs) {
-  return await authenticator.authenticate("LOGIN_USERNAME_PASSWORD", request, {
+
+
+
+  return await authenticator.authenticate(USERNAME_PASSWORD_STRATEGY, request, {
     successRedirect: "/dashboard",
     failureRedirect: "/login",
   });
@@ -13,11 +16,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Login() {
 
-  const navigate = useNavigate()
-
   return (
-    <form method="POST">
-      <Typography align="center" variant="h5">Login</Typography>
+    <Form method="POST">
+      <Typography align="center" variant="h5">Sign In</Typography>
       <TextField
         margin="normal"
         required
@@ -42,16 +43,17 @@ export default function Login() {
       >
         Sign In
       </Button>
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="primary"
-        sx={{ mt: 2 }}
-        onClick={() => navigate("/register")}
-      >
-        Register new User
-      </Button>
-    </form>
+      <Box
+        mt={2}
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          typography: 'body1',
+        }}>
+          <Typography mr={1}>Not a member?</Typography>
+          <Link href="/register" sx={{ display: 'block', textAlign: 'center' }}>Create an account</Link>
+      </Box>
+    </Form>
   );
 }

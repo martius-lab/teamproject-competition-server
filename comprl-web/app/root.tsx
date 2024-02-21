@@ -1,4 +1,4 @@
-import { ThemeProvider, createTheme } from "@mui/material";
+import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import type { LinksFunction } from "@remix-run/node";
 import {
@@ -27,6 +27,7 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <CssBaseline />
         <ThemeProvider theme={theme}>
           <Outlet />
         </ThemeProvider>

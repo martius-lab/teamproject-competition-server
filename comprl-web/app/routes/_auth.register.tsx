@@ -1,28 +1,31 @@
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { Form } from "@remix-run/react";
+import { addUser } from "~/db/sqlite.data";
+import { USERNAME_PASSWORD_STRATEGY, authenticator } from "~/services/auth.server";
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData()
+
+  addUser(formData.get("username") as string, formData.get("password") as string);
+
+  return await authenticator.authenticate(USERNAME_PASSWORD_STRATEGY, request, {
+    successRedirect: "/dashboard",
+    context: { formData },
+  });
+}
 
 export default function Login() {
 
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [key, setLoginKey] = useState('')
-
-  function handleSubmit() {
-    console.log('submit')
-    console.log(username)
-    console.log(password)
-    console.log(key)
-  }
-
   return (
-    <Box>
-      <Typography align="center" variant="h5">Register</Typography>
+    <Form method="POST">
+      <Typography align="center" variant="h5">Sign Up</Typography>
       <TextField
         margin="normal"
         required
         fullWidth
         label="Username"
-        onChange={(e) => setUsername(e.target.value)}
+        name="username"
       />
       <TextField
         margin="normal"
@@ -30,7 +33,7 @@ export default function Login() {
         fullWidth
         label="Password"
         type="password"
-        onChange={(e) => setPassword(e.target.value)}
+        name="password"
       />
       <TextField
         margin="normal"
@@ -38,7 +41,7 @@ export default function Login() {
         fullWidth
         label="Key"
         type="password"
-        onChange={(e) => setLoginKey(e.target.value)}
+        name="key"
       />
       <Button
         type="submit"
@@ -46,16 +49,20 @@ export default function Login() {
         variant="contained"
         color="primary"
         sx={{ mt: 2 }}
-        onClick={handleSubmit}
       >
         Create Account
       </Button>
-      <Link 
-        href="/login" 
-        sx={{ mt: 2, display: 'block', textAlign: 'center' }}
-        >
-        Login
-      </Link>
-    </Box>
+      <Box
+        mt={2}
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          typography: 'body1',
+        }}>
+        <Typography mr={1}>Already have an account?</Typography>
+        <Link href="/login" sx={{ display: 'block', textAlign: 'center' }}>Sign-In</Link>
+      </Box>
+    </Form>
   );
 }
