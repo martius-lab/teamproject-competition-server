@@ -1,11 +1,9 @@
-import numpy as np
-from comprl.server import player_manager
-from comprl.server.game_result import GameEndState, GameResult
+from comprl.server.data.interfaces import GameEndState, GameResult
 from comprl.server.interfaces import IGame, IPlayer
+from comprl.shared.types import PlayerID
 
 import laserhockey.hockey_env as h_env
-
-from comprl.server.app import COMPServer
+import numpy as np
 
 
 class HockeyGame(IGame):
@@ -20,10 +18,11 @@ class HockeyGame(IGame):
         """
 
         self.env = h_env.HockeyEnv()
+        self.player_1_id = players[0].id
+        self.player_2_id = players[1].id
 
         # number of rounds played per game and current score
         self.remaining_rounds: int = 4
-        self.score = [0, 0]
         # Bool weather players play in default orientation or sides are swapped.
         # Alternates between rounds.
         self.sides_swapped = False
@@ -56,14 +55,26 @@ class HockeyGame(IGame):
         self.env.close()
         return super().end(reason)
 
-    def _update_environment(self):
-        """perform one gym step, using the actions collected by _game_cycle"""
+    def update(self, actions_dict: dict[PlayerID, list[float]]) -> bool:
+        """perform one gym step, using the actions
+
+        Returns:
+            bool: True if the game is over, False otherwise.
+        """
         self.env.render(mode="human")  # (un)comment to render or not
 
         if self.sides_swapped:  # change order of actions if sides are changed
-            self.action = np.hstack(np.flip(self.current_actions, 0))
+            self.raw_actions = [
+                actions_dict[self.player_2_id],
+                actions_dict[self.player_1_id],
+            ]
+
         else:
-            self.action = np.hstack(self.current_actions)
+            self.raw_actions = [
+                actions_dict[self.player_1_id],
+                actions_dict[self.player_2_id],
+            ]
+        self.action = np.hstack(self.raw_actions)
         (
             self.obs_player_left,
             self.reward,
@@ -78,14 +89,14 @@ class HockeyGame(IGame):
             self.winner = self.info["winner"]
             if self.winner == 1:
                 if self.sides_swapped:
-                    self.score[1] = self.score[1] + 1
+                    self.scores[self.player_2_id] = self.scores[self.player_2_id] + 1
                 else:
-                    self.score[0] = self.score[0] + 1
+                    self.scores[self.player_1_id] = self.scores[self.player_1_id] + 1
             if self.winner == -1:
                 if self.sides_swapped:
-                    self.score[0] = self.score[0] + 1
+                    self.scores[self.player_1_id] = self.scores[self.player_1_id] + 1
                 else:
-                    self.score[1] = self.score[1] + 1
+                    self.scores[self.player_2_id] = self.scores[self.player_2_id] + 1
 
             # reset env, swap player side and decrease remaining rounds
             self.obs_player_left, self.info = self.env.reset()
@@ -96,59 +107,53 @@ class HockeyGame(IGame):
             if self.remaining_rounds == 0:
                 self.finished = True
 
+        return self.finished
+
     def _validate_action(self, action) -> bool:
         return self.env.action_space.contains(
             action
         )  # check if the action is in the action space and thus valid
 
-    def _is_finished(self) -> bool:
-        # check if no round needs to be played and last round has ended.
-        return self.finished
-
-    def _observation(self, index):
+    def get_observation(self, id: PlayerID) -> list[float]:
         # return the correct obs respecting if sides are swapped
-        if (index == 1) and (not self.sides_swapped):
+        if (id == self.player_2_id) and (not self.sides_swapped):
             return self.env.obs_agent_two().tolist()  # obs is an np array, we need list
-        elif (index == 0) and self.sides_swapped:
+        elif (id == self.player_1_id) and self.sides_swapped:
             return self.env.obs_agent_two().tolist()  # obs is an np array, we need list
         else:
             return self.obs_player_left.tolist()  # obs is an np array, we need list
 
-    def _player_won(self, index) -> bool:
+    def _player_won(self, id: PlayerID) -> bool:
         if not self.finished:  # if game hasn't ended nobody has won
             return False
 
         # determine winner using score
-        if index == 0:
-            return self.score[0] > self.score[1]
-        if index == 1:
-            return self.score[1] > self.score[0]
+        if id == self.player_1_id:
+            return self.scores[self.player_1_id] > self.scores[self.player_2_id]
+        if id == self.player_2_id:
+            return self.scores[self.player_2_id] > self.scores[self.player_1_id]
         return False
 
-    def _player_stats(self, index) -> int:
-        return self.score[index]
+    def get_player_result(self, id: PlayerID) -> int:
+        return int(self.scores[id])
 
-    def get_results(self) -> GameResult:
+    def get_result(self) -> GameResult:
         """get the results of the game
 
         Returns:
             GameResult: results and statistics of the game
         """
-        end_state = GameEndState.WIN.value
-        if self.score[0] == self.score[1]:
-            end_state = GameEndState.DRAW.value
+        end_state = GameEndState.WIN
+        if self.scores[self.player_1_id] == self.scores[self.player_2_id]:
+            end_state = GameEndState.DRAW
 
         return GameResult(
             game_id=self.id,
-            user1_id=player_manager.get_user_id(self.players[0].id),
-            user2_id=player_manager.get_user_id(self.players[1].id),
-            score_user_1=self.score[0],
-            score_user_2=self.score[1],
+            user1_id=0,  # dummy value, cari is going to change this
+            user2_id=0,  # same here
+            score_user_1=0,  # and here
+            score_user_2=0,  # here again
             end_state=end_state,
-            is_user1_winner=self._player_won(0),
+            is_user1_winner=False,  # and here
             start_time=self.start_time,
         )
-
-
-server = COMPServer(HockeyGame)
-server.start()
