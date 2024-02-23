@@ -178,7 +178,7 @@ class IGame(abc.ABC):
         self.disconnected_player_id = player_id
         self._end(reason="Player disconnected")
 
-    def get_result(self) -> GameResult:
+    def get_result(self) -> GameResult | None:
         """
         Returns the result of the game.
 
@@ -193,10 +193,16 @@ class IGame(abc.ABC):
         if self.disconnected_player_id is not None:
             game_end_state = GameEndState.DISCONNECTED
 
+        user1_id = self.players[player_ids[0]].user_id
+        user2_id = self.players[player_ids[1]].user_id
+
+        if user1_id is None or user2_id is None:
+            return None
+
         return GameResult(
             game_id=self.id,
-            user1_id=self.players[player_ids[0]].user_id,
-            user2_id=self.players[player_ids[1]].user_id,
+            user1_id=user1_id,
+            user2_id=user2_id,
             score_user_1=self.scores[player_ids[0]],
             score_user_2=self.scores[player_ids[1]],
             start_time=self.start_time,

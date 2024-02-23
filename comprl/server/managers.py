@@ -53,10 +53,11 @@ class GameManager:
         """
 
         if game.id in self.games:
-            GameData(ConfigProvider.get("game_data")).add(
-                self.games[game.id].get_result()
-            )
-
+            game_result = game.get_result()
+            if game_result is not None:
+                GameData(ConfigProvider.get("game_data")).add(game_result)
+            else:
+                log.error(f"Game had no valid result. Game-ID: {game.id}")
             del self.games[game.id]
 
     def force_game_end(self, player_id: PlayerID):
