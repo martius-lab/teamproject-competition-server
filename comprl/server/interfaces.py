@@ -104,7 +104,7 @@ class IGame(abc.ABC):
         self.finish_callbacks: list[Callable[["IGame"], None]] = []
         self.scores: dict[PlayerID, float] = {p.id: 0.0 for p in players}
         self.start_time = datetime.now()
-        self.disconnected_player_id = None
+        self.disconnected_player_id: PlayerID | None = None
 
     def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:
         """
@@ -174,7 +174,12 @@ class IGame(abc.ABC):
 
             p.get_action(self.get_observation(p.id), _res)
 
-    def force_end(self, player_id):
+    def force_end(self, player_id: PlayerID):
+        """forces the end of the game
+
+        Args:
+            player_id (PlayerID): the player that caused the forced end
+        """
         self.disconnected_player_id = player_id
         self._end(reason="Player disconnected")
 

@@ -219,6 +219,12 @@ class COMPServerProtocol(amp.AMP):
         self.transport.loseConnection()
 
     def handle_remote_error(place, error):
+        """Is called when an error in Deferred occurs
+
+        Args:
+            place : where the error was caused
+            error : description of the error
+        """
         log.debug(f"Caught error in remote Callback at {place}")
 
 

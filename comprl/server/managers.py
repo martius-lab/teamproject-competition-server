@@ -54,6 +54,7 @@ class GameManager:
 
         if game.id in self.games:
             game_result = game.get_result()
+            print(game_result)
             if game_result is not None:
                 GameData(ConfigProvider.get("game_data")).add(game_result)
             else:
@@ -61,6 +62,11 @@ class GameManager:
             del self.games[game.id]
 
     def force_game_end(self, player_id: PlayerID):
+        """Forces all games, that a player is currently playing, to end.
+
+        Args:
+            player_id (PlayerID): id of the player
+        """
         involved_games: list[IGame] = []
         for _, game in self.games.items():
             for game_player_id in game.players:
@@ -68,7 +74,7 @@ class GameManager:
                     involved_games.append(game)
                     break
         for game in involved_games:
-            log.debug(f"Game was forced to end because of a disconnected player")
+            log.debug("Game was forced to end because of a disconnected player")
             game.force_end(player_id=player_id)
 
     def get(self, game_id: GameID) -> IGame | None:

@@ -22,7 +22,8 @@ class ExampleGame(IGame):
 
     def _player_won(self, id: PlayerID) -> bool:
         for p, s in self.scores.items():
-            if p != id and s>=self.scores[id]: return False
+            if p != id and s >= self.scores[id]:
+                return False
         return True
 
     def _validate_action(self, action) -> bool:
