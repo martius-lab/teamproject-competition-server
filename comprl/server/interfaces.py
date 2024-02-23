@@ -8,7 +8,7 @@ from datetime import datetime
 
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.util import IDGenerator
-from comprl.server.data.interfaces import GameResult
+from comprl.server.data.interfaces import GameResult, GameEndState
 
 
 class IAction:
@@ -101,8 +101,10 @@ class IGame(abc.ABC):
         """
         self.id: GameID = IDGenerator.generate_game_id()
         self.players = {p.id: p for p in players}
-        self.start_time = datetime.now()
         self.finish_callbacks: list[Callable[["IGame"], None]] = []
+        self.scores: dict[PlayerID, float] = {p.id: 0.0 for p in players}
+        self.start_time = datetime.now()
+        self.disconnected_player_id = None
 
     def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:
         """
@@ -124,7 +126,7 @@ class IGame(abc.ABC):
 
         self._run()
 
-    def end(self, reason="unknown"):
+    def _end(self, reason="unknown"):
         """
         Notifies all players that the game has ended.
 
@@ -163,9 +165,45 @@ class IGame(abc.ABC):
                 if len(actions) == len(self.players):
                     # all players have submitted their actions
                     # update the game, and if the game is over, end it
-                    self._run() if not self.update(actions) else self.end()
+                    if self.disconnected_player_id is not None:
+                        return
+                    if not self.update(actions):
+                        self._run()
+                    else:
+                        self._end(reason="Player won")
 
             p.get_action(self.get_observation(p.id), _res)
+
+    def force_end(self, player_id):
+        self.disconnected_player_id = player_id
+        self._end(reason="Player disconnected")
+
+    def get_result(self) -> GameResult:
+        """
+        Returns the result of the game.
+
+        Returns:
+            GameResult: The result of the game.
+        """
+        player_ids = list(self.players.keys())
+
+        game_end_state = GameEndState.DRAW
+        if self._player_won(player_ids[0]) or self._player_won(player_ids[1]):
+            game_end_state = GameEndState.WIN
+        if self.disconnected_player_id is not None:
+            game_end_state = GameEndState.DISCONNECTED
+
+        return GameResult(
+            game_id=self.id,
+            user1_id=self.players[player_ids[0]].user_id,
+            user2_id=self.players[player_ids[1]].user_id,
+            score_user_1=self.scores[player_ids[0]],
+            score_user_2=self.scores[player_ids[1]],
+            start_time=self.start_time,
+            end_state=game_end_state,
+            is_user1_winner=self._player_won(player_ids[0]),
+            is_user1_disconnected=(self.disconnected_player_id == player_ids[0]),
+        )
 
     @abc.abstractmethod
     def _validate_action(self, action) -> bool:
@@ -216,16 +254,6 @@ class IGame(abc.ABC):
 
         Returns:
             int: The result of the player.
-        """
-        ...
-
-    @abc.abstractmethod
-    def get_result(self) -> GameResult:
-        """
-        Returns the result of the game.
-
-        Returns:
-            GameResult: The result of the game.
         """
         ...
 

@@ -56,6 +56,7 @@ class Server(IServer):
         log.debug(f"Player {player.id} disconnected")
         self.matchmaking.remove(player.id)
         self.player_manager.remove(player)
+        self.game_manager.force_game_end(player.id)
 
     def on_update(self):
         """gets called every update cycle"""

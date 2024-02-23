@@ -59,6 +59,17 @@ class GameManager:
 
             del self.games[game.id]
 
+    def force_game_end(self, player_id: PlayerID):
+        involved_games: list[IGame] = []
+        for _, game in self.games.items():
+            for game_player_id in game.players:
+                if player_id == game_player_id:
+                    involved_games.append(game)
+                    break
+        for game in involved_games:
+            log.debug(f"Game was forced to end because of a disconnected player")
+            game.force_end(player_id=player_id)
+
     def get(self, game_id: GameID) -> IGame | None:
         """
         Retrieves the game instance with the specified ID.
