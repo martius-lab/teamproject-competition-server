@@ -1,4 +1,3 @@
-import numpy as np
 from comprl.client import Agent
 
 import laserhockey.hockey_env as h_env
