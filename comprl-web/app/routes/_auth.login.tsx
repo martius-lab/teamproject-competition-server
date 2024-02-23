@@ -8,7 +8,7 @@ import { USERNAME_PASSWORD_STRATEGY, authenticator } from "~/services/auth.serve
 export async function action({ request }: ActionFunctionArgs) {
   try {
     return await authenticator.authenticate(USERNAME_PASSWORD_STRATEGY, request, {
-      successRedirect: "/dashboard",
+      successRedirect: "/me",
       throwOnError: true,
     });
   } catch (error) {

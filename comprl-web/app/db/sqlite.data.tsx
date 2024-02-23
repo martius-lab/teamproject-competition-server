@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import User from './types';
 
 console.log('Creating users.db');
 const db = new Database('users.db', { verbose: console.log });
@@ -24,7 +25,7 @@ export async function addUser(username: string, password: string, role: string =
 export async function getUser(username: string) {
     const db = new Database('users.db', { verbose: console.log });
     const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
-    const user = stmt.get(username);
+    const res = stmt.get(username);
     db.close();
-    return user;
+    return {id: res.user_id, name: res.username, role: res.role} as User;
 }

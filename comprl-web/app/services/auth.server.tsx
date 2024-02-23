@@ -2,13 +2,7 @@ import { Authenticator, AuthorizationError } from "remix-auth";
 import { sessionStorage } from "~/services/session.server";
 import { FormStrategy } from "remix-auth-form";
 import { getUser } from "~/db/sqlite.data";
-
-interface User {
-    id: number;
-    name: string;
-    //email: string;
-    role: "admin" | "user";
-}
+import User from "~/db/types";
 
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
@@ -22,7 +16,7 @@ authenticator.use(
         //const password = form.get("password");
         
         //TODO: implement password hashing, and better authentication
-        const user = await getUser(name);
+        const user: User = await getUser(name);
         if (!user) {
             throw new AuthorizationError("Invalid username or password");
         }
@@ -30,7 +24,7 @@ authenticator.use(
         // the type of this user must match the type you pass to the Authenticator
         // the strategy will automatically inherit the type if you instantiate
         // directly inside the `use` method
-        return { id: user.user_id, name: user.username, role: user.role};
+        return user;
     }),
     // each strategy has a name and can be changed to use another one
     // same strategy multiple times, especially useful for the OAuth2 strategy.

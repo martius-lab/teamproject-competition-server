@@ -3,7 +3,6 @@ import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 import { addUser } from "~/db/sqlite.data";
-import { USERNAME_PASSWORD_STRATEGY, authenticator } from "~/services/auth.server";
 
 
 export async function action({ request }: ActionFunctionArgs) {
