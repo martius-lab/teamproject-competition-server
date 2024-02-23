@@ -122,8 +122,11 @@ class COMPServerProtocol(amp.AMP):
                 self.send_error(msg="Tried to connect with wrong version")
                 self.disconnect()
 
-        self.callRemote(Auth).addCallback(callback=callback).addTimeout(
-            ConfigProvider.get("timeout"), reactor, self.connectionTimeout
+        return (
+            self.callRemote(Auth)
+            .addCallback(callback=callback)
+            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addErrback(self.handle_remote_error)
         )
 
     def is_ready(self, return_callback: Callable[[bool], None]) -> bool:
@@ -141,6 +144,7 @@ class COMPServerProtocol(amp.AMP):
             self.callRemote(Ready)
             .addCallback(callback=lambda res: return_callback(res["ready"]))
             .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addErrback(self.handle_remote_error)
         )
 
     def notify_start(self, game_id: GameID) -> None:
@@ -171,6 +175,7 @@ class COMPServerProtocol(amp.AMP):
             self.callRemote(Step, obv=obv)
             .addCallback(callback=lambda res: return_callback(res["action"]))
             .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addErrback(self.handle_remote_error)
         )
 
     def notify_end(self, result, stats) -> None:
@@ -184,8 +189,10 @@ class COMPServerProtocol(amp.AMP):
         Returns:
             None
         """
-        return self.callRemote(EndGame, result=result, stats=stats).addTimeout(
-            ConfigProvider.get("timeout"), reactor, self.connectionTimeout
+        return (
+            self.callRemote(EndGame, result=result, stats=stats)
+            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addErrback(self.handle_remote_error)
         )
 
     def send_error(self, msg: str):
@@ -198,7 +205,9 @@ class COMPServerProtocol(amp.AMP):
         Returns:
             None
         """
-        self.callRemote(Error, msg=str.encode(msg))
+        return self.callRemote(Error, msg=str.encode(msg)).addErrback(
+            self.handle_remote_error
+        )
 
     def disconnect(self):
         """
@@ -208,6 +217,9 @@ class COMPServerProtocol(amp.AMP):
             None
         """
         self.transport.loseConnection()
+
+    def handle_remote_error(place, error):
+        log.debug(f"Caught error in remote Callback at {place}")
 
 
 class COMPPlayer(IPlayer):
