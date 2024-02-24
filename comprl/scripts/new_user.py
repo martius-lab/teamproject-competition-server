@@ -1,12 +1,20 @@
 """ script to add new user to the user database"""
 
-import comprl.server.user_database as user_db
+from comprl.server.data import UserData
+from comprl.server.util import ConfigProvider
 import logging
-import uuid
+import random
+import string
 
 # run with python -m comprl.scripts.new_user
 
 logging.basicConfig(level=logging.DEBUG)
+
+
+def generate_random_string(length=10):
+    """Generate a random string of a specified length."""
+    letters = string.ascii_letters + string.digits
+    return "".join(random.choice(letters) for _ in range(length))
 
 
 def insert_user(name: str):
@@ -15,16 +23,16 @@ def insert_user(name: str):
     Args:
         name (str): name of the new user
     """
-    user_db.add_user(user_name=name, user_token=uuid.uuid4())
+    user_data = UserData(ConfigProvider.get("user_data"))
+    token = generate_random_string()
+    user_data.add(user_name=name, user_token=token)
 
 
 if __name__ == "__main__":
-    while True:
+    name = input("Please enter a name for the user or press ENTER to end the script: ")
+    while name:
+        insert_user(name)
         name = input(
             "Please enter a name for the user or press ENTER to end the script: "
         )
-        if name:
-            insert_user(name)
-        else:
-            break
     pass
