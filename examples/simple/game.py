@@ -27,7 +27,8 @@ class ExampleGame(IGame):
         return True
 
     def _validate_action(self, action) -> bool:
-        return True
+        if len(action) < 1: return False
+        return int(action[0]) == action[0]
 
     def get_player_result(self, id: PlayerID) -> int:
         return 0

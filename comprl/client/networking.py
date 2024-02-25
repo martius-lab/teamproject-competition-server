@@ -116,7 +116,7 @@ class ClientProtocol(amp.AMP):
         Args:
             msg (object): The error description.
         """
-        self.agent.on_error(msg=msg)
+        self.agent.on_error(msg=str(msg))
         return {}
 
 

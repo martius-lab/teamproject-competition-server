@@ -160,7 +160,8 @@ class IGame(abc.ABC):
         for p in self.players.values():
 
             def _res(value, id=p.id):
-                # TODO: validate action here ?
+                if not self._validate_action(value):
+                    self.players[id].disconnect("Invalid action")
                 actions[id] = value
                 if len(actions) == len(self.players):
                     # all players have submitted their actions

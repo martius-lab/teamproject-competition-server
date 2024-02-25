@@ -255,7 +255,7 @@ class MatchmakingManager:
             player_id (PlayerID): The ID of the player to be matched.
         """
         log.debug(f"Player {player_id} is being matched")
-
+        
         if len(self.queue) > 0:
             players = [
                 self.player_manager.get_player_by_id(p_id)
@@ -277,7 +277,7 @@ class MatchmakingManager:
         Args:
             player_id (PlayerID): The ID of the player to be removed.
         """
-        pass
+        self.queue = [p for p in  self.queue if (p != player_id)]
 
     def update(self):
         """
