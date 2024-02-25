@@ -44,7 +44,8 @@ class ClientProtocol(amp.AMP):
             reason (object): The reason for the lost connection.
         """
         log.debug(f"Disconnected from the server. Reason: {reason}")
-        if reactor.running: reactor.stop()
+        if reactor.running:
+            reactor.stop()
         return super().connectionLost(reason)
 
     @Auth.responder
@@ -116,7 +117,7 @@ class ClientProtocol(amp.AMP):
         Args:
             msg (object): The error description.
         """
-        self.agent.on_error(msg=str(msg, encoding='utf-8'))
+        self.agent.on_error(msg=str(msg, encoding="utf-8"))
         return {}
 
 

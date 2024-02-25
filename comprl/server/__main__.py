@@ -58,7 +58,7 @@ class Server(IServer):
         self.player_manager.remove(player)
         self.game_manager.force_game_end(player.id)
 
-    def on_timeout(self, player:IPlayer, failure, timeout):
+    def on_timeout(self, player: IPlayer, failure, timeout):
         """gets called when a player has a timeout"""
         log.debug(f"Player {player.id} had timeout after {timeout}s")
         player.disconnect(reason=f"Timeout after {timeout}s")

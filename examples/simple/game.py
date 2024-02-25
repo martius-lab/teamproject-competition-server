@@ -1,4 +1,3 @@
-from comprl.server.data.interfaces import GameEndState, GameResult
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import PlayerID
 
@@ -27,7 +26,8 @@ class ExampleGame(IGame):
         return True
 
     def _validate_action(self, action) -> bool:
-        if len(action) < 1: return False
+        if len(action) < 1:
+            return False
         return int(action[0]) == action[0]
 
     def get_player_result(self, id: PlayerID) -> int:

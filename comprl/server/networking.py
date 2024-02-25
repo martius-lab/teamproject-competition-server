@@ -364,11 +364,17 @@ class COMPFactory(ServerFactory):
         comp_player: COMPPlayer = COMPPlayer(protocol)
 
         # set up the callbacks needed for the server
-        protocol.add_connection_made_callback(lambda: self.server.on_connect(comp_player))
+        protocol.add_connection_made_callback(
+            lambda: self.server.on_connect(comp_player)
+        )
         protocol.add_connection_lost_callback(
             lambda: self.server.on_disconnect(comp_player)
         )
-        protocol.add_connection_timeout_callback(lambda failure, timeout: self.server.on_timeout(comp_player, failure, timeout))
+        protocol.add_connection_timeout_callback(
+            lambda failure, timeout: self.server.on_timeout(
+                comp_player, failure, timeout
+            )
+        )
 
         return protocol
 

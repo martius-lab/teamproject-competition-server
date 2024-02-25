@@ -310,6 +310,15 @@ class IServer:
         ...
 
     @abc.abstractmethod
+    def on_timeout(self, player: IPlayer, failure, timeout):
+        """
+        Gets called when a player has a timeout.
+        Args:
+            player (IPlayer): The player that has a timeout.
+        """
+        ...
+
+    @abc.abstractmethod
     def on_update(self):
         """
         Gets called when the server updates.
