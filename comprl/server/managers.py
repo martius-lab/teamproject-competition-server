@@ -54,7 +54,6 @@ class GameManager:
 
         if game.id in self.games:
             game_result = game.get_result()
-            print(game_result)
             if game_result is not None:
                 GameData(ConfigProvider.get("game_data")).add(game_result)
             else:
