@@ -1,29 +1,41 @@
-import comprl.server.user_database as user_db
-import comprl.server.game_database as game_db
-from comprl.server.game_result import GameEndState, GameResult
+from comprl.server.data import UserData, GameData
+from comprl.server.util import ConfigProvider, IDGenerator
+from comprl.server.data.interfaces import GameEndState, GameResult
 import comprl.scripts.reset as reset
-import sqlite3
 import logging
-import uuid
+import random
+import string
 
 # run with python -m tests.reset_database_test
 
 logging.basicConfig(level=logging.DEBUG)
 
 
+def generate_random_string(length=10):
+    """Generate a random string of a specified length."""
+    letters = string.ascii_letters + string.digits
+    return "".join(random.choice(letters) for _ in range(length))
+
+
 def reset_tests():
-    tokens = [uuid.uuid4() for _ in range(4)]
-    userID1 = user_db.add_user(user_name="user_1", user_token=tokens[0])
-    userID2 = user_db.add_user(user_name="user_2", user_token=tokens[1])
-    userID3 = user_db.add_user(user_name="user_3", user_token=tokens[2])
-    userID4 = user_db.add_user(user_name="user_4", user_token=tokens[3])
+    user_data = UserData(ConfigProvider.get("user_data"))
+    userID1 = user_data.add(user_name="user_1", user_token=generate_random_string())
+    userID2 = user_data.add(user_name="user_2", user_token=generate_random_string())
+    userID3 = user_data.add(user_name="user_3", user_token=generate_random_string())
+    userID4 = user_data.add(user_name="user_4", user_token=generate_random_string())
 
-    user_db.update_matchmaking_parameters(id=userID1, new_mu=24.000, new_sigma=9.333)
-    user_db.update_matchmaking_parameters(id=userID2, new_mu=23.000, new_sigma=9.000)
-    user_db.update_matchmaking_parameters(id=userID3, new_mu=22.000, new_sigma=7.000)
-    user_db.update_matchmaking_parameters(id=userID4, new_mu=21.000, new_sigma=7.333)
+    user_data.set_matchmaking_parameters(user_id=userID1, mu=24.000, sigma=9.333)
+    user_data.set_matchmaking_parameters(user_id=userID2, mu=23.000, sigma=9.000)
+    user_data.set_matchmaking_parameters(user_id=userID3, mu=22.000, sigma=7.000)
+    user_data.set_matchmaking_parameters(user_id=userID4, mu=21.000, sigma=7.333)
 
-    gameID1, gameID2, gameID3 = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    game_data = GameData(ConfigProvider.get("game_data"))
+
+    gameID1, gameID2, gameID3 = (
+        IDGenerator.generate_game_id(),
+        IDGenerator.generate_game_id(),
+        IDGenerator.generate_game_id(),
+    )
     game1 = GameResult(
         game_id=gameID1, user1_id=23, user2_id=4, score_user_1=3, score_user_2=6
     )
@@ -38,37 +50,31 @@ def reset_tests():
         score_user_2=7,
         end_state=GameEndState.DISCONNECTED.value,
     )
-    game_db.insert_game(game_result=game1)
-    game_db.insert_game(game_result=game2)
-    game_db.insert_game(game_result=game3)
+    game_data.add(game_result=game1)
+    game_data.add(game_result=game2)
+    game_data.add(game_result=game3)
 
     # reset
     reset.reset_games()
     reset.reset_elo()
 
-    (mu, sigma) = user_db.get_matchmaking_parameters(id=userID1)
+    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID1)
     assert mu == 25.000 and sigma == 8.333
 
-    (mu, sigma) = user_db.get_matchmaking_parameters(id=userID2)
+    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID2)
     assert mu == 25.000 and sigma == 8.333
 
-    (mu, sigma) = user_db.get_matchmaking_parameters(id=userID3)
+    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID3)
     assert mu == 25.000 and sigma == 8.333
 
-    (mu, sigma) = user_db.get_matchmaking_parameters(id=userID4)
+    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID4)
     assert mu == 25.000 and sigma == 8.333
 
-    GAME_DB_NAME = "game"
-    GAME_DB_FILE = "comprl/server/COMP_database.db"
-    connection = sqlite3.connect(GAME_DB_FILE)
-    cursor = connection.cursor()
-    cursor.execute(
+    game_data.cursor.execute(
         f"""SELECT name FROM sqlite_master 
-        WHERE type='table' AND name='{GAME_DB_NAME}'"""
+        WHERE type='table' AND name='{game_data.table}'"""
     )
-    assert cursor.fetchone() is None
-
-    connection.close()
+    assert game_data.cursor.fetchone() is None
 
 
 if __name__ == "__main__":
