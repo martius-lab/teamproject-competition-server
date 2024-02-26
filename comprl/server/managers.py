@@ -53,11 +53,28 @@ class GameManager:
         """
 
         if game.id in self.games:
-            GameData(ConfigProvider.get("game_data")).add(
-                self.games[game.id].get_result()
-            )
-
+            game_result = game.get_result()
+            if game_result is not None:
+                GameData(ConfigProvider.get("game_data")).add(game_result)
+            else:
+                log.error(f"Game had no valid result. Game-ID: {game.id}")
             del self.games[game.id]
+
+    def force_game_end(self, player_id: PlayerID):
+        """Forces all games, that a player is currently playing, to end.
+
+        Args:
+            player_id (PlayerID): id of the player
+        """
+        involved_games: list[IGame] = []
+        for _, game in self.games.items():
+            for game_player_id in game.players:
+                if player_id == game_player_id:
+                    involved_games.append(game)
+                    break
+        for game in involved_games:
+            log.debug("Game was forced to end because of a disconnected player")
+            game.force_end(player_id=player_id)
 
     def get(self, game_id: GameID) -> IGame | None:
         """
@@ -259,7 +276,7 @@ class MatchmakingManager:
         Args:
             player_id (PlayerID): The ID of the player to be removed.
         """
-        pass
+        self.queue = [p for p in self.queue if (p != player_id)]
 
     def update(self):
         """
