@@ -110,12 +110,17 @@ class HockeyGame(IGame):
         return self.finished
 
     def _validate_action(self, action) -> bool:
+        """check if the action is in the action space of the env"""
         return self.env.action_space.contains(
             action
         )  # check if the action is in the action space and thus valid
 
     def get_observation(self, id: PlayerID) -> list[float]:
-        # return the correct obs respecting if sides are swapped
+        """return the correct obs respecting if sides are swapped
+
+        Args: id: PlayerID of the player to get the observation for
+
+        Returns: list[float]: observation of the player with the given id"""
         if (id == self.player_2_id) and (not self.sides_swapped):
             return self.env.obs_agent_two().tolist()  # obs is an np array, we need list
         elif (id == self.player_1_id) and self.sides_swapped:
@@ -124,6 +129,11 @@ class HockeyGame(IGame):
             return self.obs_player_left.tolist()  # obs is an np array, we need list
 
     def _player_won(self, id: PlayerID) -> bool:
+        """check if a player has won the game
+
+        Args: id: PlayerID of the player to check
+
+        Returns: bool: True if the player has won, False otherwise"""
         if not self.finished:  # if game hasn't ended nobody has won
             return False
 
@@ -135,6 +145,11 @@ class HockeyGame(IGame):
         return False
 
     def get_player_result(self, id: PlayerID) -> int:
+        """get the score of a player
+
+        Args: id: PlayerID of the player to get the score of
+
+        Returns: int: score of the player with the given id"""
         return int(self.scores[id])
 
     def get_result(self) -> GameResult:
