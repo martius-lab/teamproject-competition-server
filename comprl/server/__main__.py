@@ -5,6 +5,7 @@ class for server
 import os
 import argparse
 import logging as log
+import inspect
 
 try:
     import tomllib  # type: ignore[import-not-found]
@@ -141,7 +142,7 @@ def main():
     game_path = args.game_path or data["game_path"] if data else "game.py"
     game_class = args.game_class or data["game_class"] if data else "Game"
     log_level = args.log or data["log"] if data else "INFO"
-    game_db_path = args.game_db_path or data["game_db_path"] if data else "data.db"
+    game_db_path = args.game_db_path or (data["game_db_path"] if data else "data.db")
     game_db_name = args.game_db_name or data["game_db_name"] if data else "games"
     user_db_path = args.user_db_path or data["user_db_path"] if data else "data.db"
     user_db_name = args.user_db_name or data["user_db_name"] if data else "users"
@@ -157,6 +158,10 @@ def main():
     # check if the class could be loaded
     if game_type is None:
         log.error(f"Could not load game class from {full_path}")
+        return
+    # check if the class is fully implemented
+    if inspect.isabstract(game_type):
+        log.error("Provided game class is not valid because it is still abstract.")
         return
 
     # write the config to the ConfigProvider
