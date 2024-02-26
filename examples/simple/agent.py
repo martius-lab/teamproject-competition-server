@@ -20,4 +20,4 @@ def on_end_game(result, stats):
     print("game ended")
 
 
-bob.run(["HelloWorld", "HelloMoon"][int(input("enter agent: "))])
+bob.run("token" + str(input("enter 1, 2, 3 or 4 to choose token: ")))
