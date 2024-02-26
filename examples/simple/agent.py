@@ -6,7 +6,8 @@ bob = Agent()
 
 @bob.event
 def get_step(obv: list[float]):
-    return [float(random.randint(1, 2))]
+    # return [float(random.randint(1, 2))]
+    return [float(input("enter number: ")) or float(random.randint(1, 2))]
 
 
 @bob.event
