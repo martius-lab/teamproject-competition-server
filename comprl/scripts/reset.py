@@ -23,6 +23,7 @@ def reset_games(game_data: GameData):
     game_data.cursor.execute(f"DROP TABLE IF EXISTS {game_data.table}")
 
     game_data.connection.commit()
+    logging.info("The games table has been deleted.")
 
 
 def reset_elo(user_data: UserData):
@@ -38,6 +39,7 @@ def reset_elo(user_data: UserData):
     )
 
     user_data.connection.commit()
+    logging.info("The matchmaking parameters have been reset to mu=25.000 and sigma=8.333 for all users.")
 
 
 if __name__ == "__main__":
