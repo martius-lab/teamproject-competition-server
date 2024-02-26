@@ -21,8 +21,4 @@ def on_end_game(result, stats):
     print("game ended")
 
 
-Weak_Hockey_Agent.run(
-    ["HelloWorld", "HelloMoon", "HelloMars", "HelloVenus"][
-        int(input("enter 0, 1, 2 or 3 to choose a token: "))
-    ]
-)
+Weak_Hockey_Agent.run("token" + str(input("enter 1, 2, 3 or 4 to choose token: ")))
