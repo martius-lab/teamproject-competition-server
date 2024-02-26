@@ -1,4 +1,3 @@
-from comprl.server.data.interfaces import GameEndState, GameResult
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import PlayerID
 
