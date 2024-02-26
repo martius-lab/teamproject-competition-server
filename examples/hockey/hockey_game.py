@@ -148,32 +148,3 @@ class HockeyGame(IGame):
         if id == self.player_2_id:
             return self.scores[self.player_2_id] > self.scores[self.player_1_id]
         return False
-
-    def get_player_result(self, id: PlayerID) -> int:
-        """get the score of a player
-
-        Args: id: PlayerID of the player to get the score of
-
-        Returns: int: score of the player with the given id"""
-        return int(self.scores[id])
-
-    def get_result(self) -> GameResult:
-        """get the results of the game
-
-        Returns:
-            GameResult: results and statistics of the game
-        """
-        end_state = GameEndState.WIN
-        if self.scores[self.player_1_id] == self.scores[self.player_2_id]:
-            end_state = GameEndState.DRAW
-
-        return GameResult(
-            game_id=self.id,
-            user1_id=0,  # dummy value, cari is going to change this
-            user2_id=0,  # same here
-            score_user_1=0,  # and here
-            score_user_2=0,  # here again
-            end_state=end_state,
-            is_user1_winner=False,  # and here
-            start_time=self.start_time,
-        )
