@@ -7,6 +7,7 @@ import logging
 import random
 import string
 import argparse
+
 try:
     import tomllib  # type: ignore[import-not-found]
 except ImportError:
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
 
     ConfigProvider.set("user_data", ConnectionInfo(user_db_path, user_db_name))
-    
+
     name = input("Please enter a name for the user or press ENTER to end the script: ")
     while name:
         insert_user(name)
