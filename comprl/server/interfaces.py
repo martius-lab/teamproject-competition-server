@@ -176,10 +176,10 @@ class IGame(abc.ABC):
             p.get_action(self.get_observation(p.id), _res)
 
     def force_end(self, player_id: PlayerID):
-        """forces the end of the game
+        """forces the end of the game. Should be used when a player disconnects.
 
         Args:
-            player_id (PlayerID): the player that caused the forced end
+            player_id (PlayerID): the player that caused the forced end (disconnected)
         """
         self.disconnected_player_id = player_id
         self._end(reason="Player disconnected")
