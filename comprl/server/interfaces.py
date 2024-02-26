@@ -108,9 +108,6 @@ class IGame(abc.ABC):
         self.start_time = datetime.now()
         self.disconnected_player_id: PlayerID | None = None
         # array storing all actions to be saved later.
-        # The array contains one subarray per round.
-        # Each subarray contains the actions of the players in the order of the player
-        # dictionary and the observation
         self.all_actions = np.array([])
 
     def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:

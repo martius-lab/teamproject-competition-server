@@ -32,6 +32,13 @@ class HockeyGame(IGame):
         self.terminated = False
         self.truncated = False
 
+        # array storing all actions to be saved later.
+        # The array contains one subarray per round.
+        # Each subarray contains tuples consisting of the actions of the players
+        # (in the order of the player dictionary)
+        self.all_rounds = np.array([])
+        self.actions_this_round = np.array([])
+
         super().__init__(players)
 
     def start(self):
@@ -43,7 +50,7 @@ class HockeyGame(IGame):
         self.obs_player_one, self.info = self.env.reset()
         return super().start()
 
-    def end(self, reason="unknown"):
+    def _end(self, reason="unknown"):
         """notifies all players that the game has ended
 
         Args:
@@ -51,7 +58,10 @@ class HockeyGame(IGame):
                                     Defaults to "unknown"
         """
         self.env.close()
-        return super().end(reason)
+        # overwrite all_actions with all_actions_and_obs to respect several round per
+        # game and also contain observations
+        self.all_actions = self.all_rounds
+        return super()._end(reason)
 
     def update(self, actions_dict: dict[PlayerID, list[float]]) -> bool:
         """perform one gym step, using the actions
@@ -75,6 +85,9 @@ class HockeyGame(IGame):
             self.info,
         ) = self.env.step(self.action)
 
+        # store the actions and observations
+        self.actions_this_round = np.append(self.actions_this_round, self.action)
+
         # check if current round has ended
         if self.terminated or self.truncated:
             # update score
@@ -89,6 +102,10 @@ class HockeyGame(IGame):
             self.sides_swapped = not self.sides_swapped
             self.player_1_id, self.player_2_id = self.player_2_id, self.player_1_id
             self.remaining_rounds = self.remaining_rounds - 1
+
+            # store the actions and observations of the round
+            self.all_actions = np.append(self.all_actions, self.actions_this_round)
+            self.actions_this_round = np.array([])
 
             # check if it was the last round
             if self.remaining_rounds == 0:
