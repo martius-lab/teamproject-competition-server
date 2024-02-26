@@ -22,5 +22,7 @@ def on_end_game(result, stats):
 
 
 Strong_Hockey_Agent.run(
-    ["HelloWorld", "HelloMoon"][int(input("enter 0 or 1 to choose token: "))]
+    ["HelloWorld", "HelloMoon", "HelloMars", "HelloVenus"][
+        int(input("enter 0, 1, 2 or 3 to choose a token: "))
+    ]
 )

@@ -12,6 +12,7 @@ from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.data import GameData, UserData
 from comprl.server.util import ConfigProvider
+from comprl.server.data.interfaces import GameEndState, GameResult
 
 
 class GameManager:
@@ -228,6 +229,19 @@ class PlayerManager:
             user_id
         )
 
+    def update_matchmaking_parameters(self, user_id: int, m: float, s: float) -> None:
+        """
+        Updates the matchmaking parameters of a user based on their ID.
+
+        Args:
+            user_id (int): The ID of the user.
+            m (float): The new mu value of the user.
+            s (float): The new sigma value of the user.
+        """
+        UserData(ConfigProvider.get("user_data")).set_matchmaking_parameters(
+            user_id, m, s
+        )
+
 
 # Type of a player entry in the queue, containing the player ID, user ID, mu, sigma
 # and time they joined the queue
@@ -254,7 +268,7 @@ class MatchmakingManager:
         self._queue: list[QueuePlayer] = []
         # The model used for matchmaking
         self.model = PlackettLuce()
-        self._MATCH_QUALITY_THRESHOLD = 0.8
+        self._MATCH_QUALITY_THRESHOLD = 0.1
         self._PERCENTAGE_MIN_PLAYERS_WAITING = 0.1
 
     def try_match(self, player_id: PlayerID) -> None:
@@ -309,7 +323,7 @@ class MatchmakingManager:
         """
         Updates the matchmaking manager.
         """
-
+        
         if len(self._queue) < self._min_players_waiting():
             return
 
@@ -404,5 +418,27 @@ class MatchmakingManager:
         Args:
             game (IGame): The game to be ended.
         """
+        # update elo values
+        result = game.get_result()
+        if result is not None:
+            mu_p1, sigma_p1 = self.player_manager.get_matchmaking_parameters(
+                result.user1_id
+            )
+            mu_p2, sigma_p2 = self.player_manager.get_matchmaking_parameters(
+                result.user2_id
+            )
+            rating_p1 = self.model.create_rating([mu_p1, sigma_p1], "player1")
+            rating_p2 = self.model.create_rating([mu_p2, sigma_p2], "player2")
+            [[p1], [p2]] = self.model.rate(
+                [[rating_p1], [rating_p2]],
+                scores=[result.score_user_1, result.score_user_2],
+            )
+            self.player_manager.update_matchmaking_parameters(
+                result.user1_id, p1.mu, p1.sigma
+            )
+            self.player_manager.update_matchmaking_parameters(
+                result.user2_id, p2.mu, p2.sigma
+            )
+
         for _, p in game.players.items():
             self.try_match(p.id)
