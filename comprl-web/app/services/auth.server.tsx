@@ -13,10 +13,11 @@ authenticator.use(
     new FormStrategy(async ({ form }) => {
 
         const name = form.get("username")?.toString() ?? "";
+        const password = form.get("password")?.toString() ?? "";
         //const password = form.get("password");
         
         //TODO: implement password hashing, and better authentication
-        const user: User = await getUser(name);
+        const user: User = await getUser(name, password);
         if (!user) {
             throw new AuthorizationError("Invalid username or password");
         }

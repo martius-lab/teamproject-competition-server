@@ -27,3 +27,7 @@ npm start
 ```
 
 Now you'll need to pick a host to deploy it to.
+
+## Key
+The current key is `1234`.
+You can change the key in the file `comprl-web/app/routes/_dashboard.register.tsx`.

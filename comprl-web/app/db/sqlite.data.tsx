@@ -22,10 +22,12 @@ export async function addUser(username: string, password: string, role: string =
     db.close();
 }
 
-export async function getUser(username: string) {
+export async function getUser(username: string, password : string) {
     const db = new Database('users.db', { verbose: console.log });
     const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
     const res = stmt.get(username);
     db.close();
+    if(!res) {return undefined}
+    if(res.password != password) {return undefined}
     return {id: res.user_id, name: res.username, role: res.role} as User;
 }
