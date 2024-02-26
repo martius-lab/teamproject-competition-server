@@ -141,10 +141,10 @@ def main():
     game_path = args.game_path or data["game_path"] if data else "game.py"
     game_class = args.game_class or data["game_class"] if data else "Game"
     log_level = args.log or data["log"] if data else "INFO"
-    game_db_path = args.game_db_path or data["game_db_path"] if data else "games.db"
-    game_db_name = args.game_db_name or data["game_db_name"] if data else "game_data"
-    user_db_path = args.user_db_path or data["user_db_path"] if data else "users.db"
-    user_db_name = args.user_db_name or data["user_db_name"] if data else "user_data"
+    game_db_path = args.game_db_path or data["game_db_path"] if data else "data.db"
+    game_db_name = args.game_db_name or data["game_db_name"] if data else "games"
+    user_db_path = args.user_db_path or data["user_db_path"] if data else "data.db"
+    user_db_name = args.user_db_name or data["user_db_name"] if data else "users"
 
     # set up logging
     log.basicConfig(level=log_level)
