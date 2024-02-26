@@ -1,7 +1,6 @@
 """ script to add dummy user to the user database"""
 
 from comprl.server.data import UserData
-from comprl.server.util import ConfigProvider
 from comprl.server.data import ConnectionInfo
 import logging
 import argparse
@@ -19,7 +18,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 def insert_users():
     """inserts four dummy user to the user database"""
-    user_data = UserData(ConfigProvider.get("user_data"))
     user_data.add(user_name="test1", user_token="token1")
     user_data.add(user_name="test2", user_token="token2")
     user_data.add(user_name="test3", user_token="token3")
@@ -48,7 +46,7 @@ if __name__ == "__main__":
     user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
     user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
 
-    ConfigProvider.set("user_data", ConnectionInfo(user_db_path, user_db_name))
+    user_data = UserData(ConnectionInfo(user_db_path, user_db_name))
 
     insert_users()
     pass
