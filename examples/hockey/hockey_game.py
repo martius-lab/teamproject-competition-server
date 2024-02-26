@@ -32,6 +32,7 @@ class HockeyGame(IGame):
 
         # Bool if all rounds are finished
         self.finished = False
+        print("Game created")
 
         super().__init__(players)
 
@@ -147,3 +148,9 @@ class HockeyGame(IGame):
         if id == self.player_2_id:
             return self.scores[self.player_2_id] > self.scores[self.player_1_id]
         return False
+
+    def get_player_result(self, id: PlayerID) -> int:
+        """get the score of a player
+        Args: id: PlayerID of the player to get the score of
+        Returns: int: score of the player with the given id"""
+        return int(self.scores[id])
