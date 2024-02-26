@@ -3,26 +3,19 @@ from comprl.server.util import ConfigProvider, IDGenerator
 from comprl.server.data.interfaces import GameEndState, GameResult
 import comprl.scripts.reset as reset
 import logging
-import random
-import string
+import uuid
 
 # run with python -m tests.reset_database_test
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-def generate_random_string(length=10):
-    """Generate a random string of a specified length."""
-    letters = string.ascii_letters + string.digits
-    return "".join(random.choice(letters) for _ in range(length))
-
-
 def reset_tests():
     user_data = UserData(ConfigProvider.get("user_data"))
-    userID1 = user_data.add(user_name="user_1", user_token=generate_random_string())
-    userID2 = user_data.add(user_name="user_2", user_token=generate_random_string())
-    userID3 = user_data.add(user_name="user_3", user_token=generate_random_string())
-    userID4 = user_data.add(user_name="user_4", user_token=generate_random_string())
+    userID1 = user_data.add(user_name="user_1", user_token=str(uuid.uuid4()))
+    userID2 = user_data.add(user_name="user_2", user_token=str(uuid.uuid4()))
+    userID3 = user_data.add(user_name="user_3", user_token=str(uuid.uuid4()))
+    userID4 = user_data.add(user_name="user_4", user_token=str(uuid.uuid4()))
 
     user_data.set_matchmaking_parameters(user_id=userID1, mu=24.000, sigma=9.333)
     user_data.set_matchmaking_parameters(user_id=userID2, mu=23.000, sigma=9.000)
@@ -55,8 +48,8 @@ def reset_tests():
     game_data.add(game_result=game3)
 
     # reset
-    reset.reset_games()
-    reset.reset_elo()
+    reset.reset_games(game_data=game_data)
+    reset.reset_elo(user_data=user_data)
 
     (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID1)
     assert mu == 25.000 and sigma == 8.333
