@@ -27,3 +27,6 @@ npm start
 ```
 
 Now you'll need to pick a host to deploy it to.
+
+## Key
+The key is `1234`.
