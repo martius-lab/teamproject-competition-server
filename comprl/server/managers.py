@@ -4,6 +4,7 @@ This module contains classes that manage game instances and players.
 
 import logging as log
 from typing import Type
+import numpy as np
 
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
@@ -87,6 +88,15 @@ class GameManager:
             Optional[IGame]: The game instance if found, None otherwise.
         """
         return self.games.get(game_id, None)
+
+    def get_stored_actions(self, game_id: GameID) -> np.ndarray:
+        """get a game from the log file
+
+        Args:
+            game_id (GameID): id of the game we want to get
+        Returns:
+            np.array: the array containing the actions"""
+        return np.load("comprl/server/game_actions/" + str(game_id) + ".npy")
 
 
 class PlayerManager:

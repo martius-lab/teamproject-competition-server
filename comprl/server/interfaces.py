@@ -5,6 +5,8 @@ This module contains the interfaces for the non-networking logic.
 import abc
 from typing import Callable, Optional
 from datetime import datetime
+import numpy as np
+from pathlib import Path
 
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.util import IDGenerator
@@ -105,6 +107,11 @@ class IGame(abc.ABC):
         self.scores: dict[PlayerID, float] = {p.id: 0.0 for p in players}
         self.start_time = datetime.now()
         self.disconnected_player_id: PlayerID | None = None
+        # array storing all actions to be saved later.
+        # The array contains one subarray per round.
+        # Each subarray contains the actions of the players in the order of the player
+        # dictionary and the observation
+        self.all_actions = np.array([])
 
     def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:
         """
@@ -128,12 +135,19 @@ class IGame(abc.ABC):
 
     def _end(self, reason="unknown"):
         """
-        Notifies all players that the game has ended.
+        Notifies all players that the game has ended and writes all actions in a file.
 
         Args:
             reason (str): The reason why the game has ended. Defaults to "unknown".
         """
 
+        # store actions:
+        # TODO: maybe add multithreading here to ease the load on the main server thread
+        # as storing the actions can take a while
+        path = Path("comprl/server/game_actions/" + str(self.id) + ".npy")
+        np.save(path, self.all_actions)
+
+        # notify end
         for callback in self.finish_callbacks:
             callback(self)
 
@@ -168,6 +182,9 @@ class IGame(abc.ABC):
                     # update the game, and if the game is over, end it
                     if self.disconnected_player_id is not None:
                         return
+                    self.all_actions = np.append(
+                        self.all_actions, [actions[p] for p in actions]
+                    )
                     if not self.update(actions):
                         self._run()
                     else:
