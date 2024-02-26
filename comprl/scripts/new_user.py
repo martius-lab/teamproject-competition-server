@@ -1,7 +1,6 @@
 """ script to add new user to the user database"""
 
 from comprl.server.data import UserData
-from comprl.server.util import ConfigProvider
 from comprl.server.data import ConnectionInfo
 import logging
 import argparse
@@ -24,7 +23,6 @@ def insert_user(name: str):
     Args:
         name (str): name of the new user
     """
-    user_data = UserData(ConfigProvider.get("user_data"))
     token = str(uuid.uuid4())
     user_data.add(user_name=name, user_token=token)
 
@@ -51,7 +49,7 @@ if __name__ == "__main__":
     user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
     user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
 
-    ConfigProvider.set("user_data", ConnectionInfo(user_db_path, user_db_name))
+    user_data = UserData(ConnectionInfo(user_db_path, user_db_name))
 
     name = input("Please enter a name for the user or press ENTER to end the script: ")
     while name:
