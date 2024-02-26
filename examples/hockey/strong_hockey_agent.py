@@ -21,8 +21,4 @@ def on_end_game(result, stats):
     print("game ended")
 
 
-Strong_Hockey_Agent.run(
-    ["token1", "token2", "token3", "token4"][
-        int(input("enter 1, 2, 3 or 4 to choose token: ")) - 1
-    ]
-)
+Strong_Hockey_Agent.run("token" + str(input("enter 1, 2, 3 or 4 to choose token: ")))

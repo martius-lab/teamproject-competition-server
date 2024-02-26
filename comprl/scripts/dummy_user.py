@@ -23,6 +23,8 @@ def insert_users():
     user_data.add(user_name="test3", user_token="token3")
     user_data.add(user_name="test4", user_token="token4")
 
+    logging.info("Four dummy users have been added.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

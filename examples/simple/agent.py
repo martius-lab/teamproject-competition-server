@@ -20,8 +20,4 @@ def on_end_game(result, stats):
     print("game ended")
 
 
-bob.run(
-    ["token1", "token2", "token3", "token4"][
-        int(input("enter 1, 2, 3 or 4 to choose token: ")) - 1
-    ]
-)
+bob.run("token" + str(input("enter 1, 2, 3 or 4 to choose token: ")))
