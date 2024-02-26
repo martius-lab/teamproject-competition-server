@@ -39,7 +39,9 @@ def reset_elo(user_data: UserData):
     )
 
     user_data.connection.commit()
-    logging.info("The matchmaking parameters have been reset to mu=25.000 and sigma=8.333 for all users.")
+    logging.info(
+        "The matchmaking parameters have been reset to mu=25.000 and sigma=8.333 for all users."
+    )
 
 
 if __name__ == "__main__":
