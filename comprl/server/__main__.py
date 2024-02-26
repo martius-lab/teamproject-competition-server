@@ -114,6 +114,18 @@ def main():
     parser.add_argument("--game_path", type=str, help="File containing the game to run")
     parser.add_argument("--game_class", type=str, help="Classname of the game")
     parser.add_argument("--log", type=str, help="Log level")
+    parser.add_argument(
+        "--game_db_path",
+        type=str,
+        help="Path to the database file (doesn't have to exist)",
+    )
+    parser.add_argument(
+        "--game_db_name", type=str, help="Name of the game table in the file"
+    )
+    parser.add_argument("--user_db_path", type=str, help="Path to the database file")
+    parser.add_argument(
+        "--user_db_name", type=str, help="Name of the user table in the file"
+    )
     args = parser.parse_args()
 
     data = None
@@ -129,6 +141,10 @@ def main():
     game_path = args.game_path or data["game_path"] if data else "game.py"
     game_class = args.game_class or data["game_class"] if data else "Game"
     log_level = args.log or data["log"] if data else "INFO"
+    game_db_path = args.game_db_path or data["game_db_path"] if data else "games.db"
+    game_db_name = args.game_db_name or data["game_db_name"] if data else "game_data"
+    user_db_path = args.user_db_path or data["user_db_path"] if data else "users.db"
+    user_db_name = args.user_db_name or data["user_db_name"] if data else "user_data"
 
     # set up logging
     log.basicConfig(level=log_level)
@@ -148,8 +164,8 @@ def main():
     ConfigProvider.set("timeout", timeout)
     ConfigProvider.set("log_level", log_level)
     ConfigProvider.set("game_type", game_type)
-    ConfigProvider.set("game_data", ConnectionInfo("games.db", "data"))
-    ConfigProvider.set("user_data", ConnectionInfo("users.db", "data"))
+    ConfigProvider.set("game_data", ConnectionInfo(game_db_path, game_db_name))
+    ConfigProvider.set("user_data", ConnectionInfo(user_db_path, user_db_name))
 
     server = Server()
     networking.launch_server(server, port)
