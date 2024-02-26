@@ -12,7 +12,6 @@ from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.data import GameData, UserData
 from comprl.server.util import ConfigProvider
-from comprl.server.data.interfaces import GameEndState, GameResult
 
 
 class GameManager:
@@ -268,7 +267,7 @@ class MatchmakingManager:
         self._queue: list[QueuePlayer] = []
         # The model used for matchmaking
         self.model = PlackettLuce()
-        self._MATCH_QUALITY_THRESHOLD = 0.1
+        self._MATCH_QUALITY_THRESHOLD = 0.8
         self._PERCENTAGE_MIN_PLAYERS_WAITING = 0.1
 
     def try_match(self, player_id: PlayerID) -> None:
@@ -323,7 +322,7 @@ class MatchmakingManager:
         """
         Updates the matchmaking manager.
         """
-        
+
         if len(self._queue) < self._min_players_waiting():
             return
 
