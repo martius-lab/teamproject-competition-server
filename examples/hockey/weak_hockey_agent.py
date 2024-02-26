@@ -8,7 +8,7 @@ agent = h_env.BasicOpponent()  # initialize agent
 
 @Weak_Hockey_Agent.event
 def get_step(obv: list[float]):
-    return agent.act(obv)
+    return agent.act(obv).tolist()
 
 
 @Weak_Hockey_Agent.event

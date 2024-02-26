@@ -111,9 +111,14 @@ class HockeyGame(IGame):
 
     def _validate_action(self, action) -> bool:
         """check if the action is in the action space of the env"""
-        return self.env.action_space.contains(
-            action
-        )  # check if the action is in the action space and thus valid
+        # can't use self.env.action_space.contains as tis is a action of one player
+        # and the action space is for both players. So I basically copied the code from
+        # the contains() function.
+        action = np.array(action)
+        return bool(
+            action.shape == (4,) and np.all(action >= -1) and np.all(action <= 1)
+        )
+        # check if the action is in the action space and thus valid
 
     def get_observation(self, id: PlayerID) -> list[float]:
         """return the correct obs respecting if sides are swapped
