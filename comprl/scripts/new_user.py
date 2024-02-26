@@ -4,9 +4,8 @@ from comprl.server.data import UserData
 from comprl.server.util import ConfigProvider
 from comprl.server.data import ConnectionInfo
 import logging
-import random
-import string
 import argparse
+import uuid
 
 try:
     import tomllib  # type: ignore[import-not-found]
@@ -19,12 +18,6 @@ except ImportError:
 logging.basicConfig(level=logging.DEBUG)
 
 
-def generate_random_string(length=10):
-    """Generate a random string of a specified length."""
-    letters = string.ascii_letters + string.digits
-    return "".join(random.choice(letters) for _ in range(length))
-
-
 def insert_user(name: str):
     """inserts a user to the user_db with a random token and a given name
 
@@ -32,7 +25,7 @@ def insert_user(name: str):
         name (str): name of the new user
     """
     user_data = UserData(ConfigProvider.get("user_data"))
-    token = generate_random_string()
+    token = str(uuid.uuid4())
     user_data.add(user_name=name, user_token=token)
 
 
