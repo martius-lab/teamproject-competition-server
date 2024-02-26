@@ -25,14 +25,12 @@ class HockeyGame(IGame):
         # Bool weather players play in default orientation or sides are swapped.
         # Alternates between rounds.
         self.sides_swapped = False
+        # Bool if all rounds are finished
+        self.finished = False
 
         # initialize terminated and truncated, so the game hasn't ended by default.
         self.terminated = False
         self.truncated = False
-
-        # Bool if all rounds are finished
-        self.finished = False
-        print("Game created")
 
         super().__init__(players)
 
@@ -42,7 +40,7 @@ class HockeyGame(IGame):
         and starts the game cycle
         """
 
-        self.obs_player_left, self.info = self.env.reset()
+        self.obs_player_one, self.info = self.env.reset()
         return super().start()
 
     def end(self, reason="unknown"):
@@ -63,20 +61,14 @@ class HockeyGame(IGame):
         """
         self.env.render(mode="human")  # (un)comment to render or not
 
-        if self.sides_swapped:  # change order of actions if sides are changed
-            self.raw_actions = [
-                actions_dict[self.player_2_id],
-                actions_dict[self.player_1_id],
-            ]
-
-        else:
-            self.raw_actions = [
+        self.action = np.hstack(
+            [
                 actions_dict[self.player_1_id],
                 actions_dict[self.player_2_id],
             ]
-        self.action = np.hstack(self.raw_actions)
+        )
         (
-            self.obs_player_left,
+            self.obs_player_one,
             self.reward,
             self.terminated,
             self.truncated,
@@ -88,19 +80,14 @@ class HockeyGame(IGame):
             # update score
             self.winner = self.info["winner"]
             if self.winner == 1:
-                if self.sides_swapped:
-                    self.scores[self.player_2_id] = self.scores[self.player_2_id] + 1
-                else:
-                    self.scores[self.player_1_id] = self.scores[self.player_1_id] + 1
+                self.scores[self.player_1_id] += 1
             if self.winner == -1:
-                if self.sides_swapped:
-                    self.scores[self.player_1_id] = self.scores[self.player_1_id] + 1
-                else:
-                    self.scores[self.player_2_id] = self.scores[self.player_2_id] + 1
+                self.scores[self.player_2_id] += 1
 
-            # reset env, swap player side and decrease remaining rounds
-            self.obs_player_left, self.info = self.env.reset()
+            # reset env, swap player side, swap player ids and decrease remaining rounds
+            self.obs_player_one, self.info = self.env.reset()
             self.sides_swapped = not self.sides_swapped
+            self.player_1_id, self.player_2_id = self.player_2_id, self.player_1_id
             self.remaining_rounds = self.remaining_rounds - 1
 
             # check if it was the last round
@@ -126,12 +113,10 @@ class HockeyGame(IGame):
         Args: id: PlayerID of the player to get the observation for
 
         Returns: list[float]: observation of the player with the given id"""
-        if (id == self.player_2_id) and (not self.sides_swapped):
-            return self.env.obs_agent_two().tolist()  # obs is an np array, we need list
-        elif (id == self.player_1_id) and self.sides_swapped:
-            return self.env.obs_agent_two().tolist()  # obs is an np array, we need list
+        if id == self.player_1_id:
+            return self.obs_player_one.tolist()  # obs is an np array, we need list
         else:
-            return self.obs_player_left.tolist()  # obs is an np array, we need list
+            return self.env.obs_agent_two().tolist()  # obs is an np array, we need list
 
     def _player_won(self, id: PlayerID) -> bool:
         """check if a player has won the game
