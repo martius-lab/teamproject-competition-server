@@ -56,6 +56,12 @@ class Server(IServer):
         log.debug(f"Player {player.id} disconnected")
         self.matchmaking.remove(player.id)
         self.player_manager.remove(player)
+        self.game_manager.force_game_end(player.id)
+
+    def on_timeout(self, player: IPlayer, failure, timeout):
+        """gets called when a player has a timeout"""
+        log.debug(f"Player {player.id} had timeout after {timeout}s")
+        player.disconnect(reason=f"Timeout after {timeout}s")
 
     def on_update(self):
         """gets called every update cycle"""

@@ -1,4 +1,3 @@
-from comprl.server.data.interfaces import GameEndState, GameResult
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import PlayerID
 
@@ -11,33 +10,25 @@ class ExampleGame(IGame):
         self.env: float = 0.0
 
     def update(self, actions: dict[PlayerID, list[float]]) -> bool:
-        for _, v in actions.items():
+        for player_id, v in actions.items():
             self.env += v[0]
+            self.scores[player_id] += v[0]
 
-        if self.env > 10:
-            return True
-        return False
+        return self.env > 10
 
     def get_observation(self, id: PlayerID) -> list[float]:
         return [self.env]
 
-    def get_result(self) -> GameResult:
-        # still dunno about this generally lol
-        return GameResult(
-            self.id,
-            list(self.players.values())[0].user_id or -1,
-            list(self.players.values())[1].user_id or -1,
-            0.0,
-            0.0,
-            self.start_time,
-            GameEndState.WIN,
-        )
-
     def _player_won(self, id: PlayerID) -> bool:
-        return False
+        for p, s in self.scores.items():
+            if p != id and s >= self.scores[id]:
+                return False
+        return True
 
     def _validate_action(self, action) -> bool:
-        return True
+        if len(action) < 1:
+            return False
+        return int(action[0]) == action[0]
 
     def get_player_result(self, id: PlayerID) -> int:
         return 0
