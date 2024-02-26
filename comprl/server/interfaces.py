@@ -8,7 +8,7 @@ from datetime import datetime
 
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.util import IDGenerator
-from comprl.server.data.interfaces import GameResult
+from comprl.server.data.interfaces import GameResult, GameEndState
 
 
 class IAction:
@@ -101,8 +101,10 @@ class IGame(abc.ABC):
         """
         self.id: GameID = IDGenerator.generate_game_id()
         self.players = {p.id: p for p in players}
-        self.start_time = datetime.now()
         self.finish_callbacks: list[Callable[["IGame"], None]] = []
+        self.scores: dict[PlayerID, float] = {p.id: 0.0 for p in players}
+        self.start_time = datetime.now()
+        self.disconnected_player_id: PlayerID | None = None
 
     def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:
         """
@@ -124,7 +126,7 @@ class IGame(abc.ABC):
 
         self._run()
 
-    def end(self, reason="unknown"):
+    def _end(self, reason="unknown"):
         """
         Notifies all players that the game has ended.
 
@@ -158,14 +160,62 @@ class IGame(abc.ABC):
         for p in self.players.values():
 
             def _res(value, id=p.id):
-                # TODO: validate action here ?
+                if not self._validate_action(value):
+                    self.players[id].disconnect("Invalid action")
                 actions[id] = value
                 if len(actions) == len(self.players):
                     # all players have submitted their actions
                     # update the game, and if the game is over, end it
-                    self._run() if not self.update(actions) else self.end()
+                    if self.disconnected_player_id is not None:
+                        return
+                    if not self.update(actions):
+                        self._run()
+                    else:
+                        self._end(reason="Player won")
 
             p.get_action(self.get_observation(p.id), _res)
+
+    def force_end(self, player_id: PlayerID):
+        """forces the end of the game. Should be used when a player disconnects.
+
+        Args:
+            player_id (PlayerID): the player that caused the forced end (disconnected)
+        """
+        self.disconnected_player_id = player_id
+        self._end(reason="Player disconnected")
+
+    def get_result(self) -> GameResult | None:
+        """
+        Returns the result of the game.
+
+        Returns:
+            GameResult: The result of the game.
+        """
+        player_ids = list(self.players.keys())
+
+        game_end_state = GameEndState.DRAW
+        if self._player_won(player_ids[0]) or self._player_won(player_ids[1]):
+            game_end_state = GameEndState.WIN
+        if self.disconnected_player_id is not None:
+            game_end_state = GameEndState.DISCONNECTED
+
+        user1_id = self.players[player_ids[0]].user_id
+        user2_id = self.players[player_ids[1]].user_id
+
+        if user1_id is None or user2_id is None:
+            return None
+
+        return GameResult(
+            game_id=self.id,
+            user1_id=user1_id,
+            user2_id=user2_id,
+            score_user_1=self.scores[player_ids[0]],
+            score_user_2=self.scores[player_ids[1]],
+            start_time=self.start_time,
+            end_state=game_end_state,
+            is_user1_winner=self._player_won(player_ids[0]),
+            is_user1_disconnected=(self.disconnected_player_id == player_ids[0]),
+        )
 
     @abc.abstractmethod
     def _validate_action(self, action) -> bool:
@@ -219,16 +269,6 @@ class IGame(abc.ABC):
         """
         ...
 
-    @abc.abstractmethod
-    def get_result(self) -> GameResult:
-        """
-        Returns the result of the game.
-
-        Returns:
-            GameResult: The result of the game.
-        """
-        ...
-
 
 class IServer:
     """
@@ -266,6 +306,15 @@ class IServer:
         Gets called when a player disconnects.
         Args:
             player (IPlayer): The player that has disconnected.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_timeout(self, player: IPlayer, failure, timeout):
+        """
+        Gets called when a player has a timeout.
+        Args:
+            player (IPlayer): The player that has a timeout.
         """
         ...
 
