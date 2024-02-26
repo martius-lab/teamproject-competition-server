@@ -135,7 +135,7 @@ class HockeyGame(IGame):
         return False
 
     def _player_stats(self, id: PlayerID) -> list[float]:
-        """gets a list of the scores of this player and the other player 
+        """gets a list of the scores of this player and the other player
         Args: id: PlayerID of the player to get the score of
         Returns: int: score of the player with the given id"""
         other_id = self.player_1_id if self.player_1_id != id else self.player_2_id
