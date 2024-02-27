@@ -109,11 +109,12 @@ class ClientProtocol(amp.AMP):
                 Example: {"action": 1}
         """
         action = self.agent.get_step(obv)
-        if type(action) is list and all((type(x) is float) for x in action):
+        if isinstance(action, list) and all(isinstance(x, float) for x in action):
             return {"action": action}
         else:
             raise Exception(
-                f"Tried to send an action with wrong type. Only actions of type list[float] can be send."
+                "Tried to send an action with wrong type. "
+                "Only actions of type list[float] can be send."
             )
 
     @Error.responder
