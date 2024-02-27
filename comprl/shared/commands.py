@@ -39,7 +39,7 @@ class EndGame(Command):
 
     arguments = [
         (b"result", Boolean()),
-        (b"stats", Integer()),
+        (b"stats", ListOf(Float())),
     ]
     response = []
 
