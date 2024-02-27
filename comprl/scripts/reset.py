@@ -79,8 +79,8 @@ if __name__ == "__main__":
     user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
 
     user_answer = input(
-        "Are you sure you want to delete the games table and reset the matchmaking parameters? "
-        "(Y/N)"
+        "Are you sure you want to delete the games table and "
+        "reset the matchmaking parameters? (Y/N)"
     )
 
     if user_answer == "Y" or "y":
