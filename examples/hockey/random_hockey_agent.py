@@ -22,6 +22,4 @@ def on_end_game(result, stats):
     )
 
 
-Random_Hockey_Agent.run(
-    ["HelloWorld", "HelloMoon"][int(input("enter 0 or 1 to choose token: "))]
-)
+Random_Hockey_Agent.run("token" + str(input("enter 1, 2, 3 or 4 to choose token: ")))
