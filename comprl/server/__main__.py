@@ -137,7 +137,6 @@ def main():
     else:
         print("No config file provided, using arguments or defaults")
 
-
     port = args.port or (data["port"] if data else 65335)
     timeout = args.timeout or (data["timeout"] if data else 10)
     game_path = args.game_path or (data["game_path"] if data else "game.py")
@@ -147,7 +146,6 @@ def main():
     game_db_name = args.game_db_name or (data["game_db_name"] if data else "games")
     user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
     user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
-
 
     # set up logging
     log.basicConfig(level=log_level)
