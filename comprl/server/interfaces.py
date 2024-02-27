@@ -23,6 +23,7 @@ class IPlayer(abc.ABC):
     def __init__(self) -> None:
         self.id: PlayerID = IDGenerator.generate_player_id()
         self.user_id: Optional[int] = None
+        self.is_connected = True
 
     @abc.abstractmethod
     def authenticate(self, result_callback):
@@ -315,6 +316,16 @@ class IServer:
         Gets called when a player has a timeout.
         Args:
             player (IPlayer): The player that has a timeout.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_remote_error(self, player: IPlayer, error):
+        """
+        Gets called when an error in deferred occurs.
+        Args:
+            player (IPlayer): The player that caused the error.
+            error (Exception): Error that occurred
         """
         ...
 
