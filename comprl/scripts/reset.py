@@ -78,11 +78,18 @@ if __name__ == "__main__":
     user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
     user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
 
-    if os.path.exists(game_db_path):
-        game_data = GameData(ConnectionInfo(game_db_path, game_db_name))
-        reset_games(game_data)
+    user_answer = input(
+        "Are you sure you want to delete the games table and reset the matchmaking parameters? "
+        "(Y/N)"
+    )
 
-    user_data = UserData(ConnectionInfo(user_db_path, user_db_name))
+    if user_answer == "Y" or "y":
+        if os.path.exists(game_db_path):
+            game_data = GameData(ConnectionInfo(game_db_path, game_db_name))
+            reset_games(game_data)
 
-    reset_elo(user_data)
+        user_data = UserData(ConnectionInfo(user_db_path, user_db_name))
+
+        reset_elo(user_data)
+
     pass
