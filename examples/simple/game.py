@@ -9,14 +9,14 @@ class ExampleGame(IGame):
         super().__init__(players)
         self.env: float = 0.0
 
-    def update(self, actions: dict[PlayerID, list[float]]) -> bool:
+    def _update(self, actions: dict[PlayerID, list[float]]) -> bool:
         for player_id, v in actions.items():
             self.env += v[0]
             self.scores[player_id] += v[0]
 
         return self.env > 10
 
-    def get_observation(self, id: PlayerID) -> list[float]:
+    def _get_observation(self, id: PlayerID) -> list[float]:
         return [self.env]
 
     def _player_won(self, id: PlayerID) -> bool:
@@ -30,5 +30,5 @@ class ExampleGame(IGame):
             return False
         return int(action[0]) == action[0]
 
-    def get_player_result(self, id: PlayerID) -> int:
-        return 0
+    def _player_stats(self, id: PlayerID) -> int:
+        return self.scores.values()
