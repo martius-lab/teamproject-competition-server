@@ -108,7 +108,12 @@ class ClientProtocol(amp.AMP):
             dict: A dictionary containing the action that should be executed.
                 Example: {"action": 1}
         """
-        return {"action": self.agent.get_step(obv)}
+        action = self.agent.get_step(obv)
+        if type(action) is list and all((type(x) is float) for x in action):
+            return {"action": action}
+        else:
+            raise Exception(f"Tried to send an action with wrong type. Only actions of type list[float] can be send.")
+        
 
     @Error.responder
     def on_error(self, msg):
