@@ -83,7 +83,7 @@ if __name__ == "__main__":
         "reset the matchmaking parameters? (Y/N)"
     )
 
-    if user_answer == "Y" or "y":
+    if user_answer.lower() == "y":
         if os.path.exists(game_db_path):
             game_data = GameData(ConnectionInfo(game_db_path, game_db_name))
             reset_games(game_data)
