@@ -24,7 +24,7 @@ def insert_user(name: str):
         name (str): name of the new user
     """
     token = str(uuid.uuid4())
-    user_data.add(user_name=name, user_token=token)
+    user_data.add(user_name=name, user_password=str(uuid.uuid4()), user_token=token)
 
 
 if __name__ == "__main__":

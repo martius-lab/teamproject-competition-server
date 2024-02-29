@@ -73,3 +73,16 @@ class GameResult:
         self.disconnected_id = None
         if end_state == GameEndState.DISCONNECTED:
             self.disconnected_id = user1_id if is_user1_disconnected else user2_id
+
+
+class UserRole(IntEnum):
+    """
+    Represents the possible user roles.
+
+    Attributes:
+        USER: Normal user without administrative rights.
+        ADMIN = User with administrative rights.
+    """
+
+    USER = 0
+    ADMIN = 1

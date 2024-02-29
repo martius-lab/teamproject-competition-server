@@ -5,7 +5,7 @@ Implementation of the data access objects for managing game and user data in SQL
 import dataclasses
 import sqlite3
 
-from comprl.server.data.interfaces import GameResult
+from comprl.server.data.interfaces import GameResult, UserRole
 from comprl.shared.types import GameID
 
 
@@ -120,7 +120,9 @@ class UserData:
             f"""
             CREATE TABLE IF NOT EXISTS {connection.table} (
             user_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            role UserRole,
             token TEXT NOT NULL,
             mu FLOAT NOT NULL,
             sigma FLOAT NOT NULL
@@ -128,14 +130,22 @@ class UserData:
         )
 
     def add(
-        self, user_name: str, user_token: str, user_mu=25.000, user_sigma=8.333
+        self,
+        user_name: str,
+        user_password: str,
+        user_token: str,
+        user_role=UserRole.USER,
+        user_mu=25.000,
+        user_sigma=8.333,
     ) -> int:
         """
         Adds a new user to the database.
 
         Args:
             user_name (str): The name of the user.
+            user_password (str): The password of the user.
             user_token (str): The token of the user.
+            user_role (UserRole, optional): The role of the user. Defaults to UserRole.USER.
             user_mu (float, optional): The mu value of the user. Defaults to 25.
             user_sigma (float, optional): The sigma value of the user. Defaults to 8.33.
 
@@ -143,8 +153,8 @@ class UserData:
             int: The ID of the newly added user.
         """
         self.cursor.execute(
-            f"""INSERT INTO {self.table}(name, token, mu, sigma) VALUES (?,?,?,?)""",
-            (user_name, user_token, user_mu, user_sigma),
+            f"""INSERT INTO {self.table}(username, password, role, token, mu, sigma) VALUES (?,?,?,?,?,?)""",
+            (user_name, user_password, user_role, user_token, user_mu, user_sigma),
         )
         self.cursor.execute(
             f"""SELECT user_id FROM {self.table} WHERE token=?""",
