@@ -145,15 +145,20 @@ class UserData:
             user_name (str): The name of the user.
             user_password (str): The password of the user.
             user_token (str): The token of the user.
-            user_role (UserRole, optional): The role of the user. Defaults to UserRole.USER.
+            user_role (UserRole, optional): The role of the user.
+            Defaults to UserRole.USER.
             user_mu (float, optional): The mu value of the user. Defaults to 25.
             user_sigma (float, optional): The sigma value of the user. Defaults to 8.33.
 
         Returns:
             int: The ID of the newly added user.
         """
+
+        user_role = user_role.value
+
         self.cursor.execute(
-            f"""INSERT INTO {self.table}(username, password, role, token, mu, sigma) VALUES (?,?,?,?,?,?)""",
+            f"""INSERT INTO {self.table}(username, password, role, token, mu, sigma)
+            VALUES (?,?,?,?,?,?)""",
             (user_name, user_password, user_role, user_token, user_mu, user_sigma),
         )
         self.cursor.execute(
