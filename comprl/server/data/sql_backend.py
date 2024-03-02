@@ -122,7 +122,7 @@ class UserData:
             user_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
-            role UserRole,
+            role TEXT NOT NULL DEFAULT 'user',
             token TEXT NOT NULL,
             mu FLOAT NOT NULL,
             sigma FLOAT NOT NULL
