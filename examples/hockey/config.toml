@@ -4,3 +4,7 @@
     log = "DEBUG"
     game_path = "examples\\hockey\\hockey_game.py"
     game_class = "HockeyGame"
+    game_db_path = "hockey_games.db"
+    game_db_name = "data"
+    user_db_path = "hockey_users.db"
+    user_db_name = "data"

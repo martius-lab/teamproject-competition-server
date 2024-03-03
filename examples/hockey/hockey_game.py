@@ -75,7 +75,7 @@ class HockeyGame(IGame):
         ]  # to respect type of dict
         return super()._end(reason)
 
-    def update(self, actions_dict: dict[PlayerID, list[float]]) -> bool:
+    def _update(self, actions_dict: dict[PlayerID, list[float]]) -> bool:
         """perform one gym step, using the actions
 
         Returns:
@@ -143,7 +143,7 @@ class HockeyGame(IGame):
         )
         # check if the action is in the action space and thus valid
 
-    def get_observation(self, id: PlayerID) -> list[float]:
+    def _get_observation(self, id: PlayerID) -> list[float]:
         """return the correct obs respecting if sides are swapped
 
         Args: id: PlayerID of the player to get the observation for
@@ -170,8 +170,9 @@ class HockeyGame(IGame):
             return self.scores[self.player_2_id] > self.scores[self.player_1_id]
         return False
 
-    def get_player_result(self, id: PlayerID) -> int:
-        """get the score of a player
+    def _player_stats(self, id: PlayerID) -> list[float]:
+        """gets a list of the scores of this player and the other player
         Args: id: PlayerID of the player to get the score of
         Returns: int: score of the player with the given id"""
-        return int(self.scores[id])
+        other_id = self.player_1_id if self.player_1_id != id else self.player_2_id
+        return [self.scores[id], self.scores[other_id]]

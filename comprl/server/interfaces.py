@@ -156,18 +156,8 @@ class IGame(abc.ABC):
 
         for player in self.players.values():
             player.notify_end(
-                self._player_won(player.id), self.get_player_result(player.id)
+                self._player_won(player.id), self._player_stats(player.id)
             )
-
-    @abc.abstractmethod
-    def update(self, actions: dict[PlayerID, list[float]]) -> bool:
-        """
-        Updates the game with the players' actions.
-
-        Returns:
-            bool: True if the game is over, False otherwise.
-        """
-        return False
 
     def _run(self):
         """
@@ -191,7 +181,7 @@ class IGame(abc.ABC):
                     else:
                         self._end(reason="Player won")
 
-            p.get_action(self.get_observation(p.id), _res)
+            p.get_action(self._get_observation(p.id), _res)
 
     def force_end(self, player_id: PlayerID):
         """forces the end of the game. Should be used when a player disconnects.
@@ -236,6 +226,16 @@ class IGame(abc.ABC):
         )
 
     @abc.abstractmethod
+    def _update(self, actions: dict[PlayerID, list[float]]) -> bool:
+        """
+        Updates the game with the players' actions.
+
+        Returns:
+            bool: True if the game is over, False otherwise.
+        """
+        return False
+
+    @abc.abstractmethod
     def _validate_action(self, action) -> bool:
         """
         Checks whether an action is valid.
@@ -249,7 +249,7 @@ class IGame(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def get_observation(self, id: PlayerID) -> list[float]:
+    def _get_observation(self, id: PlayerID) -> list[float]:
         """
         Returns the observation for the player.
 
@@ -275,9 +275,9 @@ class IGame(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def get_player_result(self, id: PlayerID) -> int:
+    def _player_stats(self, id: PlayerID) -> list[float]:
         """
-        Retrieves the result of a player with the given ID.
+        Returns all stats that should be sent to the player if the game has ended.
 
         Args:
             id (PlayerID): The ID of the player.
