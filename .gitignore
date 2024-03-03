@@ -29,4 +29,4 @@ venv/
 *.db
 
 # stored actions
-.npy
+*.pkl

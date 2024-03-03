@@ -3,6 +3,7 @@ from comprl.shared.types import PlayerID
 
 import laserhockey.hockey_env as h_env
 import numpy as np
+from typing import List
 
 
 class HockeyGame(IGame):
@@ -20,8 +21,9 @@ class HockeyGame(IGame):
         self.player_1_id = players[0].id
         self.player_2_id = players[1].id
 
-        # number of rounds played per game and current score
-        self.remaining_rounds: int = 4
+        # number of rounds played per game
+        self.num_rounds: int = 4
+        self.remaining_rounds = self.num_rounds
         # Bool weather players play in default orientation or sides are swapped.
         # Alternates between rounds.
         self.sides_swapped = False
@@ -32,12 +34,20 @@ class HockeyGame(IGame):
         self.terminated = False
         self.truncated = False
 
-        # array storing all actions to be saved later.
-        # The array contains one subarray per round.
-        # Each subarray contains tuples consisting of the actions of the players
+        # array storing all actions/observations to be saved later.
+        # contains tuples consisting of the actions of the players
         # (in the order of the player dictionary)
-        self.all_rounds = np.array([])
-        self.actions_this_round = np.array([])
+        self.actions_this_round: List[np.ndarray] = []
+        self.observations_this_round: List[np.ndarray] = []
+
+        # self.game_info also contains:
+        # - num_rounds: number of rounds played
+        # - actions_round_0: actions of the first round
+        # - actions_round_1: actions of the second round
+        # - ...
+        # - actions_round_(num_rounds-1): actions of the last round
+        # - observations_round_0: observations of the first round
+        # - ...
 
         super().__init__(players)
 
@@ -48,6 +58,7 @@ class HockeyGame(IGame):
         """
 
         self.obs_player_one, self.info = self.env.reset()
+        self.observations_this_round.append(self.obs_player_one)
         return super().start()
 
     def _end(self, reason="unknown"):
@@ -58,9 +69,10 @@ class HockeyGame(IGame):
                                     Defaults to "unknown"
         """
         self.env.close()
-        # overwrite all_actions with all_actions_and_obs to respect several round per
-        # game and also contain observations
-        self.all_actions = self.all_rounds
+        # add useful information to the game_info
+        self.game_info["num_rounds"] = [
+            np.array([self.num_rounds])
+        ]  # to respect type of dict
         return super()._end(reason)
 
     def update(self, actions_dict: dict[PlayerID, list[float]]) -> bool:
@@ -86,7 +98,8 @@ class HockeyGame(IGame):
         ) = self.env.step(self.action)
 
         # store the actions and observations
-        self.actions_this_round = np.append(self.actions_this_round, self.action)
+        self.actions_this_round.append(self.action)
+        self.observations_this_round.append(self.obs_player_one)
 
         # check if current round has ended
         if self.terminated or self.truncated:
@@ -97,15 +110,21 @@ class HockeyGame(IGame):
             if self.winner == -1:
                 self.scores[self.player_2_id] += 1
 
+            # store the actions and observations of the round
+            self.game_info[
+                "actions_round_" + str(self.num_rounds - self.remaining_rounds)
+            ] = self.actions_this_round
+            self.actions_this_round = []
+            self.game_info[
+                "observations_round_" + str(self.num_rounds - self.remaining_rounds)
+            ] = self.observations_this_round
+            self.observations_this_round = []
+
             # reset env, swap player side, swap player ids and decrease remaining rounds
             self.obs_player_one, self.info = self.env.reset()
             self.sides_swapped = not self.sides_swapped
             self.player_1_id, self.player_2_id = self.player_2_id, self.player_1_id
             self.remaining_rounds = self.remaining_rounds - 1
-
-            # store the actions and observations of the round
-            self.all_actions = np.append(self.all_actions, self.actions_this_round)
-            self.actions_this_round = np.array([])
 
             # check if it was the last round
             if self.remaining_rounds == 0:
