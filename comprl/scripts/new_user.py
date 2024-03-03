@@ -27,8 +27,8 @@ def insert_user(name: str):
     """
     token = str(uuid.uuid4())
     password = getpass.getpass("Please enter a password for the user: ")
-    role = input("Do you want the new user to be an admin? (Y/N): ")
-    if role.lower() == "y":
+    isAdmin = input("Do you want the new user to be an admin? (Y/N): ")
+    if isAdmin.lower() == "y":
         role = UserRole.ADMIN
     else:
         role = UserRole.USER
