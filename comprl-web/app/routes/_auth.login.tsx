@@ -1,11 +1,13 @@
 import { Alert, AlertColor, Box, Button, Link, TextField, Typography } from "@mui/material";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import { Key } from "react";
 import { AuthorizationError } from "remix-auth";
 import { USERNAME_PASSWORD_STRATEGY, authenticator } from "~/services/auth.server";
 
 
 export async function action({ request }: ActionFunctionArgs) {
+  console.log('Hello');
   try {
     return await authenticator.authenticate(USERNAME_PASSWORD_STRATEGY, request, {
       successRedirect: "/me",
@@ -41,7 +43,7 @@ export default function Login() {
         type="password"
         name="password"
       />
-      {data?.alerts?.map((alert, i) => <Alert sx={{ mt: 1 }} key={i} severity={alert.severity as AlertColor}>{alert.message}</Alert>)}
+      {data?.alerts?.map((alert: { severity: string; message: string | number | boolean}, i: Key) => <Alert sx={{ mt: 1 }} key={i} severity={alert.severity as AlertColor}>{alert.message}</Alert>)}
       <Button
         type="submit"
         fullWidth

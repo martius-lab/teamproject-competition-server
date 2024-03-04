@@ -1,28 +1,32 @@
 import { AppBar, Box, Button, CssBaseline, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
 import { AdminPanelSettingsOutlined, LogoutOutlined, ManageSearchOutlined, MenuRounded, SmartToyOutlined } from '@mui/icons-material';
-import { Outlet, useLoaderData } from '@remix-run/react';
+import { Form, Outlet, useLoaderData } from '@remix-run/react';
 import { useState } from 'react';
-import { LoaderFunctionArgs, json } from '@remix-run/node';
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from '@remix-run/node';
 import { commitSession, getSession } from '~/services/session.server';
 import AutoHideSnackbar from '~/components/AutoHideSnackbar';
 
 const drawerWidth = 240;
 
-export async function loader({request}: LoaderFunctionArgs) {
-  
-  const session = await getSession(request.headers.get("Cookie"));
-  const popup = session.get("popup");
-  
-  return json(
-      {popup},
-      {
-          headers: {
-              "Set-Cookie": await commitSession(session),
-          }
-      }
-    );
+
+export async function action({ request }: ActionFunctionArgs) {
+  console.log('Hello');
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+
+  const session = await getSession(request.headers.get("Cookie"));
+  const popup = session.get("popup");
+
+  return json(
+    { popup },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      }
+    }
+  );
+}
 
 export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -42,7 +46,6 @@ export default function DashboardLayout() {
       setMobileOpen(!mobileOpen);
     }
   };
-
   const drawerContent = (
     <Box>
       <Toolbar />
@@ -70,7 +73,6 @@ export default function DashboardLayout() {
   );
 
   const data = useLoaderData<typeof loader>()
-  console.log(data.popup)
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -83,7 +85,7 @@ export default function DashboardLayout() {
           ml: { sm: `${drawerWidth}px` },
           color: 'white',
           boxShadow: 'none',
-          backdropFilter:"blur(20px)"
+          backdropFilter: "blur(20px)"
         }}
       >
         <Toolbar>
@@ -98,7 +100,7 @@ export default function DashboardLayout() {
           <Typography color='primary' variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Dashboard
           </Typography>
-          <Button startIcon={<LogoutOutlined />}>Logout</Button>
+          <Button href='/logout' startIcon={<LogoutOutlined />}>Logout</Button>
         </Toolbar>
       </AppBar>
       <Box

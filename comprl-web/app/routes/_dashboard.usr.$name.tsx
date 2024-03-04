@@ -26,6 +26,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {}
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  console.log('Usr');
+  return {}
+}
+
+
 export default function UserDashboard() {
 
   return (
