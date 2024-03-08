@@ -13,7 +13,7 @@ from comprl.shared.types import PlayerID
 Sign = IntEnum("Sign", ["ROCK", "PAPER", "SCISSORS"])
 
 
-class RPSServer(IGame):
+class RPSGame(IGame):
     """
     This class represents a rock-paper-scissors game.
     """
