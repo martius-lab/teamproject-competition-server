@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import * as openskill from 'openskill';
 import User from './types';
 
 console.log('Creating users.db');
@@ -22,12 +23,28 @@ export async function addUser(username: string, password: string, role: string =
     db.close();
 }
 
-export async function getUser(username: string, password : string) {
+export async function getUser(username: string, password: string) {
     const db = new Database('users.db', { verbose: console.log });
     const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
     const res = stmt.get(username);
     db.close();
-    if(!res) {return undefined}
-    if(res.password != password) {return undefined}
-    return {id: res.user_id, name: res.username, role: res.role} as User;
+    if (!res) { return undefined }
+    if (res.password != password) { return undefined }
+    return { id: res.user_id, name: res.username, role: res.role } as User;
+}
+
+export async function getAllUsers() {
+    const db = new Database('users.db', { verbose: console.log });
+    const query = 'SELECT * FROM users';
+    const users = db.prepare(query).all();
+    db.close();
+    return users;
+}
+
+export async function getRankedUsers() {
+    const users = await getAllUsers();
+
+    const rankedUsers = users.sort((a, b) => b.mu - a.mu);
+
+    return rankedUsers;
 }
