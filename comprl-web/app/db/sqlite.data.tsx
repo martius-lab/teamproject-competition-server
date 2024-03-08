@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import User from './types';
+import { v4 as uuidv4 } from 'uuid';
 
 console.log('Creating users.db');
 const db = new Database('users.db', { verbose: console.log });
@@ -17,8 +18,9 @@ db.close();
 
 export async function addUser(username: string, password: string, role: string = 'user') {
     const db = new Database('users.db', { verbose: console.log });
-    const stmt = db.prepare('INSERT INTO users(username, password, role) VALUES (?, ?, ?)');
-    stmt.run(username, password, role);
+    const token = uuidv4();
+    const stmt = db.prepare('INSERT INTO users(username, password, role, token) VALUES (?, ?, ?,?)');
+    stmt.run(username, password, role, token);
     db.close();
 }
 
