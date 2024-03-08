@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-import * as openskill from 'openskill';
 import User from './types';
 
 console.log('Creating users.db');

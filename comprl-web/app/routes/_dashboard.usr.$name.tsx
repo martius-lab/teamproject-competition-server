@@ -27,7 +27,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const users = await getRankedUsers();
   return {
-    users: users
+    users: users, loggedInUsername: user.name
   };
 
 
@@ -35,6 +35,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function UserDashboard() {
   const { users } = useLoaderData<typeof loader>();
+  const { loggedInUsername } = useLoaderData<typeof loader>();
   return (
     <div>
       <Typography variant="h1">User</Typography>
@@ -51,10 +52,13 @@ export default function UserDashboard() {
             {users.map((user, index) => (
               <TableRow
                 key={index}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                sx={{
+                  '&:last-child td, &:last-child th': { border: 0 },
+                  backgroundColor: user.username === loggedInUsername ? 'lightblue' : 'inherit'
+                }}
               >
                 <TableCell component="th" scope="index">
-                  {index}
+                  {index + 1}
                 </TableCell>
                 <TableCell align="left">{user.username}</TableCell>
               </TableRow>
