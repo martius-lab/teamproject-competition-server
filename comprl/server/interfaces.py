@@ -75,6 +75,11 @@ class IPlayer(abc.ABC):
         """notifies the player of an error"""
         ...
 
+    @abc.abstractmethod
+    def notify_info(self, msg: str):
+        """notifies the player of an information"""
+        ...
+
 
 class IGame(abc.ABC):
     """

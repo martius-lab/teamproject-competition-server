@@ -223,7 +223,7 @@ class COMPServerProtocol(amp.AMP):
         return self.callRemote(Error, msg=str.encode(msg)).addErrback(
             self.handle_remote_error
         )
-    
+
     def send_message(self, msg: str):
         """
         Send a message string to the client.
@@ -338,6 +338,14 @@ class COMPPlayer(IPlayer):
             error (str): The error message.
         """
         self.connection.send_error(error)
+
+    def notify_info(self, msg: str):
+        """Notifies the player of an information.
+
+        Args:
+            msg (str): The information message.
+        """
+        self.connection.send_message(msg)
 
 
 class COMPFactory(ServerFactory):

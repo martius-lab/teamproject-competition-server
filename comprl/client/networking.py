@@ -119,7 +119,7 @@ class ClientProtocol(amp.AMP):
         """
         self.agent.on_error(msg=str(msg, encoding="utf-8"))
         return {}
-    
+
     @Message.responder
     def on_message(self, msg):
         """Called if a message from the server is sent.
