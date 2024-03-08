@@ -1,0 +1,10 @@
+[CompetitionServer]
+    port = 65335
+    timeout = 10
+    log = "DEBUG"
+    game_path = "examples\\rockpaperscissors\\game.py"
+    game_class = "RPSServer"
+    game_db_path = "RPS_games.db"
+    game_db_name = "data"
+    user_db_path = "RPS_users.db"
+    user_db_name = "data"
