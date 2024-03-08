@@ -28,6 +28,6 @@ npm start
 
 Now you'll need to pick a host to deploy it to.
 
-## Key
+## Config File
+The `user_db_path`, the `user_db_name` and the `key` are defined in the config file `config.ts`.
 The current key is `1234`.
-You can change the key in the file `comprl-web/app/routes/_dashboard.register.tsx`.
