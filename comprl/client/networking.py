@@ -8,7 +8,7 @@ from twisted.protocols import amp
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 
-from comprl.shared.commands import Ready, StartGame, EndGame, Step, Auth, Error
+from comprl.shared.commands import Ready, StartGame, EndGame, Step, Auth, Error, Message
 
 from .interfaces import IAgent
 
@@ -118,6 +118,16 @@ class ClientProtocol(amp.AMP):
             msg (object): The error description.
         """
         self.agent.on_error(msg=str(msg, encoding="utf-8"))
+        return {}
+    
+    @Message.responder
+    def on_message(self, msg):
+        """Called if a message from the server is sent.
+
+        Args:
+            msg (object): The message.
+        """
+        self.agent.on_message(msg=str(msg, encoding="utf-8"))
         return {}
 
 

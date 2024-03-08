@@ -56,3 +56,9 @@ class Error(Command):
 
     arguments = [(b"msg", String())]
     response = []
+
+class Message(Command):
+    """Command interface for a generic message"""
+
+    arguments = [(b"msg", String())]
+    response = []
