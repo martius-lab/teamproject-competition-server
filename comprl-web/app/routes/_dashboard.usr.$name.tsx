@@ -2,6 +2,8 @@ import { Typography } from "@mui/material";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
+import { getToken } from "~/db/sqlite.data";
+import { useLoaderData } from "@remix-run/react";
 
 
 
@@ -23,12 +25,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
-  return {}
+  const user_token = await getToken(user.name);
+
+  if (!user_token) {
+    return { token: "no token exists" };
+  }
+
+  return { token: user_token };
 }
 
 export default function UserDashboard() {
-
+  const { token } = useLoaderData<typeof loader>();
   return (
-    <Typography variant="h1">User</Typography>
+    <>
+      <Typography variant="h1">User</Typography>
+      <Typography variant="body1">Token: {token}</Typography>
+    </>
   );
 }
