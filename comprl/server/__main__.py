@@ -67,7 +67,7 @@ class Server(IServer):
     def on_remote_error(self, player: IPlayer, error: Exception):
         """gets called when there is an error in deferred"""
         if player.is_connected:
-            log.error(f"Connected player caused remote error \n {error.with_traceback}")
+            log.error(f"Connected player caused remote error \n {error}")
         else:
             log.debug("Disconnected player caused remote error")
 

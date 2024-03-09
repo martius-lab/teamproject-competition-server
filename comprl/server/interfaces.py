@@ -139,6 +139,8 @@ class IGame(abc.ABC):
             callback(self)
 
         for player in self.players.values():
+            if player.id == self.disconnected_player_id:
+                continue
             player.notify_end(
                 self._player_won(player.id), self._player_stats(player.id)
             )
