@@ -86,3 +86,7 @@ class IAgent:
             msg (str): The message
         """
         pass
+
+    def on_disconnect(self):
+        """Called when the agent disconnects from the server."""
+        pass

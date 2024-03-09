@@ -46,6 +46,7 @@ class ClientProtocol(amp.AMP):
         log.debug(f"Disconnected from the server. Reason: {reason}")
         if reactor.running:
             reactor.stop()
+        self.agent.on_disconnect()
         return super().connectionLost(reason)
 
     @Auth.responder

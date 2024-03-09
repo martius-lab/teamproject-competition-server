@@ -60,3 +60,7 @@ class Agent(IAgent):
     def on_message(self, msg: str):
         """Called if a message is sent from the server."""
         print(f"Info: {msg}")
+
+    def on_disconnect(self):
+        """Called when the agent disconnects from the server."""
+        print("Error: Agent disconnected from the server.")
