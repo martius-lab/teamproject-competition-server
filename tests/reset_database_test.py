@@ -12,10 +12,26 @@ logging.basicConfig(level=logging.DEBUG)
 
 def reset_tests():
     user_data = UserData(ConfigProvider.get("user_data"))
-    userID1 = user_data.add(user_name="user_1", user_token=str(uuid.uuid4()))
-    userID2 = user_data.add(user_name="user_2", user_token=str(uuid.uuid4()))
-    userID3 = user_data.add(user_name="user_3", user_token=str(uuid.uuid4()))
-    userID4 = user_data.add(user_name="user_4", user_token=str(uuid.uuid4()))
+    userID1 = user_data.add(
+        user_name="user_1",
+        user_password=str(uuid.uuid4()),
+        user_token=str(uuid.uuid4()),
+    )
+    userID2 = user_data.add(
+        user_name="user_2",
+        user_password=str(uuid.uuid4()),
+        user_token=str(uuid.uuid4()),
+    )
+    userID3 = user_data.add(
+        user_name="user_3",
+        user_password=str(uuid.uuid4()),
+        user_token=str(uuid.uuid4()),
+    )
+    userID4 = user_data.add(
+        user_name="user_4",
+        user_password=str(uuid.uuid4()),
+        user_token=str(uuid.uuid4()),
+    )
 
     user_data.set_matchmaking_parameters(user_id=userID1, mu=24.000, sigma=9.333)
     user_data.set_matchmaking_parameters(user_id=userID2, mu=23.000, sigma=9.000)
