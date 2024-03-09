@@ -31,14 +31,5 @@ export async function getUser(username: string, password: string) {
     db.close();
     if (!res) { return undefined }
     if (res.password != password) { return undefined }
-    return { id: res.user_id, name: res.username, role: res.role } as User;
-}
-
-export async function getToken(username: string) {
-    const db = new Database('users.db', { verbose: console.log });
-    const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
-    const res = stmt.get(username);
-    db.close();
-    if (!res) { return undefined }
-    return res.token;
+    return { id: res.user_id, name: res.username, role: res.role, token: res.token } as User;
 }

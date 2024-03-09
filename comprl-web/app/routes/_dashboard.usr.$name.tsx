@@ -25,13 +25,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
-  const user_token = await getToken(user.name);
-
-  if (!user_token) {
+  if (!user.token) {
     return { token: "no token exists" };
   }
 
-  return { token: user_token };
+  return { token: user.token };
 }
 
 export default function UserDashboard() {
