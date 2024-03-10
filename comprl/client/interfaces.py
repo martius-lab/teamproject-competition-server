@@ -57,7 +57,7 @@ class IAgent:
         """
         raise NotImplementedError("step function not implemented")
 
-    def on_end_game(self, result, stats) -> None:
+    def on_end_game(self, result: bool, stats: list[float]) -> None:
         """
         Called when a game ends.
 
@@ -70,11 +70,23 @@ class IAgent:
         """
         pass
 
-    def on_error(self, msg):
+    def on_error(self, msg: str):
         """
         Called when an error occurs.
 
         Args:
-            msg: The error message.
+            msg (str): The error message.
         """
+        pass
+
+    def on_message(self, msg: str):
+        """Called when a message is sent from the server.
+
+        Args:
+            msg (str): The message
+        """
+        pass
+
+    def on_disconnect(self):
+        """Called when the agent disconnects from the server."""
         pass
