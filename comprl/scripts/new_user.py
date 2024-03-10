@@ -2,9 +2,11 @@
 
 from comprl.server.data import UserData
 from comprl.server.data import ConnectionInfo
+from comprl.server.data.interfaces import UserRole
 import logging
 import argparse
 import uuid
+import getpass
 
 try:
     import tomllib  # type: ignore[import-not-found]
@@ -24,7 +26,15 @@ def insert_user(name: str):
         name (str): name of the new user
     """
     token = str(uuid.uuid4())
-    user_data.add(user_name=name, user_token=token)
+    password = getpass.getpass("Please enter a password for the user: ")
+    isAdmin = input("Do you want the new user to be an admin? (Y/N): ")
+    if isAdmin.lower() == "y":
+        role = UserRole.ADMIN
+    else:
+        role = UserRole.USER
+    user_data.add(
+        user_name=name, user_password=password, user_token=token, user_role=role
+    )
 
 
 if __name__ == "__main__":
