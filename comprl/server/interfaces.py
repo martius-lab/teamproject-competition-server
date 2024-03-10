@@ -176,7 +176,7 @@ class IGame(abc.ABC):
                     if self.disconnected_player_id is not None:
                         return
                     self.all_actions.append([actions[p] for p in actions])
-                    if not self.update(actions):
+                    if not self._update(actions):
                         self._run()
                     else:
                         self._end(reason="Player won")
