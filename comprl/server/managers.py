@@ -228,7 +228,9 @@ class PlayerManager:
             user_id
         )
 
-    def update_matchmaking_parameters(self, user_id: int, m: float, s: float) -> None:
+    def update_matchmaking_parameters(
+        self, user_id: int, new_mu: float, new_sigma: float
+    ) -> None:
         """
         Updates the matchmaking parameters of a user based on their ID.
 
@@ -238,7 +240,7 @@ class PlayerManager:
             s (float): The new sigma value of the user.
         """
         UserData(ConfigProvider.get("user_data")).set_matchmaking_parameters(
-            user_id, m, s
+            user_id, new_mu, new_sigma
         )
 
 
@@ -327,7 +329,7 @@ class MatchmakingManager:
             return
 
         for i in range(len(self._queue)):
-            for j in range(i, len(self._queue)):
+            for j in range(i + 1, len(self._queue)):
                 # try to match all players against each other
                 if self._try_start_game(self._queue[i], self._queue[j]):
                     return
@@ -397,8 +399,8 @@ class MatchmakingManager:
         _, _, mu_p1, sigma_p1, time_stamp_p1 = player1
         _, _, mu_p2, sigma_p2, time_stamp_p2 = player2
         now = datetime.now()
-        waiting_time_p1 = (time_stamp_p1 - now).total_seconds()
-        waiting_time_p2 = (time_stamp_p2 - now).total_seconds()
+        waiting_time_p1 = (now - time_stamp_p1).total_seconds()
+        waiting_time_p2 = (now - time_stamp_p2).total_seconds()
         combined_waiting_time = waiting_time_p1 + waiting_time_p2
         # calculate a bonus if the players waited a long time
         waiting_bonus = max(0.0, (combined_waiting_time / 60 - 1) * 0.1)
