@@ -3,6 +3,7 @@ This module contains classes that manage game instances and players.
 """
 
 import logging as log
+import pickle
 from typing import Type
 from datetime import datetime
 from openskill.models import PlackettLuce
@@ -90,6 +91,18 @@ class GameManager:
             Optional[IGame]: The game instance if found, None otherwise.
         """
         return self.games.get(game_id, None)
+
+    def get_stored_actions(self, game_id: GameID) -> dict[str, list[np.ndarray]]:
+        """get a game from the log file
+
+        Args:
+            game_id (GameID): id of the game we want to get
+        Returns:
+            dict[str, list[np.ndarray]]: the dict containing the actions and possible
+            more info
+        """
+        with open("comprl/server/game_actions/" + str(game_id) + ".pkl", "rb") as f:
+            return pickle.load(f)
 
 
 class PlayerManager:
