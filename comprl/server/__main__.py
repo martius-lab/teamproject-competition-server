@@ -47,6 +47,7 @@ class Server(IServer):
         def __auth(token):
             if self.player_manager.auth(player.id, token):
                 self.matchmaking.try_match(player.id)
+                player.notify_info(msg="Authentication successful")
             else:
                 player.disconnect("Authentication failed")
 

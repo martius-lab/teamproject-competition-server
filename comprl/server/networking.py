@@ -11,7 +11,7 @@ from twisted.internet.task import LoopingCall
 
 from comprl.server.interfaces import IPlayer, IServer
 from comprl.server.util import ConfigProvider
-from comprl.shared.commands import Auth, EndGame, Error, Ready, StartGame, Step
+from comprl.shared.commands import Auth, EndGame, Error, Ready, StartGame, Step, Message
 from comprl.shared.types import GameID
 
 VERSION: int = 1
@@ -247,6 +247,20 @@ class COMPServerProtocol(amp.AMP):
             self.connection_error
         )
 
+    def send_message(self, msg: str):
+        """
+        Send a message string to the client.
+
+        Args:
+            msg (str): The message to send.
+
+        Returns:
+            None
+        """
+        return self.callRemote(Message, msg=str.encode(msg)).addErrback(
+            self.handle_remote_error
+        )
+
     def disconnect(self):
         """
         Disconnects the client from the server.
@@ -354,6 +368,14 @@ class COMPPlayer(IPlayer):
         """
         if self.is_connected:
             self.connection.send_error(error)
+
+    def notify_info(self, msg: str):
+        """Notifies the player of an information.
+
+        Args:
+            msg (str): The information message.
+        """
+        self.connection.send_message(msg)
 
 
 class COMPFactory(ServerFactory):
