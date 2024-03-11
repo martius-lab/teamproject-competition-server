@@ -374,8 +374,6 @@ class MatchmakingManager:
         if user1_id == user2_id:
             return False
 
-        print(f"Match quality: {match_quality}")
-
         if match_quality > self._MATCH_QUALITY_THRESHOLD:
             # match the players. We could search for best match but using the first adds
             # a bit of diversity and the players in front of the queue are waiting
