@@ -21,10 +21,8 @@ class RPSGame(IGame):
     def __init__(self, players: list[IPlayer]) -> None:
         super().__init__(players=players)
 
-        self.scores: dict[PlayerID, float] = {p.id: 0.0 for p in players}
         self.player_1_id = players[0].id
         self.player_2_id = players[1].id
-        self.finished = False
 
     def _update(self, actions_dict: dict[PlayerID, list[float]]) -> bool:
         player_one_action = int(actions_dict[self.player_1_id][0])
@@ -49,9 +47,8 @@ class RPSGame(IGame):
                     self.scores[self.player_1_id] += 1
                 elif player_two_action == Sign.ROCK.value:
                     self.scores[self.player_2_id] += 1
-        if max(self.scores[self.player_1_id], self.scores[self.player_2_id]) >= 3:
-            self.finished = True
-        return self.finished
+
+        return max(self.scores[self.player_1_id], self.scores[self.player_2_id]) >= 3
 
     def _player_won(self, id: PlayerID) -> bool:
         if id == self.player_1_id:
