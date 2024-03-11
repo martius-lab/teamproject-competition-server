@@ -8,6 +8,7 @@ from typing import Type
 from datetime import datetime
 from openskill.models import PlackettLuce
 from typing import TypeAlias
+import numpy as np
 
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
