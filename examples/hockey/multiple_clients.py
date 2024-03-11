@@ -19,10 +19,11 @@ def start_agent(weak: bool, token: str):
 
 
 if __name__ == "__main__":
+    num_agents = 10
     offset = 0
     for weak in [True, False]:
-        for i in range(10):
+        for i in range(num_agents):
             for _j in range(5):
                 p = Process(target=start_agent, args=(weak, f"token{i+offset}"))
                 p.start()
-        offset = 10
+        offset = num_agents

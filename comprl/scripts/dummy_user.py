@@ -26,6 +26,16 @@ def insert_users():
     logging.info("Four dummy users have been added.")
 
 
+def insert_stresstest_user(amount: int):
+    """inserts a number of dummy users to the user database"""
+    for i in range(amount):
+        user_data.add(
+            user_name=f"user{i}", user_password=f"password{i}", user_token=f"token{i}"
+        )
+
+    logging.info(f"{amount} dummy users have been added.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="The following arguments are supported:"
