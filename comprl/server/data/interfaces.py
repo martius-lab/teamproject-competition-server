@@ -3,7 +3,7 @@ This module contains the interfaces for the game data.
 """
 
 from datetime import datetime
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 from comprl.shared.types import GameID
 
@@ -73,3 +73,16 @@ class GameResult:
         self.disconnected_id = None
         if end_state == GameEndState.DISCONNECTED:
             self.disconnected_id = user1_id if is_user1_disconnected else user2_id
+
+
+class UserRole(Enum):
+    """
+    Represents the possible user roles.
+
+    Attributes:
+        USER: Normal user without administrative rights.
+        ADMIN = User with administrative rights.
+    """
+
+    USER = "user"
+    ADMIN = "admin"

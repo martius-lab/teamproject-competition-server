@@ -16,7 +16,8 @@ dependencies = [
     "twisted==23.10.0",
     "numpy==1.26.2",
     "tomli; python_version<'3.11'",
-    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git"
+    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git",
+    "openskill==5.1.0"
 ]
 
 [project.optional-dependencies]
