@@ -25,6 +25,7 @@ class IPlayer(abc.ABC):
     def __init__(self) -> None:
         self.id: PlayerID = IDGenerator.generate_player_id()
         self.user_id: Optional[int] = None
+        self.is_connected = True
 
     @abc.abstractmethod
     def authenticate(self, result_callback):
@@ -75,6 +76,11 @@ class IPlayer(abc.ABC):
     @abc.abstractmethod
     def notify_error(self, error: str):
         """notifies the player of an error"""
+        ...
+
+    @abc.abstractmethod
+    def notify_info(self, msg: str):
+        """notifies the player of an information"""
         ...
 
 
@@ -155,6 +161,8 @@ class IGame(abc.ABC):
             callback(self)
 
         for player in self.players.values():
+            if player.id == self.disconnected_player_id:
+                continue
             player.notify_end(
                 self._player_won(player.id), self._player_stats(player.id)
             )
@@ -333,6 +341,16 @@ class IServer:
         Gets called when a player has a timeout.
         Args:
             player (IPlayer): The player that has a timeout.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_remote_error(self, player: IPlayer, error):
+        """
+        Gets called when an error in deferred occurs.
+        Args:
+            player (IPlayer): The player that caused the error.
+            error (Exception): Error that occurred
         """
         ...
 
