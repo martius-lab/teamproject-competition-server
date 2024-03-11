@@ -236,8 +236,8 @@ class PlayerManager:
 
         Args:
             user_id (int): The ID of the user.
-            m (float): The new mu value of the user.
-            s (float): The new sigma value of the user.
+            new_mu (float): The new mu value of the user.
+            new_sigma (float): The new sigma value of the user.
         """
         UserData(ConfigProvider.get("user_data")).set_matchmaking_parameters(
             user_id, new_mu, new_sigma
