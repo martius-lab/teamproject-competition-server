@@ -1,7 +1,7 @@
 """contains the networking components of the server"""
 
 import logging as log
-from typing import Callable
+from typing import Callable, Any
 
 from twisted.internet.interfaces import IAddress
 from twisted.internet.protocol import Protocol, ServerFactory
@@ -36,9 +36,10 @@ class COMPServerProtocol(amp.AMP):
 
         self.connection_made_callbacks: list[Callable[[], None]] = []
         self.connection_lost_callbacks: list[Callable[[], None]] = []
-        self.connection_timeout_callbacks: list[Callable[[any, any], None]] = []
+        self.connection_timeout_callbacks: list[Callable[[Any, Any], None]] = []
+        self.connection_error_callbacks: list[Callable[[Any], None]] = []
 
-    def add_connection_made_callback(self, callback):
+    def add_connection_made_callback(self, callback: Callable[[], None]):
         """adds callback that is executed, when the connection is made
 
         Args:
@@ -49,7 +50,7 @@ class COMPServerProtocol(amp.AMP):
         """
         self.connection_made_callbacks.append(callback)
 
-    def add_connection_lost_callback(self, callback):
+    def add_connection_lost_callback(self, callback: Callable[[], None]):
         """
         Adds a callback function to be executed when the connection is lost.
 
@@ -61,7 +62,7 @@ class COMPServerProtocol(amp.AMP):
         """
         self.connection_lost_callbacks.append(callback)
 
-    def add_connection_timeout_callback(self, callback):
+    def add_connection_timeout_callback(self, callback: Callable[[Any, Any], None]):
         """
         Adds a callback function to be executed when there is a timeout.
 
@@ -72,6 +73,18 @@ class COMPServerProtocol(amp.AMP):
             None
         """
         self.connection_timeout_callbacks.append(callback)
+
+    def add_connection_error_callback(self, callback: Callable[[Any], None]):
+        """
+        Adds a callback function to be executed when there occurs an error in deferred.
+
+        Args:
+            callback: The callback function to be added.
+
+        Returns:
+            None
+        """
+        self.connection_error_callbacks.append(callback)
 
     def connectionMade(self) -> None:
         """
@@ -116,6 +129,16 @@ class COMPServerProtocol(amp.AMP):
         for c in self.connection_timeout_callbacks:
             c(failure, timeout)
 
+    def connection_error(self, error) -> None:
+        """Is called when an error in Deferred occurs
+
+        Args:
+            place : where the error was caused
+            error : description of the error
+        """
+        for c in self.connection_error_callbacks:
+            c(error)
+
     def get_token(self, return_callback: Callable[[str], None]) -> None:
         """
         Retrieves a token from the client and calls the return_callback
@@ -141,7 +164,7 @@ class COMPServerProtocol(amp.AMP):
             self.callRemote(Auth)
             .addCallback(callback=callback)
             .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
-            .addErrback(self.handle_remote_error)
+            .addErrback(self.connection_error)
         )
 
     def is_ready(self, return_callback: Callable[[bool], None]) -> bool:
@@ -159,7 +182,7 @@ class COMPServerProtocol(amp.AMP):
             self.callRemote(Ready)
             .addCallback(callback=lambda res: return_callback(res["ready"]))
             .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
-            .addErrback(self.handle_remote_error)
+            .addErrback(self.connection_error)
         )
 
     def notify_start(self, game_id: GameID) -> None:
@@ -190,7 +213,7 @@ class COMPServerProtocol(amp.AMP):
             self.callRemote(Step, obv=obv)
             .addCallback(callback=lambda res: return_callback(res["action"]))
             .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
-            .addErrback(self.handle_remote_error)
+            .addErrback(self.connection_error)
         )
 
     def notify_end(self, result, stats) -> None:
@@ -207,7 +230,7 @@ class COMPServerProtocol(amp.AMP):
         return (
             self.callRemote(EndGame, result=result, stats=stats)
             .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
-            .addErrback(self.handle_remote_error)
+            .addErrback(self.connection_error)
         )
 
     def send_error(self, msg: str):
@@ -221,7 +244,7 @@ class COMPServerProtocol(amp.AMP):
             None
         """
         return self.callRemote(Error, msg=str.encode(msg)).addErrback(
-            self.handle_remote_error
+            self.connection_error
         )
 
     def send_message(self, msg: str):
@@ -235,7 +258,7 @@ class COMPServerProtocol(amp.AMP):
             None
         """
         return self.callRemote(Message, msg=str.encode(msg)).addErrback(
-            self.handle_remote_error
+            self.connection_error
         )
 
     def disconnect(self):
@@ -246,15 +269,6 @@ class COMPServerProtocol(amp.AMP):
             None
         """
         self.transport.loseConnection()
-
-    def handle_remote_error(place, error):
-        """Is called when an error in Deferred occurs
-
-        Args:
-            place : where the error was caused
-            error : description of the error
-        """
-        log.debug(f"Caught error in remote Callback at {place}")
 
 
 class COMPPlayer(IPlayer):
@@ -272,6 +286,17 @@ class COMPPlayer(IPlayer):
         """
         super().__init__()
         self.connection: COMPServerProtocol = connection
+        self.is_connected: bool = False
+
+        def set_connection(c: bool):
+            self.is_connected = c
+
+        self.connection.add_connection_made_callback(
+            callback=lambda: set_connection(True)
+        )
+        self.connection.add_connection_lost_callback(
+            callback=lambda: set_connection(False)
+        )
 
     def authenticate(self, result_callback):
         """Authenticates the player.
@@ -283,7 +308,8 @@ class COMPPlayer(IPlayer):
         Returns:
             token (string): The authentication token.
         """
-        self.connection.get_token(result_callback)
+        if self.is_connected:
+            self.connection.get_token(result_callback)
 
     def is_ready(self, result_callback) -> bool:
         """Checks if the player is ready to play.
@@ -302,7 +328,8 @@ class COMPPlayer(IPlayer):
         Args:
             game_id (GameID): The ID of the game.
         """
-        self.connection.notify_start(game_id=game_id)
+        if self.is_connected:
+            self.connection.notify_start(game_id=game_id)
 
     def get_action(self, obv, result_callback):
         """Receives the action from the server.
@@ -311,7 +338,8 @@ class COMPPlayer(IPlayer):
             obv (any): The observation.
             result_callback (callback function): The callback to handle the result.
         """
-        self.connection.get_step(obv, result_callback)
+        if self.is_connected:
+            self.connection.get_step(obv, result_callback)
 
     def notify_end(self, result, stats):
         """Called when the game ends.
@@ -320,7 +348,8 @@ class COMPPlayer(IPlayer):
             result (any): The result of the game.
             stats (any): The stats of the game.
         """
-        self.connection.notify_end(result=result, stats=stats)
+        if self.is_connected:
+            self.connection.notify_end(result=result, stats=stats)
 
     def disconnect(self, reason: str):
         """Disconnects the player.
@@ -337,7 +366,8 @@ class COMPPlayer(IPlayer):
         Args:
             error (str): The error message.
         """
-        self.connection.send_error(error)
+        if self.is_connected:
+            self.connection.send_error(error)
 
     def notify_info(self, msg: str):
         """Notifies the player of an information.
@@ -396,6 +426,9 @@ class COMPFactory(ServerFactory):
             lambda failure, timeout: self.server.on_timeout(
                 comp_player, failure, timeout
             )
+        )
+        protocol.add_connection_error_callback(
+            lambda error: self.server.on_remote_error(comp_player, error)
         )
 
         return protocol
