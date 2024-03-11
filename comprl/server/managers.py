@@ -330,7 +330,7 @@ class MatchmakingManager:
         """
         Updates the matchmaking manager.
 
-        start_index (int, optional): The position in queue to start matching from. 
+        start_index (int, optional): The position in queue to start matching from.
         Used for recursion. Defaults to 0.
         """
 
@@ -373,7 +373,7 @@ class MatchmakingManager:
         # prevent the user from playing against himself
         if user1_id == user2_id:
             return False
-        
+
         print(f"Match quality: {match_quality}")
 
         if match_quality > self._MATCH_QUALITY_THRESHOLD:
