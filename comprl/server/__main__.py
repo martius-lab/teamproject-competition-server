@@ -74,7 +74,7 @@ class Server(IServer):
 
     def on_update(self):
         """gets called every update cycle"""
-        self.matchmaking.update()
+        self.matchmaking._update()
 
 
 def load_class(module_path: str, class_name: str):

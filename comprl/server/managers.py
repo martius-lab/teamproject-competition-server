@@ -326,19 +326,23 @@ class MatchmakingManager:
             if (p_id != player_id)
         ]
 
-    def update(self):
+    def _update(self, start_index: int = 0) -> None:
         """
         Updates the matchmaking manager.
+
+        start_index (int, optional): The position in queue to start matching from. 
+        Used for recursion. Defaults to 0.
         """
 
         if len(self._queue) < self._min_players_waiting():
             return
 
-        for i in range(len(self._queue)):
+        for i in range(start_index, len(self._queue)):
             for j in range(i + 1, len(self._queue)):
                 # try to match all players against each other
                 if self._try_start_game(self._queue[i], self._queue[j]):
-                    return
+                    # players are matched and removed from queue. continue searching
+                    self._update(i)
         return
 
     def _min_players_waiting(self) -> int:
@@ -369,15 +373,13 @@ class MatchmakingManager:
         # prevent the user from playing against himself
         if user1_id == user2_id:
             return False
+        
+        print(f"Match quality: {match_quality}")
 
         if match_quality > self._MATCH_QUALITY_THRESHOLD:
             # match the players. We could search for best match but using the first adds
             # a bit of diversity and the players in front of the queue are waiting
             # longer, so its fairer for them.
-
-            # remove players from queue
-            self.remove(player1_id)
-            self.remove(player2_id)
 
             players = [
                 self.player_manager.get_player_by_id(player1_id),
@@ -385,6 +387,17 @@ class MatchmakingManager:
             ]
 
             filtered_players = [player for player in players if player is not None]
+
+            if len(filtered_players) != 2:
+                log.error("Player was in queue but not in player manager")
+                if players[0] is None:
+                    self.remove(player1_id)
+                if players[1] is None:
+                    self.remove(player2_id)
+                return False
+
+            self.remove(player1_id)
+            self.remove(player2_id)
 
             game = self.game_manager.start_game(filtered_players)
             game.add_finish_callback(self._end_game)
