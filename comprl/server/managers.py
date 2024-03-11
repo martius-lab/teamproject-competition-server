@@ -343,6 +343,7 @@ class MatchmakingManager:
                 if self._try_start_game(self._queue[i], self._queue[j]):
                     # players are matched and removed from queue. continue searching
                     self._update(i)
+                    return
         return
 
     def _min_players_waiting(self) -> int:
