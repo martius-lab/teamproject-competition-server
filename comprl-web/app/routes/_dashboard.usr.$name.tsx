@@ -26,7 +26,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   if (!user.token) {
-    return { token: "no token exists" };
+    return { token: "no token exists", username: user.name };
   }
 
   return { token: user.token, username: user.name };
@@ -36,13 +36,13 @@ export default function UserDashboard() {
   const { token, username } = useLoaderData<typeof loader>();
   return (
     <div>
-    <Stack
-      direction = {{xs: 'column', sm: 'row'}}
-      spacing={{xs:1, sm:2, md:4}}
-    >
-      <DashboardContent caption="Username" children={username}/>
-      <DashboardContent caption="Token" children={token}/>
-    </Stack>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={{ xs: 1, sm: 2, md: 4 }}
+      >
+        <DashboardContent caption="Username" children={username} />
+        <DashboardContent caption="Token" children={token} />
+      </Stack>
     </div>
   );
 }
