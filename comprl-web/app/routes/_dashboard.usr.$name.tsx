@@ -1,9 +1,9 @@
-import { Typography } from "@mui/material";
+import { Typography, Stack } from "@mui/material";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
-import { getToken } from "~/db/sqlite.data";
 import { useLoaderData } from "@remix-run/react";
+import DashboardContent from '~/components/DashboardContent';
 
 
 
@@ -29,15 +29,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return { token: "no token exists" };
   }
 
-  return { token: user.token };
+  return { token: user.token, username: user.name };
 }
 
 export default function UserDashboard() {
-  const { token } = useLoaderData<typeof loader>();
+  const { token, username } = useLoaderData<typeof loader>();
   return (
-    <>
-      <Typography variant="h1">User</Typography>
-      <Typography variant="body1">Token: {token}</Typography>
-    </>
+    <div>
+    <Stack
+      direction = {{xs: 'column', sm: 'row'}}
+      spacing={{xs:1, sm:2, md:4}}
+    >
+      <DashboardContent caption="Username" children={username}/>
+      <DashboardContent caption="Token" children={token}/>
+    </Stack>
+    </div>
   );
 }
