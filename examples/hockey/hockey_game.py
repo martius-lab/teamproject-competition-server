@@ -59,7 +59,7 @@ class HockeyGame(IGame):
         Returns:
             bool: True if the game is over, False otherwise.
         """
-        self.env.render(mode="human")  # (un)comment to render or not
+        # self.env.render(mode="human")  # (un)comment to render or not
 
         self.action = np.hstack(
             [
