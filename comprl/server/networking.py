@@ -258,7 +258,7 @@ class COMPServerProtocol(amp.AMP):
             None
         """
         return self.callRemote(Message, msg=str.encode(msg)).addErrback(
-            self.handle_remote_error
+            self.connection_error
         )
 
     def disconnect(self):
