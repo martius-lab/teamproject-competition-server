@@ -8,7 +8,7 @@ from twisted.protocols import amp
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 
-from comprl.shared.commands import Ready, StartGame, EndGame, Step, Auth, Error
+from comprl.shared.commands import Ready, StartGame, EndGame, Step, Auth, Error, Message
 
 from .interfaces import IAgent
 
@@ -46,6 +46,7 @@ class ClientProtocol(amp.AMP):
         log.debug(f"Disconnected from the server. Reason: {reason}")
         if reactor.running:
             reactor.stop()
+        self.agent.on_disconnect()
         return super().connectionLost(reason)
 
     @Auth.responder
@@ -108,7 +109,14 @@ class ClientProtocol(amp.AMP):
             dict: A dictionary containing the action that should be executed.
                 Example: {"action": 1}
         """
-        return {"action": self.agent.get_step(obv)}
+        action = self.agent.get_step(obv)
+        if isinstance(action, list) and all(isinstance(x, float) for x in action):
+            return {"action": action}
+        else:
+            raise Exception(
+                "Tried to send an action with wrong type. "
+                "Only actions of type list[float] can be send."
+            )
 
     @Error.responder
     def on_error(self, msg):
@@ -118,6 +126,16 @@ class ClientProtocol(amp.AMP):
             msg (object): The error description.
         """
         self.agent.on_error(msg=str(msg, encoding="utf-8"))
+        return {}
+
+    @Message.responder
+    def on_message(self, msg):
+        """Called if a message from the server is sent.
+
+        Args:
+            msg (object): The message.
+        """
+        self.agent.on_message(msg=str(msg, encoding="utf-8"))
         return {}
 
 

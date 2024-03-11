@@ -244,7 +244,13 @@ class MatchmakingManager:
 
         if player is not None:
             # FIXME: we might wan't to kick the player
-            player.is_ready(lambda res: self.match(player_id) if res else None)
+
+            def __match(ready: bool):
+                if ready:
+                    player.notify_info(msg="Waiting in queue")
+                    self.match(player_id)
+
+            player.is_ready(result_callback=__match)
 
     def match(self, player_id: PlayerID) -> None:
         """
