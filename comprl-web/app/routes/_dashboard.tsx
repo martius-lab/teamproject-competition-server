@@ -53,6 +53,12 @@ export default function DashboardLayout() {
           </ListItemIcon>
           <ListItemText primary="Home" />
         </ListItemButton>
+        <ListItemButton sx={{ m: 1 }} href='/leaderboard'>
+          <ListItemIcon>
+            <ManageSearchOutlined />
+          </ListItemIcon>
+          <ListItemText primary="Leaderboard" />
+        </ListItemButton>
         <ListItemButton sx={{ m: 1 }} href='/games'>
           <ListItemIcon>
             <ManageSearchOutlined />
