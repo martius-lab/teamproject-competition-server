@@ -287,6 +287,7 @@ class MatchmakingManager:
         self.model = PlackettLuce()
         self._MATCH_QUALITY_THRESHOLD = 0.8
         self._PERCENTAGE_MIN_PLAYERS_WAITING = 0.1
+        self.BOT_WAITING_THRESHOLD = 60 * 5  # 5 minutes	
 
     def try_match(self, player_id: PlayerID) -> None:
         """
@@ -361,10 +362,10 @@ class MatchmakingManager:
                     self._update(i)
                     return
             player_id, _, _, _, time_stamp = self._queue[i]
-            if (datetime.now() - time_stamp).total_seconds() > 60 * 5:
-                # match players that have been waiting for more than 5 minutes with a 
+            if (datetime.now() - time_stamp).total_seconds() > self.BOT_WAITING_THRESHOLD:
+                # match players that have been waiting for more than 5 minutes with a
                 # bot
-                player = self.player_manager.get_player_by_id(player_id) 
+                player = self.player_manager.get_player_by_id(player_id)
                 if player is None:
                     continue
                 log.debug(f"Player {player_id} was matched with a bot")
