@@ -4,6 +4,7 @@ This module contains classes that manage game instances and players.
 
 import logging as log
 import pickle
+import random
 from typing import Type
 from datetime import datetime
 from openskill.models import PlackettLuce
@@ -14,6 +15,7 @@ from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.data import GameData, UserData
 from comprl.server.util import ConfigProvider
+from comprl.server.bot import Weak_Hockey_Bot, Strong_Hockey_Bot
 
 
 class GameManager:
@@ -358,6 +360,18 @@ class MatchmakingManager:
                     # players are matched and removed from queue. continue searching
                     self._update(i)
                     return
+            player_id, _, _, _, time_stamp = self._queue[i]
+            if (datetime.now() - time_stamp).total_seconds() > 60 * 5:
+                # match players that have been waiting for more than 5 minutes with a 
+                # bot
+                player = self.player_manager.get_player_by_id(player_id) 
+                if player is None:
+                    continue
+                log.debug(f"Player {player_id} was matched with a bot")
+                bot = random.choice([Weak_Hockey_Bot(), Strong_Hockey_Bot()])
+                self.remove(player_id)
+                game = self.game_manager.start_game([player, bot])
+                game.add_finish_callback(self._end_game)
         return
 
     def _min_players_waiting(self) -> int:
