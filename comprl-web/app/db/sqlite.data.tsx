@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import User from './types';
+import { v4 as uuidv4 } from 'uuid';
 
 console.log('Creating users.db');
 const db = new Database('users.db', { verbose: console.log });
@@ -17,17 +18,18 @@ db.close();
 
 export async function addUser(username: string, password: string, role: string = 'user') {
     const db = new Database('users.db', { verbose: console.log });
-    const stmt = db.prepare('INSERT INTO users(username, password, role) VALUES (?, ?, ?)');
-    stmt.run(username, password, role);
+    const token = uuidv4();
+    const stmt = db.prepare('INSERT INTO users(username, password, role, token) VALUES (?, ?, ?,?)');
+    stmt.run(username, password, role, token);
     db.close();
 }
 
-export async function getUser(username: string, password : string) {
+export async function getUser(username: string, password: string) {
     const db = new Database('users.db', { verbose: console.log });
     const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
     const res = stmt.get(username);
     db.close();
-    if(!res) {return undefined}
-    if(res.password != password) {return undefined}
-    return {id: res.user_id, name: res.username, role: res.role} as User;
+    if (!res) { return undefined }
+    if (res.password != password) { return undefined }
+    return { id: res.user_id, name: res.username, role: res.role, token: res.token } as User;
 }
