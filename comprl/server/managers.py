@@ -283,7 +283,7 @@ class MatchmakingManager:
         self._queue: list[QueuePlayer] = []
         # The model used for matchmaking
         self.model = PlackettLuce()
-        self._MATCH_QUALITY_THRESHOLD = 0.8
+        self._MATCH_QUALITY_THRESHOLD = 0.4
         self._PERCENTAGE_MIN_PLAYERS_WAITING = 0.1
 
     def try_match(self, player_id: PlayerID) -> None:
