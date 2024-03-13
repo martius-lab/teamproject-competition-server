@@ -50,6 +50,14 @@ export async function getUser(username: string, password: string) {
     return { id: res.user_id, name: res.username, role: res.role, token: res.token } as User;
 }
 
+export async function getUserName(user_id: number) {
+    const userDB = new Database('users.db', { verbose: console.log });
+    const stmt = userDB.prepare('SELECT username FROM users WHERE user_id = ?');
+    const res = stmt.get(user_id);
+    userDB.close();
+    return res.username;
+}
+
 export async function getStatistics(user_id: number) {
     const gameDB = new Database('game.db', { verbose: console.log });
 
@@ -65,4 +73,14 @@ export async function getStatistics(user_id: number) {
     gameDB.close();
 
     return {playedGames: playedGames, wonGames: wonGames, disconnectedGames: disconnectedGames} as Statistics
+}
+
+export async function getGame(game_id: string) {
+    const gameDB = new Database('game.db', { verbose: console.log });
+    const stmt = gameDB.prepare('SELECT * FROM data WHERE game_id=?');
+    const game = stmt.get(game_id)
+    gameDB.close();
+
+    if (!game) {return null}
+    return game as Game
 }
