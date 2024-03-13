@@ -1,20 +1,26 @@
-import { Paper, Typography , ThemeProvider} from '@mui/material'
+import { Paper, Typography , ThemeProvider, createTheme, styled } from '@mui/material'
 import { themeOptions } from "~/style/theme";
 
-interface DashboardContentProps {
-    caption: string;
-    children: React.ReactNode;
+interface DashboardStatisticProps {
+    value: string;
+    description: string;
 }
 
-function DashboardContent({ caption, children}: DashboardContentProps) {
+const theme = createTheme(themeOptions);
+
+export function DashboardsStatistic({ value, description}: DashboardStatisticProps) {
     return (
-
-        <Paper elevation={5} sx={{p:4, borderRadius:6, bgcolor: '#d3e0eb' }}>
-            <Typography variant="h5" align="left">{caption}</Typography>
-            {children}
+        <ThemeProvider theme={theme}>
+        <Paper variant="outlined" sx={{p:4, borderRadius:3, bgcolor: 'primary.light', paddingTop: theme.spacing(6), paddingBottom: theme.spacing(6), height: '100%' }}>
+            <Typography variant="h3" align="center" color='primary.main'>{value}</Typography>
+            <Typography variant="body1" align="center" color='primary.main'>{description}</Typography>
         </Paper>
-
+        </ThemeProvider>
     )
 }
 
-export default DashboardContent
+export const DashboardPaper = styled(Paper)(() => ({
+    padding: theme.spacing(5),
+    borderRadius:4,
+    height: '100%'
+}));
