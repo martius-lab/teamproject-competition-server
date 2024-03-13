@@ -44,12 +44,8 @@ export async function getRankedUsers() {
     const users = await getAllUsers();
 
     const rankedUsers = users.sort((a, b) => {
-        // Sort by descending mu (largest first)
-        if (b.mu !== a.mu) {
-            return b.mu - a.mu;
-        }
-        // If mu is equal, sort by ascending sigma (smallest first)
-        return a.sigma - b.sigma;
+        // Sort by descending (mu - sigma)
+        return (b.mu - b.sigma) - (a.mu - a.sigma);
     });
 
     return rankedUsers;
