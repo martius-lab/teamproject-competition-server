@@ -47,6 +47,7 @@ class Server(IServer):
         def __auth(token):
             if self.player_manager.auth(player.id, token):
                 self.matchmaking.try_match(player.id)
+                player.notify_info(msg="Authentication successful")
             else:
                 player.disconnect("Authentication failed")
 
@@ -64,9 +65,16 @@ class Server(IServer):
         log.debug(f"Player {player.id} had timeout after {timeout}s")
         player.disconnect(reason=f"Timeout after {timeout}s")
 
+    def on_remote_error(self, player: IPlayer, error: Exception):
+        """gets called when there is an error in deferred"""
+        if player.is_connected:
+            log.error(f"Connected player caused remote error \n {error}")
+        else:
+            log.debug("Disconnected player caused remote error")
+
     def on_update(self):
         """gets called every update cycle"""
-        self.matchmaking.update()
+        self.matchmaking._update()
 
 
 def load_class(module_path: str, class_name: str):

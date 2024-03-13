@@ -53,6 +53,14 @@ class Agent(IAgent):
         super().run(token)
         networking.connect_agent(self, host, port)
 
-    def on_error(self, msg):
+    def on_error(self, msg: str):
         """Called if an error occurred on the server side."""
         print(f"Error: {msg}")
+
+    def on_message(self, msg: str):
+        """Called if a message is sent from the server."""
+        print(f"Info: {msg}")
+
+    def on_disconnect(self):
+        """Called when the agent disconnects from the server."""
+        print("Error: Agent disconnected from the server.")

@@ -5,6 +5,8 @@ This module contains the interfaces for the non-networking logic.
 import abc
 from typing import Callable, Optional
 from datetime import datetime
+import numpy as np
+import pickle
 
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.util import IDGenerator
@@ -23,6 +25,7 @@ class IPlayer(abc.ABC):
     def __init__(self) -> None:
         self.id: PlayerID = IDGenerator.generate_player_id()
         self.user_id: Optional[int] = None
+        self.is_connected = True
 
     @abc.abstractmethod
     def authenticate(self, result_callback):
@@ -75,6 +78,11 @@ class IPlayer(abc.ABC):
         """notifies the player of an error"""
         ...
 
+    @abc.abstractmethod
+    def notify_info(self, msg: str):
+        """notifies the player of an information"""
+        ...
+
 
 class IGame(abc.ABC):
     """
@@ -105,6 +113,12 @@ class IGame(abc.ABC):
         self.scores: dict[PlayerID, float] = {p.id: 0.0 for p in players}
         self.start_time = datetime.now()
         self.disconnected_player_id: PlayerID | None = None
+        # dict storing all actions and possible more to be saved later.
+        # "actions" is a list of all actions in the game
+        self.game_info: dict[str, list[np.ndarray]] = {}
+        self.all_actions: list[np.ndarray] = []
+        # When writing a game class you can fill the dict game_info with more
+        # information
 
     def add_finish_callback(self, callback: Callable[["IGame"], None]) -> None:
         """
@@ -128,16 +142,27 @@ class IGame(abc.ABC):
 
     def _end(self, reason="unknown"):
         """
-        Notifies all players that the game has ended.
+        Notifies all players that the game has ended and writes all actions in a file.
 
         Args:
             reason (str): The reason why the game has ended. Defaults to "unknown".
         """
 
+        # store actions:
+        # TODO: maybe add multithreading here to ease the load on the main server thread
+        # as storing the actions can take a while
+        self.game_info["actions"] = np.array(self.all_actions)
+
+        with open("comprl/server/game_actions/" + str(self.id) + ".pkl", "wb") as f:
+            pickle.dump(self.game_info, f)
+
+        # notify end
         for callback in self.finish_callbacks:
             callback(self)
 
         for player in self.players.values():
+            if player.id == self.disconnected_player_id:
+                continue
             player.notify_end(
                 self._player_won(player.id), self._player_stats(player.id)
             )
@@ -158,6 +183,7 @@ class IGame(abc.ABC):
                     # update the game, and if the game is over, end it
                     if self.disconnected_player_id is not None:
                         return
+                    self.all_actions.append([actions[p] for p in actions])
                     if not self._update(actions):
                         self._run()
                     else:
@@ -315,6 +341,16 @@ class IServer:
         Gets called when a player has a timeout.
         Args:
             player (IPlayer): The player that has a timeout.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_remote_error(self, player: IPlayer, error):
+        """
+        Gets called when an error in deferred occurs.
+        Args:
+            player (IPlayer): The player that caused the error.
+            error (Exception): Error that occurred
         """
         ...
 
