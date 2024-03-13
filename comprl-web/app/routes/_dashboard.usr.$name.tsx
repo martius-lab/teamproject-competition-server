@@ -1,4 +1,4 @@
-import { Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Paper } from "@mui/material";
+import { Typography } from "@mui/material";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
@@ -23,13 +23,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
-  return { };
-
-
+  return {}
 }
 
 export default function UserDashboard() {
+
   return (
-      <Typography variant="h1">User</Typography>
+    <Typography variant="h1">User</Typography>
   );
 }

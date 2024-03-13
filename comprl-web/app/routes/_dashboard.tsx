@@ -1,5 +1,5 @@
 import { AppBar, Box, Button, CssBaseline, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
-import { AdminPanelSettingsOutlined, LogoutOutlined, ManageSearchOutlined, MenuRounded, SmartToyOutlined } from '@mui/icons-material';
+import { AdminPanelSettingsOutlined, LogoutOutlined, ManageSearchOutlined, MenuRounded, SmartToyOutlined, LeaderboardOutlined } from '@mui/icons-material';
 import { Outlet, useLoaderData } from '@remix-run/react';
 import { useState } from 'react';
 import { LoaderFunctionArgs, json } from '@remix-run/node';
@@ -55,7 +55,7 @@ export default function DashboardLayout() {
         </ListItemButton>
         <ListItemButton sx={{ m: 1 }} href='/leaderboard'>
           <ListItemIcon>
-            <ManageSearchOutlined />
+            <LeaderboardOutlined />
           </ListItemIcon>
           <ListItemText primary="Leaderboard" />
         </ListItemButton>
