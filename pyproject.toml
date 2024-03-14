@@ -49,10 +49,14 @@ lint.select = [
 
 
 [tool.mypy]
-exclude = ["build", "examples"]
+exclude = ["build", "examples", "presentation"]
 
 [[tool.mypy.overrides]]
 # here you can list third-party packages for which no type hints are provided (to avoid
 # complaints from mypy)
 module = "laserhockey.*"
 ignore_missing_imports = true
+
+
+[tool.setuptools]
+packages = ["comprl"]
