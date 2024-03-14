@@ -26,13 +26,17 @@ export default function Game() {
   const theme = createTheme(themeOptions);
 
   var gameEnd = 'undefined'
+  console.log(game.end_state)
   switch (game.end_state) {
     case 0:
       gameEnd = 'Win'
+      break
     case 1:
       gameEnd = 'Draw'
+      break
     case 2:
       gameEnd = 'Disconnect'
+      break
   }
 
   const onDownload = () => {
@@ -77,8 +81,10 @@ export default function Game() {
         <Grid item xs={12} md={6}>
           <DashboardPaper>
             <Typography variant="h5" marginBottom={2}> Game Information </Typography>
-            <Typography variant="body1"> Game End: {gameEnd} </Typography>
             <Typography variant="body1"> Time Stamp: {game.start_time} </Typography>
+            <Typography variant="body1"> Game End: {gameEnd} </Typography>
+            {game.winner && <Typography variant="body1"> Winner: {game.winner==game.user1? username1 : username2} </Typography>}
+            {game.disconnected && <Typography variant="body1"> Disconnected Player: {game.disconnected==game.user1? username1 : username2} </Typography>}
           </DashboardPaper>
         </Grid>
         <Grid item xs={12} md={6}>
