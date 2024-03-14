@@ -56,3 +56,7 @@ exclude = ["build", "examples", "presentation"]
 # complaints from mypy)
 module = "laserhockey.*"
 ignore_missing_imports = true
+
+
+[tool.setuptools]
+packages = ["comprl"]
