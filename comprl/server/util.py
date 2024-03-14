@@ -40,6 +40,9 @@ class ConfigProvider:
         "game_type": None,
         "game_data": ConnectionInfo("data.db", "games"),
         "user_data": ConnectionInfo("data.db", "users"),
+        "match_quality_threshold": 0.8,
+        "percentage_min_players_waiting": 0.1,
+        "percental_time_bonus": 0.1,
     }
 
     @staticmethod
