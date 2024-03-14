@@ -7,7 +7,6 @@ import logging as log
 from twisted.protocols import amp
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
-from twisted.internet.task import LoopingCall
 
 from comprl.shared.commands import Ready, StartGame, EndGame, Step, Auth, Error, Message
 
