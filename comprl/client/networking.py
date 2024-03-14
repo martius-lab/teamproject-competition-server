@@ -7,6 +7,7 @@ import logging as log
 from twisted.protocols import amp
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
+from twisted.internet.task import LoopingCall
 
 from comprl.shared.commands import Ready, StartGame, EndGame, Step, Auth, Error, Message
 
@@ -155,9 +156,15 @@ def connect_agent(agent: IAgent, host: str = "localhost", port: int = 65335):
         None
 
     """
+
+    def __on_error(reason):
+        agent.on_error(f"Connection to the server failed: {reason}.")
+        if reactor.running:
+            reactor.stop()
+
     connectProtocol(
-        TCP4ClientEndpoint(reactor, host, port),
+        TCP4ClientEndpoint(reactor, host, port, timeout=30),
         ClientProtocol(agent),
         # we lose the protocol here, is this a problem?
-    )
+    ).addErrback(__on_error)
     reactor.run()  # type: ignore[attr-defined]
