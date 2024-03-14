@@ -129,7 +129,7 @@ export default function Leaderboard() {
         Leaderboard
       </Typography>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
+        <Table sx={{ minWidth: 100 }} aria-label="custom pagination table">
           <TableHead>
             <TableRow>
               <TableCell style={{ fontWeight: 'bold' }}>Ranking</TableCell>
