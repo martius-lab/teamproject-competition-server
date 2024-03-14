@@ -54,13 +54,13 @@ export default function UserDashboard() {
   return (
     <div>
       <Grid container spacing={3} alignItems="stretch">
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <DashboardPaper>
             <Typography variant="h5" > Username </Typography>
             <Typography>{username}</Typography>
           </DashboardPaper>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <DashboardPaper>
             <Typography variant="h5" > Token
               <IconButton onClick={() => { setSelected(!selected); }}>
@@ -70,7 +70,7 @@ export default function UserDashboard() {
             <Typography>{selected ? token : "*************"}</Typography>
           </DashboardPaper>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <DashboardPaper>
             <Typography variant="h5" > Ranking </Typography>
             <Typography>{rank}. place</Typography>

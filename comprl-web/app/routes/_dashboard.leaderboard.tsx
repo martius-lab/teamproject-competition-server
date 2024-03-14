@@ -101,7 +101,7 @@ function createData(rank: number, name: string) {
 
 export default function Leaderboard() {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const usersData = useLoaderData<typeof loader>();
   const { users, loggedInUsername } = usersData;
   const rows = users.map((user, index) => createData(index + 1, user.username));
@@ -159,7 +159,7 @@ export default function Leaderboard() {
           <TableFooter>
             <TableRow>
               <TablePagination
-                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                rowsPerPageOptions={[5, 10, 25, 50, { label: 'All', value: -1 }]}
                 colSpan={3}
                 count={rows.length}
                 rowsPerPage={rowsPerPage}
