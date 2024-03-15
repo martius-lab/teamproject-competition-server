@@ -34,7 +34,7 @@ class HockeyGame(IGame):
         self.terminated = False
         self.truncated = False
 
-        # array storing all actions/observations to be saved later.
+        # array storing all actions/observations of a round to be saved later.
         # contains tuples consisting of the actions of the players
         # (in the order of the player dictionary)
         self.actions_this_round: List[np.ndarray] = []
