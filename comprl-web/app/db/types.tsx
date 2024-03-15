@@ -1,7 +1,12 @@
-interface User {
+export interface User {
     id: number;
     name: string;
     role: "admin" | "user";
+    token: string;
 }
 
-export default User
+export interface Statistics {
+    playedGames: number;
+    wonGames: number;
+    disconnectedGames: number
+}

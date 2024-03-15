@@ -27,3 +27,6 @@ venv/
 
 #databases
 *.db
+
+# stored actions
+*.pkl
