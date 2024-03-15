@@ -58,6 +58,29 @@ export async function getUserName(user_id: number) {
     return res.username;
 }
 
+
+export async function getAllUsers() {
+    const db = new Database('users.db', { verbose: console.log });
+    const query = 'SELECT * FROM users';
+    const users = db.prepare(query).all();
+    db.close();
+    return users;
+}
+
+
+export async function getRankedUsers() {
+    const users = await getAllUsers();
+
+    const rankedUsers = users.sort((a, b) => {
+        // Sort by descending (mu - sigma)
+        return (b.mu - b.sigma) - (a.mu - a.sigma);
+    });
+
+    return rankedUsers;
+}
+
+
+
 export async function getStatistics(user_id: number) {
     const gameDB = new Database('game.db', { verbose: console.log });
 
@@ -74,6 +97,7 @@ export async function getStatistics(user_id: number) {
 
     return {playedGames: playedGames, wonGames: wonGames, disconnectedGames: disconnectedGames} as Statistics
 }
+
 
 export async function getGame(game_id: string) {
     const gameDB = new Database('game.db', { verbose: console.log });
