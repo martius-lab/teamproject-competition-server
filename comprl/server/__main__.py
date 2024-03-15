@@ -135,6 +135,22 @@ def main():
     parser.add_argument(
         "--user_db_name", type=str, help="Name of the user table in the file"
     )
+    parser.add_argument(
+        "--match_quality_threshold",
+        type=float,
+        help="Threshold for matching players",
+    )
+    parser.add_argument(
+        "--percentage_min_players_waiting",
+        type=float,
+        help="Percentage of players always waiting in queue",
+    )
+    parser.add_argument(
+        "--percental_time_bonus",
+        type=float,
+        help="(Minutes waiting * percentage) added as a time bonus for waiting players",
+    )
+
     args = parser.parse_args()
 
     data = None
@@ -154,6 +170,15 @@ def main():
     game_db_name = args.game_db_name or (data["game_db_name"] if data else "games")
     user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
     user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
+    match_quality_threshold = args.match_quality_threshold or (
+        data["match_quality_threshold"] if data else 0.8
+    )
+    percentage_min_players_waiting = args.percentage_min_players_waiting or (
+        data["percentage_min_players_waiting"] if data else 0.1
+    )
+    percental_time_bonus = args.percental_time_bonus or (
+        data["percental_time_bonus"] if data else 0.1
+    )
 
     # set up logging
     log.basicConfig(level=log_level)
@@ -179,6 +204,9 @@ def main():
     ConfigProvider.set("game_type", game_type)
     ConfigProvider.set("game_data", ConnectionInfo(game_db_path, game_db_name))
     ConfigProvider.set("user_data", ConnectionInfo(user_db_path, user_db_name))
+    ConfigProvider.set("match_quality_threshold", match_quality_threshold)
+    ConfigProvider.set("percentage_min_players_waiting", percentage_min_players_waiting)
+    ConfigProvider.set("percental_time_bonus", percental_time_bonus)
 
     server = Server()
     networking.launch_server(server, port)

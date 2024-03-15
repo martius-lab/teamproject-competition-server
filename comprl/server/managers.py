@@ -283,8 +283,11 @@ class MatchmakingManager:
         self._queue: list[QueuePlayer] = []
         # The model used for matchmaking
         self.model = PlackettLuce()
-        self._MATCH_QUALITY_THRESHOLD = 0.8
-        self._PERCENTAGE_MIN_PLAYERS_WAITING = 0.1
+        self._match_quality_threshold = ConfigProvider.get("match_quality_threshold")
+        self._percentage_min_players_waiting = ConfigProvider.get(
+            "percentage_min_players_waiting"
+        )
+        self._percental_time_bonus = ConfigProvider.get("percental_time_bonus")
 
     def try_match(self, player_id: PlayerID) -> None:
         """
@@ -368,7 +371,7 @@ class MatchmakingManager:
             int: The minimum number of players.
         """
         return int(
-            len(self.player_manager.auth_players) * self._PERCENTAGE_MIN_PLAYERS_WAITING
+            len(self.player_manager.auth_players) * self._percentage_min_players_waiting
         )
 
     def _try_start_game(self, player1: QueuePlayer, player2: QueuePlayer) -> bool:
@@ -389,7 +392,7 @@ class MatchmakingManager:
         if user1_id == user2_id:
             return False
 
-        if match_quality > self._MATCH_QUALITY_THRESHOLD:
+        if match_quality > self._match_quality_threshold:
             # match the players. We could search for best match but using the first adds
             # a bit of diversity and the players in front of the queue are waiting
             # longer, so its fairer for them.
@@ -435,7 +438,9 @@ class MatchmakingManager:
         waiting_time_p2 = (now - time_stamp_p2).total_seconds()
         combined_waiting_time = waiting_time_p1 + waiting_time_p2
         # calculate a bonus if the players waited a long time
-        waiting_bonus = max(0.0, (combined_waiting_time / 60 - 1) * 0.1)
+        waiting_bonus = max(
+            0.0, (combined_waiting_time / 60 - 1) * self._percental_time_bonus
+        )
         # TODO play with this function. Maybe even use polynomial or exponential growth,
         # depending on waiting time
 
