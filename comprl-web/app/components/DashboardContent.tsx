@@ -1,4 +1,4 @@
-import { Paper, Typography , ThemeProvider, createTheme, styled } from '@mui/material'
+import { Paper, Typography , ThemeProvider, createTheme, styled, Chip } from '@mui/material'
 import { themeOptions } from "~/style/theme";
 
 interface DashboardStatisticProps {
@@ -24,3 +24,16 @@ export const DashboardPaper = styled(Paper)(() => ({
     borderRadius:4,
     height: '100%'
 }));
+
+export function EndStateChip({ state } : { state: number}) {
+    switch (state) {
+      case 0:
+        return <Chip label="Finished" color="success" />;
+      case 1:
+        return <Chip label="Draw" color="info" />;
+      case 2:
+        return <Chip label="Disconnected" color="warning" />;
+      default:
+        return <Chip label="Error" color="primary" />;
+    }
+  }

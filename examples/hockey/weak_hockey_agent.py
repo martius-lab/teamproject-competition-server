@@ -26,3 +26,6 @@ def on_end_game(result, stats):
 
 
 Weak_Hockey_Agent.run("token" + str(input("enter 1, 2, 3 or 4 to choose token: ")))
+
+# restarting the reactor is not easy. This might work:
+# https://www.blog.pythonlibrary.org/2016/09/14/restarting-a-twisted-reactor/
