@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { User, Statistics, Game } from './types';
 import { v4 as uuidv4 } from 'uuid';
-import { config } from "~/ConfigProvider";
+import { config } from "~/config";
 
 console.log(config);
 const user_db_path = config.Web.user_db_path;
