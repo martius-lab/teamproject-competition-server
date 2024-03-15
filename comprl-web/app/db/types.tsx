@@ -22,3 +22,10 @@ export interface Game {
     winner: number | null;
     disconnected: number | null;
 }
+  
+export interface GameResult {
+    game_id: string;
+    participants: [{name: string, score: number, winner: boolean, disconnected: boolean}]
+    start_time: string;
+    end_state: number;
+}
