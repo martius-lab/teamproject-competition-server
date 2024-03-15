@@ -3,8 +3,12 @@ import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 import { addUser } from "~/db/sqlite.data";
-import { config } from "config";
+import { readFileSync } from 'fs';
+import { parse } from 'toml';
 
+const configFilePath = 'config.toml';
+const tomlData = readFileSync(configFilePath, 'utf8');
+const config = parse(tomlData);
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData()
@@ -12,7 +16,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
-  if (key !== config.key) {
+  if (key !== config.Web.key) {
     return {
       alerts: [{ severity: "error", message: "Invalid key" }]
     }
