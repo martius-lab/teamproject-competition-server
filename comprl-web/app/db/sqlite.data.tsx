@@ -35,7 +35,7 @@ gameDB.close();
 export async function addUser(username: string, password: string, role: string = 'user') {
     const userDB = new Database('users.db', { verbose: console.log });
     const token = uuidv4();
-    const stmt = userDB.prepare('INSERT INTO users(username, password, role, token) VALUES (?, ?, ?,?)');
+    const stmt = userDB.prepare('INSERT INTO users(username, password, role, token) VALUES (?, ?, ?, ?)');
     stmt.run(username, password, role, token);
     userDB.close();
 }
@@ -133,6 +133,14 @@ export async function getGame(game_id: string) {
     if (!game) { return null }
     return composeGame(game as Game)
 
+}
+
+export async function editUser(user_id: number, username: string, password: string, role: string, token: string, mu: number, sigma: number) {
+    // edits the user with the given user_id
+    const userDB = new Database('users.db', { verbose: console.log });
+    const stmt = userDB.prepare('UPDATE users SET username = ?, password = ?, role = ?, token = ?, mu = ?, sigma = ? WHERE user_id = ?');
+    stmt.run(username, password, role, token, mu, sigma, user_id);
+    userDB.close();
 }
 
 export async function searchGames(search: string) {
