@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Box, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button} from "@mui/material";
-import { DataGrid, GridColDef,} from "@mui/x-data-grid";
+import { Box, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, AlertProps} from "@mui/material";
+import { DataGrid, GridColDef, GridRowModel,} from "@mui/x-data-grid";
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticator } from "~/services/auth.server";
@@ -14,7 +14,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const session = await getSession(request.headers.get("Cookie"));
 
-  // TODO: Add admin check
+  // TODO admin role check
+  //if (params.role != "admin") {
   if (false) {
 
     session.flash("popup", { message: "You don't have permission to access that page", severity: "error" });
@@ -30,6 +31,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return { users: users };
 }
+
+const useFakeMutation = () => {
+  return React.useCallback(
+    (user) =>
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (user.name?.trim() === '') {
+            reject();
+          } else {
+            resolve(user);
+          }
+        }, 200);
+      }),
+    [],
+  );
+};
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.json(); // Parse JSON data from the request body
@@ -101,37 +118,30 @@ function createRow(id: number, username: string, password: string, role: string,
 export default function Admin() {
   const { users } = useLoaderData<typeof loader>();
   const rows = users.map((user) => createRow(user.user_id, user.username, user.password, user.role, user.token, user.mu, user.sigma));
-  const [open, setOpen] = React.useState(false);
+  const noButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [promiseArguments, setPromiseArguments] = React.useState<any>(null);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  }
-  const handleClose = () => {
-    setOpen(false);
-  }
-  const processRowUpdate = async (newRow, oldRow) => {
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <DialogTitle id="alert-dialog-title">
-        {"Use Google's location service?"}
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          Submit changes?
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>No</Button>
-        <Button onClick={handleClose} autoFocus>
-          Yes
-        </Button>
-      </DialogActions>
-    </Dialog>
-    handleClickOpen(); // alert user of changes
+  const processRowUpdate = React.useCallback(
+    (newRow: GridRowModel, oldRow: GridRowModel) =>
+      new Promise<GridRowModel>((resolve, reject) => {
+        if (newRow == oldRow) {
+          resolve(oldRow); // Nothing was changed
+        } else {
+          // Save the arguments to resolve or reject the promise later
+          setPromiseArguments({ resolve, reject, newRow, oldRow });
+        }
+      }),
+    [],
+  );
+
+  const handleNo = () => {
+    const { oldRow, resolve } = promiseArguments;
+    resolve(oldRow); // Resolve with the old row to not update the internal state
+    setPromiseArguments(null);
+  };
+
+  const handleYes = async () => {
+    const { newRow, oldRow, reject, resolve } = promiseArguments;
     // send the changes to the server
     try {
       const response = await fetch('', {
@@ -141,18 +151,56 @@ export default function Admin() {
         },
         body: JSON.stringify({'row': newRow}),
       });
+      resolve(response);
+      setPromiseArguments(null);
     } catch (error) {
       console.error('Error sending data:', error);
+      reject(oldRow);
+      setPromiseArguments(null);
     }
-  
-    return newRow;
-  }
+  };
+
+  const handleEntered = () => {
+    // The `autoFocus` is not used because, if used, the same Enter that saves
+    // the cell triggers "No". Instead, we manually focus the "No" button once
+    // the dialog is fully open.
+    // noButtonRef.current?.focus();
+  };
+
+  const renderConfirmDialog = () => {
+    if (!promiseArguments) {
+      return null;
+    }
+
+    const { newRow, oldRow } = promiseArguments;
+
+    return (
+      <Dialog
+        maxWidth="xs"
+        TransitionProps={{ onEntered: handleEntered }}
+        open={!!promiseArguments}
+      >
+        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogContent dividers>
+          {`Pressing 'Yes' will apply the changes to the database.`}
+        </DialogContent>
+        <DialogActions>
+          <Button ref={noButtonRef} onClick={handleNo}>
+            No
+          </Button>
+          <Button onClick={handleYes}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
 
   return (
     <div>
       <Typography variant="h1">Admin</Typography>
       <Typography variant="h2">Users</Typography>
       <Box sx={{ height: 625, width: '100%' }}>
+        {renderConfirmDialog()}
         <DataGrid
           rows={rows}
           columns={columns}
