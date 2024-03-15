@@ -10,3 +10,10 @@ export interface Statistics {
     wonGames: number;
     disconnectedGames: number
 }
+
+export interface GameResult {
+    game_id: string;
+    participants: [{name: string, score: number, winner: boolean, disconnected: boolean}]
+    start_time: string;
+    end_state: number;
+}
