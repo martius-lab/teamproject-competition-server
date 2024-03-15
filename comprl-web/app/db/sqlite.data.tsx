@@ -160,17 +160,14 @@ export async function searchGames(search: string) {
 
     const gameDB = new Database('game.db')
     const users = await searchUsers(keywords)
-    console.log(users)
     await Promise.all(users.map( async user => {
         const stmt = gameDB.prepare('SELECT * FROM data WHERE user1=? OR user2=?')
         const games = stmt.all(user.id, user.id)
-        console.log(games, user)
         await Promise.all(games.map(async (game) => {
             const composedGame = game.user1 == user.id ? await composeGame( game, user.name, null) : await composeGame( game, null, user.name)
             results.add(JSON.stringify(composedGame)) 
         }))
     }))
-    console.log(results)
 
     return { games: Array.from(results).reverse().map(JSON.parse) }
 }
