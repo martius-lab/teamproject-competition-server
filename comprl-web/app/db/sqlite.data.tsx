@@ -87,3 +87,11 @@ export async function getStatistics(user_id: number) {
 
     return {playedGames: playedGames, wonGames: wonGames, disconnectedGames: disconnectedGames} as Statistics
 }
+
+export async function editUser(user_id: number, username: string, password: string, role: string, token: string, mu: number, sigma: number) {
+    // edits the user with the given user_id
+    const userDB = new Database('users.db', { verbose: console.log });
+    const stmt = userDB.prepare('UPDATE users SET username = ?, password = ?, role = ?, token = ?, mu = ?, sigma = ? WHERE user_id = ?');
+    stmt.run(username, password, role, token, mu, sigma, user_id);
+    userDB.close();
+}
