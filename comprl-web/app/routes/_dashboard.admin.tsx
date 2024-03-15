@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, AlertProps} from "@mui/material";
+import { Box, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Button, Link } from "@mui/material";
 import { DataGrid, GridColDef, GridRowModel,} from "@mui/x-data-grid";
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -32,26 +32,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return { users: users };
 }
 
-const useFakeMutation = () => {
-  return React.useCallback(
-    (user) =>
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (user.name?.trim() === '') {
-            reject();
-          } else {
-            resolve(user);
-          }
-        }, 200);
-      }),
-    [],
-  );
-};
-
 export async function action({ request }: ActionFunctionArgs) {
+  
   const body = await request.json(); // Parse JSON data from the request body
+  const row = body.row;
   if (body.row) {
-    await editUser(body.id, body.username, body.password, body.role, body.token, body.mu, body.sigma);
+    await editUser(row.id, row.username, row.password, row.role, row.token, row.mu, row.sigma);
   }
   // console.log('body:', body);
   return {}
@@ -197,9 +183,8 @@ export default function Admin() {
 
   return (
     <div>
-      <Typography variant="h1">Admin</Typography>
-      <Typography variant="h2">Users</Typography>
-      <Box sx={{ height: 625, width: '100%' }}>
+      <Typography variant="h4">Users</Typography>
+      <Box sx={{ height: 630, width: '100%' }}>
         {renderConfirmDialog()}
         <DataGrid
           rows={rows}
@@ -217,6 +202,7 @@ export default function Admin() {
           processRowUpdate={processRowUpdate}
         />
       </Box>
+      <Link href="/addUser" sx={{ display: 'block', textAlign: 'center' }}>Add a user</Link>
     </div>
   )
 }

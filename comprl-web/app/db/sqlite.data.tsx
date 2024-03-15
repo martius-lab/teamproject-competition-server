@@ -35,7 +35,7 @@ gameDB.close();
 export async function addUser(username: string, password: string, role: string = 'user') {
     const userDB = new Database('users.db', { verbose: console.log });
     const token = uuidv4();
-    const stmt = userDB.prepare('INSERT INTO users(username, password, role, token) VALUES (?, ?, ?,?)');
+    const stmt = userDB.prepare('INSERT INTO users(username, password, role, token) VALUES (?, ?, ?, ?)');
     stmt.run(username, password, role, token);
     userDB.close();
 }
