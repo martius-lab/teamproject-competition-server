@@ -50,6 +50,27 @@ export async function getUser(username: string, password: string) {
     return { id: res.user_id, name: res.username, role: res.role, token: res.token } as User;
 }
 
+export async function getAllUsers() {
+    const db = new Database('users.db', { verbose: console.log });
+    const query = 'SELECT * FROM users';
+    const users = db.prepare(query).all();
+    db.close();
+    return users;
+}
+
+
+export async function getRankedUsers() {
+    const users = await getAllUsers();
+
+    const rankedUsers = users.sort((a, b) => {
+        // Sort by descending (mu - sigma)
+        return (b.mu - b.sigma) - (a.mu - a.sigma);
+    });
+
+    return rankedUsers;
+}
+
+
 export async function getStatistics(user_id: number) {
     const gameDB = new Database('game.db', { verbose: console.log });
 
