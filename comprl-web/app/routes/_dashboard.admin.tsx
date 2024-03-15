@@ -14,9 +14,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const session = await getSession(request.headers.get("Cookie"));
 
-  // TODO admin role check
-  //if (params.role != "admin") {
-  if (false) {
+  if (user.role != "admin") {
 
     session.flash("popup", { message: "You don't have permission to access that page", severity: "error" });
 
