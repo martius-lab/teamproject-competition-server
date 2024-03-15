@@ -29,5 +29,5 @@ npm start
 Now you'll need to pick a host to deploy it to.
 
 ## Config File
-The `user_db_path`, the `user_db_name` and the `key` are defined in the config file `config.ts`.
+The `user_db_path`, the `user_db_name` and the `key` are defined in the config file `config.toml`.
 The current key is `1234`.
