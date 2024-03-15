@@ -70,7 +70,7 @@ export default function DashboardLayout() {
   );
 
   const data = useLoaderData<typeof loader>()
-  console.log(data.popup)
+  //console.log(data.popup)
 
   return (
     <Box sx={{ display: 'flex' }}>
