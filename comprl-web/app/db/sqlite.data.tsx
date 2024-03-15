@@ -50,6 +50,27 @@ export async function getUser(username: string, password: string) {
     return { id: res.user_id, name: res.username, role: res.role, token: res.token } as User;
 }
 
+export async function getAllUsers() {
+    const db = new Database('users.db', { verbose: console.log });
+    const query = 'SELECT * FROM users';
+    const users = db.prepare(query).all();
+    db.close();
+    return users;
+}
+
+
+export async function getRankedUsers() {
+    const users = await getAllUsers();
+
+    const rankedUsers = users.sort((a, b) => {
+        // Sort by descending (mu - sigma)
+        return (b.mu - b.sigma) - (a.mu - a.sigma);
+    });
+
+    return rankedUsers;
+}
+
+
 export async function getStatistics(user_id: number) {
     const gameDB = new Database('game.db', { verbose: console.log });
 
@@ -65,4 +86,125 @@ export async function getStatistics(user_id: number) {
     gameDB.close();
 
     return {playedGames: playedGames, wonGames: wonGames, disconnectedGames: disconnectedGames} as Statistics
+}
+
+export async function searchGames(search: string) {
+    return {
+        games: [
+            {
+                game_id: 'adasdas-adasd-asdasd-asdasd-asdasd',
+                participants: [{name: 'HelloWorldHelloWorld', score: 10, winner: true, disconnected: false}, {name: 'HelloWorld', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '5678',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '91011',
+                participants: [{name: 'user1', score: 10, winner: false, disconnected: true}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '121314',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 1,
+            },
+            {
+                game_id: '151617',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 2,
+            },
+            {
+                game_id: '181920',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 2,
+            },
+            {
+                game_id: '212223',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '242526',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '272829',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '303132',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '333435',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '363738',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '394041',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '424344',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '454647',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '484950',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '515253',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '545556',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            },
+            {
+                game_id: '575859',
+                participants: [{name: 'user1', score: 10, winner: true, disconnected: false}, {name: 'user2', score: 5, winner: false, disconnected: false}],
+                start_time: '2021-10-10 10:00:00',
+                end_state: 0,
+            }
+        ]
+    }
 }

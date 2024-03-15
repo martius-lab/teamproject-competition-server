@@ -4,7 +4,7 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
 import { useLoaderData } from "@remix-run/react";
-import { getStatistics } from "~/db/sqlite.data";
+import { getStatistics, getRankedUsers } from "~/db/sqlite.data";
 import { DashboardsStatistic, DashboardPaper } from '~/components/DashboardContent';
 import React from "react";
 
@@ -29,44 +29,60 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const games = await getStatistics(user.id)
+  const ranked_users = await getRankedUsers();
+
+  var rank = 0;
+  var i = 1;
+  for (var r_user of ranked_users) {
+    if (r_user.username == user.name) {
+      rank = i;
+    }
+    i += 1;
+  }
 
   if (!user.token) {
-    return { token: "no token exists", username: user.name, games: games };
+    return { token: "no token exists", username: user.name, games: games, rank: rank };
   }
 
 
-  return { token: user.token, username: user.name, games: games};
+  return { token: user.token, username: user.name, games: games, rank: rank };
 }
 
 export default function UserDashboard() {
-  const { token, username, games } = useLoaderData<typeof loader>();
+  const { token, username, games, rank } = useLoaderData<typeof loader>();
   const [selected, setSelected] = React.useState(false);
   return (
     <div>
       <Grid container spacing={3} alignItems="stretch">
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <DashboardPaper>
-            <Typography variant="h5" > Username </Typography> 
+            <Typography variant="h5" > Username </Typography>
             <Typography>{username}</Typography>
-          </DashboardPaper> 
+          </DashboardPaper>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <DashboardPaper> 
-            <Typography variant="h5" > Token 
+        <Grid item xs={12} md={4}>
+          <DashboardPaper>
+            <Typography variant="h5" > Token
               <IconButton onClick={() => { setSelected(!selected); }}>
-              {selected ? <VisibilityOff /> : <Visibility />}
+                {selected ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             </Typography>
-            <Typography>{selected ? token : "*************" }</Typography>
+            <Typography>{selected ? token : "*************"}</Typography>
+          </DashboardPaper>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <DashboardPaper>
+            <Typography variant="h5" > Ranking </Typography>
+            <Typography>{rank}. place</Typography>
           </DashboardPaper>
         </Grid>
         <Grid item xs={12}>
           <DashboardPaper>
-          <Typography variant="h5"> Game Statistics </Typography>
+            <Typography variant="h5"> Game Statistics </Typography>
             <Grid container spacing={8} padding={5}>
               <Grid item xs={12} md={6} lg={3}><DashboardsStatistic value={games.playedGames.toString()} description="games played" /></Grid>
               <Grid item xs={12} md={6} lg={3}><DashboardsStatistic value={games.wonGames.toString()} description="games won" /></Grid>
-              <Grid item xs={12} md={6} lg={3}><DashboardsStatistic value={Math.round((games.wonGames/games.playedGames)*100) + "%"} description="win rate" /></Grid>
+              <Grid item xs={12} md={6} lg={3}><DashboardsStatistic value={Math.round((games.wonGames / games.playedGames) * 100) + "%"} description="win rate" /></Grid>
               <Grid item xs={12} md={6} lg={3}><DashboardsStatistic value={games.disconnectedGames.toString()} description="disconnects" /></Grid>
             </Grid>
           </DashboardPaper>
