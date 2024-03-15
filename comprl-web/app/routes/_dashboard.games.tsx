@@ -4,6 +4,7 @@ import { colors } from "@mui/material";
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useActionData } from "@remix-run/react";
 import React from "react";
+import { EndStateChip } from "~/components/DashboardContent";
 import { searchGames } from "~/db/sqlite.data";
 import { Game } from "~/db/types";
 
@@ -25,18 +26,6 @@ export default function Games() {
     setPage(value);
   };
 
-  function renderEndStateChip(state: number) {
-    switch (state) {
-      case 0:
-        return <Chip label="Finished" color="success" />;
-      case 1:
-        return <Chip label="Draw" color="info" />;
-      case 2:
-        return <Chip label="Disconnected" color="warning" />;
-      default:
-        return <Chip label="Error" color="primary" />;
-    }
-  }
 
   function renderParticipants(participants: [{ name: string, score: number, winner: boolean, disconnected: boolean }]) {
     return (
@@ -97,7 +86,7 @@ export default function Games() {
                 >
                   <TableCell component="th" scope="row">{game.game_id}</TableCell>
                   <TableCell align="left">
-                    {renderEndStateChip(game.end_state)}
+                    <EndStateChip state={game.end_state} />
                   </TableCell>
                   <TableCell align="left">
                     {renderParticipants(game.participants)}
