@@ -7,7 +7,7 @@ try {
     const parsedData = parse(tomlData);
     configData = JSON.stringify(parsedData);
 } catch (error) {
-    console.error('Fehler beim Lesen der Konfigurationsdatei:', error);
+    console.error('Error reading the configuration file:', error);
     process.exit(1);
 }
 

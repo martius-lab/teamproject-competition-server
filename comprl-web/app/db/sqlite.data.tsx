@@ -59,8 +59,8 @@ export async function getUser(username: string, password: string) {
 }
 
 export async function getUsername(user_id: number) {
-    const userDB = new Database('users.db', { verbose: console.log });
-    const stmt = userDB.prepare('SELECT username FROM users WHERE user_id = ?');
+    const userDB = new Database(user_db_path, { verbose: console.log });
+    const stmt = userDB.prepare(`SELECT username FROM ${user_db_name} WHERE user_id = ?`);
     const res = stmt.get(user_id);
     userDB.close();
     return res.username;
@@ -133,8 +133,8 @@ export async function composeGame(game: Game) {
 }
 
 export async function getGame(game_id: string) {
-    const gameDB = new Database('game.db', { verbose: console.log });
-    const stmt = gameDB.prepare('SELECT * FROM data WHERE game_id=?');
+    const gameDB = new Database(game_db_path, { verbose: console.log });
+    const stmt = gameDB.prepare(`SELECT * FROM ${game_db_name} WHERE game_id=?`);
     const game = stmt.get(game_id)
     gameDB.close();
 
