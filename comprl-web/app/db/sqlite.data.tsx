@@ -3,12 +3,11 @@ import { User, Statistics, Game } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from "~/ConfigProvider";
 
-const configObject = JSON.parse(config);
-console.log(configObject);
-const user_db_path = configObject.Web.user_db_path;
-const user_db_name = configObject.Web.user_db_name;
-const game_db_path = configObject.Web.game_db_path;
-const game_db_name = configObject.Web.game_db_name;
+console.log(config);
+const user_db_path = config.Web.user_db_path;
+const user_db_name = config.Web.user_db_name;
+const game_db_path = config.Web.game_db_path;
+const game_db_name = config.Web.game_db_name;
 
 console.log(`Creating ${user_db_path}`);
 const userDB = new Database(user_db_path, { verbose: console.log });

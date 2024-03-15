@@ -11,9 +11,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
-  const configObject = JSON.parse(config);
-
-  if (key !== configObject.Web.key) {
+  if (key !== config.Web.key) {
     return {
       alerts: [{ severity: "error", message: "Invalid key" }]
     }
