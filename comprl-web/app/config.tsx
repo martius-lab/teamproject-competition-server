@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { parse } from 'toml';
 
 export function parseArgs() {
-    const args = {};;
+    const args: { [key: string]: string } = {}; // Add index signature
     process.argv
         .slice(2, process.argv.length)
         .forEach(arg => {
