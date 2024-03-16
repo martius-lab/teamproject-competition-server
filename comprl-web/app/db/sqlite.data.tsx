@@ -1,11 +1,18 @@
 import Database from 'better-sqlite3';
 import { User, Statistics, Game, GameResult } from './types';
 import { v4 as uuidv4 } from 'uuid';
+import { config } from "~/config";
 
-console.log('Creating users.db');
-const userDB = new Database('users.db', { verbose: console.log });
+console.log(config);
+const user_db_path = config.Web.user_db_path;
+const user_db_name = config.Web.user_db_name;
+const game_db_path = config.Web.game_db_path;
+const game_db_name = config.Web.game_db_name;
+
+console.log(`Creating ${user_db_path}`);
+const userDB = new Database(user_db_path, { verbose: console.log });
 userDB.prepare(`
-        CREATE TABLE IF NOT EXISTS users(
+        CREATE TABLE IF NOT EXISTS ${user_db_name}(
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
@@ -16,10 +23,10 @@ userDB.prepare(`
     `).run();
 userDB.close();
 
-console.log('Creating game.db');
-const gameDB = new Database('game.db', { verbose: console.log });
+console.log(`Creating ${game_db_path}`);
+const gameDB = new Database(game_db_path, { verbose: console.log });
 gameDB.prepare(`
-    CREATE TABLE IF NOT EXISTS data (
+    CREATE TABLE IF NOT EXISTS ${game_db_name} (
     game_id TEXT NOT NULL PRIMARY KEY,
     user1 INTEGER NOT NULL, 
     user2 INTEGER NOT NULL, 
@@ -33,16 +40,16 @@ gameDB.prepare(`
 gameDB.close();
 
 export async function addUser(username: string, password: string, role: string = 'user') {
-    const userDB = new Database('users.db', { verbose: console.log });
+    const userDB = new Database(user_db_path, { verbose: console.log });
     const token = uuidv4();
-    const stmt = userDB.prepare('INSERT INTO users(username, password, role, token) VALUES (?, ?, ?,?)');
+    const stmt = userDB.prepare(`INSERT INTO ${user_db_name}(username, password, role, token) VALUES (?, ?, ?, ?)`);
     stmt.run(username, password, role, token);
     userDB.close();
 }
 
 export async function getUser(username: string, password: string) {
-    const userDB = new Database('users.db', { verbose: console.log });
-    const stmt = userDB.prepare('SELECT * FROM users WHERE username = ?');
+    const userDB = new Database(user_db_path, { verbose: console.log });
+    const stmt = userDB.prepare(`SELECT * FROM ${user_db_name} WHERE username = ?`);
     const res = stmt.get(username);
     userDB.close();
     if (!res) { return undefined }
@@ -51,8 +58,8 @@ export async function getUser(username: string, password: string) {
 }
 
 export async function getUsername(user_id: number) {
-    const userDB = new Database('users.db', { verbose: console.log });
-    const stmt = userDB.prepare('SELECT username FROM users WHERE user_id = ?');
+    const userDB = new Database(user_db_path, { verbose: console.log });
+    const stmt = userDB.prepare(`SELECT username FROM ${user_db_name} WHERE user_id = ?`);
     const res = stmt.get(user_id);
     userDB.close();
     return res.username;
@@ -60,8 +67,8 @@ export async function getUsername(user_id: number) {
 
 
 export async function getAllUsers() {
-    const db = new Database('users.db', { verbose: console.log });
-    const query = 'SELECT * FROM users';
+    const db = new Database(user_db_path, { verbose: console.log });
+    const query = `SELECT * FROM ${user_db_name}`;
     const users = db.prepare(query).all();
     db.close();
     return users;
@@ -98,15 +105,15 @@ export async function searchUsers(names: string[]) {
 
 
 export async function getStatistics(user_id: number) {
-    const gameDB = new Database('game.db', { verbose: console.log });
+    const gameDB = new Database(game_db_path, { verbose: console.log });
 
-    const stmt_played = gameDB.prepare('SELECT COUNT(*) FROM data WHERE user1 = ? OR user2 = ?');
+    const stmt_played = gameDB.prepare(`SELECT COUNT(*) FROM ${game_db_name} WHERE user1 = ? OR user2 = ?`);
     const playedGames = stmt_played.get(user_id, user_id)['COUNT(*)'];
 
-    const stmt_won = gameDB.prepare('SELECT COUNT(winner) FROM data WHERE winner = ?');
+    const stmt_won = gameDB.prepare(`SELECT COUNT(winner) FROM ${game_db_name} WHERE winner = ?`);
     const wonGames = stmt_won.get(user_id)['COUNT(winner)'];
 
-    const stmt_disconnect = gameDB.prepare('SELECT COUNT(disconnected) FROM data WHERE disconnected = ?');
+    const stmt_disconnect = gameDB.prepare(`SELECT COUNT(disconnected) FROM ${game_db_name} WHERE disconnected = ?`);
     const disconnectedGames = stmt_disconnect.get(user_id)['COUNT(disconnected)'];
 
     gameDB.close();
@@ -141,8 +148,8 @@ export async function composeGame(game: Game, name1: string, name2: string) {
 }
 
 export async function getGame(game_id: string) {
-    const gameDB = new Database('game.db', { verbose: console.log });
-    const stmt = gameDB.prepare('SELECT * FROM data WHERE game_id=?');
+    const gameDB = new Database(game_db_path, { verbose: console.log });
+    const stmt = gameDB.prepare(`SELECT * FROM ${game_db_name} WHERE game_id=?`);
     const game = stmt.get(game_id)
     gameDB.close();
 

@@ -3,7 +3,7 @@ import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 import { addUser } from "~/db/sqlite.data";
-
+import { config } from "~/config";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData()
@@ -11,7 +11,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
-  if (key !== "1234") {
+  if (key !== config.Web.key) {
     return {
       alerts: [{ severity: "error", message: "Invalid key" }]
     }
