@@ -84,14 +84,22 @@ export async function getRankedUsers() {
 export async function searchUsers(names: string[]) {
     var users = new Set();
     const db = new Database('users.db', { verbose: console.log });
-    const result = names.forEach(( name: string) => {
+    names.forEach(( name: string) => {
         const query = '%' + name + '%'
         const stmt = db.prepare('SELECT * FROM users WHERE username LIKE ?');
         const res = stmt.all(query)
         res.forEach(user => users.add(JSON.stringify({ id: user.user_id, name: user.username, role: user.role, token: user.token } as User)));
     })
     db.close()
-    return Array.from(users).map(JSON.parse)
+
+    var result = Array.from(users).map(JSON.parse)
+    const exact_name = result.findIndex((user) => names.includes(user.name))
+    if (exact_name == -1) return result
+
+    const swap = result[0]
+    result[0] = result[exact_name]
+    result[exact_name] = swap
+    return result
     
 }
 
@@ -163,11 +171,11 @@ export async function searchGames(search: string) {
     await Promise.all(users.map( async user => {
         const stmt = gameDB.prepare('SELECT * FROM data WHERE user1=? OR user2=?')
         const games = stmt.all(user.id, user.id)
-        await Promise.all(games.map(async (game) => {
+        await Promise.all(games.reverse().map(async (game) => {
             const composedGame = game.user1 == user.id ? await composeGame( game, user.name, null) : await composeGame( game, null, user.name)
             results.add(JSON.stringify(composedGame)) 
         }))
     }))
 
-    return { games: Array.from(results).reverse().map(JSON.parse) }
+    return { games: Array.from(results).map(JSON.parse) }
 }
