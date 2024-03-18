@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { User, Statistics, Game } from './types';
+import { User, Statistics, Game, GameResult } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from "~/config";
 
@@ -88,6 +88,30 @@ export async function getRankedUsers() {
 
 
 
+export async function searchUsers(names: string[]) {
+    var users = new Set();
+    const db = new Database('users.db', { verbose: console.log });
+    names.forEach(( name: string) => {
+        const query = '%' + name + '%'
+        const stmt = db.prepare('SELECT * FROM users WHERE username LIKE ?');
+        const res = stmt.all(query)
+        res.forEach(user => users.add(JSON.stringify({ id: user.user_id, name: user.username, role: user.role, token: user.token } as User)));
+    })
+    db.close()
+
+    var result = Array.from(users).map(JSON.parse)
+    const exact_name = result.findIndex((user) => names.includes(user.name))
+    if (exact_name == -1) return result
+
+    const swap = result[0]
+    result[0] = result[exact_name]
+    result[exact_name] = swap
+    return result
+    
+}
+
+
+
 export async function getStatistics(user_id: number) {
     const gameDB = new Database(game_db_path, { verbose: console.log });
 
@@ -106,9 +130,9 @@ export async function getStatistics(user_id: number) {
 }
 
 
-export async function composeGame(game: Game) {
-    const username1 = await getUsername(game.user1)
-    const username2 = await getUsername(game.user2)
+export async function composeGame(game: Game, name1: string, name2: string) {
+    const username1 = name1 || await getUsername(game.user1)
+    const username2 = name2 || await getUsername(game.user2)
     if (!username1 || !username2) { return null }
     return {
         game_id: game.game_id,
@@ -137,128 +161,28 @@ export async function getGame(game_id: string) {
     const game = stmt.get(game_id)
     gameDB.close();
 
-    if (!game) { return null }
+    if (!game) return null
     return composeGame(game as Game)
 
 }
 
 export async function searchGames(search: string) {
-    return {
-        games: [
-            {
-                game_id: 'adasdas-adasd-asdasd-asdasd-asdasd',
-                participants: [{ name: 'HelloWorldHelloWorld', score: 10, winner: true, disconnected: false }, { name: 'HelloWorld', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '5678',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '91011',
-                participants: [{ name: 'user1', score: 10, winner: false, disconnected: true }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '121314',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 1,
-            },
-            {
-                game_id: '151617',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 2,
-            },
-            {
-                game_id: '181920',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 2,
-            },
-            {
-                game_id: '212223',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '242526',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '272829',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '303132',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '333435',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '363738',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '394041',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '424344',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '454647',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '484950',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '515253',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '545556',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            },
-            {
-                game_id: '575859',
-                participants: [{ name: 'user1', score: 10, winner: true, disconnected: false }, { name: 'user2', score: 5, winner: false, disconnected: false }],
-                start_time: '2021-10-10 10:00:00',
-                end_state: 0,
-            }
-        ]
-    }
+    const keywords = search.split(" ", 3) // search for max 3 keywords
+    var results = new Set<GameResult>()
+
+    const result_ids = await Promise.all(keywords.map(getGame))
+    result_ids.forEach((game) => {if (game) results.add(JSON.stringify(game))})
+
+    const gameDB = new Database('game.db')
+    const users = await searchUsers(keywords)
+    await Promise.all(users.map( async user => {
+        const stmt = gameDB.prepare('SELECT * FROM data WHERE user1=? OR user2=?')
+        const games = stmt.all(user.id, user.id)
+        await Promise.all(games.reverse().map(async (game) => {
+            const composedGame = game.user1 == user.id ? await composeGame( game, user.name, null) : await composeGame( game, null, user.name)
+            results.add(JSON.stringify(composedGame)) 
+        }))
+    }))
+
+    return { games: Array.from(results).map(JSON.parse) }
 }
