@@ -13,6 +13,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@iarna/toml": "^2.2.5",
     "@mui/icons-material": "^5.15.12",
     "@mui/material": "^5.15.10",
     "@remix-run/css-bundle": "^2.6.0",
@@ -26,6 +27,7 @@
     "react-dom": "^18.2.0",
     "remix-auth": "^3.6.0",
     "remix-auth-form": "^1.4.0",
+    "toml": "^3.0.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
