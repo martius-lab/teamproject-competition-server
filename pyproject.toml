@@ -14,9 +14,9 @@ authors = [
 requires-python = ">=3.10"
 dependencies = [
     "twisted==23.10.0",
-    "numpy==1.26.2",
+    "numpy",
     "tomli; python_version<'3.11'",
-    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git",
+    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git@0a578b89957c1aba7860aa60657e21badaae90a5",
     "openskill==5.1.0"
 ]
 
