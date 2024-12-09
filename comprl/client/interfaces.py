@@ -39,9 +39,6 @@ class IAgent:
 
         Args:
             game_id (int): The ID of the new game.
-
-        Returns:
-            bool: True if the agent is ready to play, False otherwise.
         """
         pass
 
@@ -64,9 +61,6 @@ class IAgent:
         Args:
             result: The result of the game.
             stats: The statistics of the game.
-
-        Returns:
-            bool: True if the agent handled the end of the game, False otherwise.
         """
         pass
 
