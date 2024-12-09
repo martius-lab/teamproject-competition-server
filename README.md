@@ -15,7 +15,7 @@ types.
 ## Installation
 
 First install the non-Python requirements (they are not needed by comprl itself but by
-the laserhockey package it depends on):
+the hockey package it depends on):
 ```
 sudo apt install python3-dev swig
 ```

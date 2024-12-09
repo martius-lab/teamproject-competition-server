@@ -1,7 +1,7 @@
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import PlayerID
 
-import laserhockey.hockey_env as h_env
+import hockey.hockey_env as h_env
 import numpy as np
 from typing import List
 

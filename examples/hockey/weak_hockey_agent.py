@@ -1,6 +1,6 @@
 from comprl.client import Agent
 
-import laserhockey.hockey_env as h_env
+import hockey.hockey_env as h_env
 
 Weak_Hockey_Agent = Agent()
 agent = h_env.BasicOpponent()  # initialize agent

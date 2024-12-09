@@ -16,7 +16,7 @@ dependencies = [
     "twisted==23.10.0",
     "numpy",
     "tomli; python_version<'3.11'",
-    "laserhockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git@0a578b89957c1aba7860aa60657e21badaae90a5",
+    "hockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git@cc48daa135e2cca3e620b90431e57870f61d043c",
     "openskill==5.1.0"
 ]
 
@@ -54,7 +54,7 @@ exclude = ["build", "examples", "presentation"]
 [[tool.mypy.overrides]]
 # here you can list third-party packages for which no type hints are provided (to avoid
 # complaints from mypy)
-module = "laserhockey.*"
+module = "hockey.*"
 ignore_missing_imports = true
 
 
