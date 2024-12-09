@@ -1,9 +1,9 @@
-"""
-This module contains the interface for the agent.
-"""
+"""This module contains the interface for the agent."""
+
+import abc
 
 
-class IAgent:
+class IAgent(abc.ABC):
     """agent interface which could be used by the end-user"""
 
     def run(self, token: str):
@@ -33,7 +33,7 @@ class IAgent:
         """
         return True
 
-    def on_start_game(self, game_id: int) -> None:
+    def on_start_game(self, game_id: int) -> None:  # noqa: B027
         """
         Called when a new game starts.
 
@@ -42,6 +42,7 @@ class IAgent:
         """
         pass
 
+    @abc.abstractmethod
     def get_step(self, obv: list[float]) -> list[float]:
         """
         Requests the agent's action based on the current observation.
@@ -54,7 +55,7 @@ class IAgent:
         """
         raise NotImplementedError("step function not implemented")
 
-    def on_end_game(self, result: bool, stats: list[float]) -> None:
+    def on_end_game(self, result: bool, stats: list[float]) -> None:  # noqa: B027
         """
         Called when a game ends.
 
@@ -64,7 +65,7 @@ class IAgent:
         """
         pass
 
-    def on_error(self, msg: str):
+    def on_error(self, msg: str):  # noqa: B027
         """
         Called when an error occurs.
 
@@ -73,7 +74,7 @@ class IAgent:
         """
         pass
 
-    def on_message(self, msg: str):
+    def on_message(self, msg: str):  # noqa: B027
         """Called when a message is sent from the server.
 
         Args:
@@ -81,6 +82,6 @@ class IAgent:
         """
         pass
 
-    def on_disconnect(self):
+    def on_disconnect(self):  # noqa: B027
         """Called when the agent disconnects from the server."""
         pass
