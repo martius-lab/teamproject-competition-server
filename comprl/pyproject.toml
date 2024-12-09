@@ -20,6 +20,7 @@ dependencies = [
     "openskill==5.1.0",
     "sqlalchemy",
     "bcrypt",
+    "tabulate",
 ]
 
 [project.optional-dependencies]
