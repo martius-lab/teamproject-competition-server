@@ -19,6 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def reset_games(game_data: GameData):
     """deletes the game table"""
+    # TODO: better just truncate the table instead of dropping it completely?
 
     # Drop the games table if it exists
     game_data.cursor.execute(f"DROP TABLE IF EXISTS {game_data.table}")
