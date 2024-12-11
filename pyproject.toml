@@ -54,7 +54,10 @@ exclude = ["build", "examples", "presentation"]
 [[tool.mypy.overrides]]
 # here you can list third-party packages for which no type hints are provided (to avoid
 # complaints from mypy)
-module = "hockey.*"
+module = [
+    "hockey.*",
+    "pytest",
+]
 ignore_missing_imports = true
 
 
