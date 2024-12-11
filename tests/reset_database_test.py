@@ -1,17 +1,22 @@
-from comprl.server.data import UserData, GameData
-from comprl.server.util import ConfigProvider, IDGenerator
-from comprl.server.data.interfaces import GameEndState, GameResult
-import comprl.scripts.reset as reset
-import logging
 import uuid
 
-# run with python -m tests.reset_database_test
+import pytest
 
-logging.basicConfig(level=logging.DEBUG)
+from comprl.server.data import ConnectionInfo, UserData, GameData
+from comprl.server.util import IDGenerator
+from comprl.server.data.interfaces import GameEndState, GameResult
+import comprl.scripts.reset as reset
 
 
-def reset_tests():
-    user_data = UserData(ConfigProvider.get("user_data"))
+def test_reset(tmp_path):
+    user_db = tmp_path / "users.db"
+    game_db = tmp_path / "games.db"
+
+    user_data = UserData(ConnectionInfo(host=user_db, table="users"))
+    game_data = GameData(ConnectionInfo(host=game_db, table="games"))
+
+    # add test data
+
     userID1 = user_data.add(
         user_name="user_1",
         user_password=str(uuid.uuid4()),
@@ -37,8 +42,6 @@ def reset_tests():
     user_data.set_matchmaking_parameters(user_id=userID2, mu=23.000, sigma=9.000)
     user_data.set_matchmaking_parameters(user_id=userID3, mu=22.000, sigma=7.000)
     user_data.set_matchmaking_parameters(user_id=userID4, mu=21.000, sigma=7.333)
-
-    game_data = GameData(ConfigProvider.get("game_data"))
 
     gameID1, gameID2, gameID3 = (
         IDGenerator.generate_game_id(),
@@ -67,25 +70,14 @@ def reset_tests():
     reset.reset_games(game_data=game_data)
     reset.reset_elo(user_data=user_data)
 
-    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID1)
-    assert mu == 25.000 and sigma == 8.333
-
-    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID2)
-    assert mu == 25.000 and sigma == 8.333
-
-    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID3)
-    assert mu == 25.000 and sigma == 8.333
-
-    (mu, sigma) = user_data.get_matchmaking_parameters(user_id=userID4)
-    assert mu == 25.000 and sigma == 8.333
+    # test
+    for user_id in (userID1, userID2, userID3, userID4):
+        mu, sigma = user_data.get_matchmaking_parameters(user_id=user_id)
+        assert pytest.approx(mu) == 25.0, f"user_id: {user_id}"
+        assert pytest.approx(sigma) == 8.333, f"user_id: {user_id}"
 
     game_data.cursor.execute(
         f"""SELECT name FROM sqlite_master 
         WHERE type='table' AND name='{game_data.table}'"""
     )
     assert game_data.cursor.fetchone() is None
-
-
-if __name__ == "__main__":
-    # reset_tests()  # only enable for manual testing
-    pass
