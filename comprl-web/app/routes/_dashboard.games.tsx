@@ -82,7 +82,7 @@ export default function Games() {
                   key={game.game_id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 }, cursor: 'pointer' }}
                   hover
-                  onClick={() => window.location.href = `/games/${game.game_id}`}
+                  onClick={() => window.location.href = `/game/${game.game_id}`}
                 >
                   <TableCell component="th" scope="row">{game.game_id}</TableCell>
                   <TableCell align="left">
