@@ -124,8 +124,8 @@ class UserData:
             password TEXT NOT NULL,
             role TEXT NOT NULL DEFAULT 'user',
             token TEXT NOT NULL,
-            mu FLOAT NOT NULL,
-            sigma FLOAT NOT NULL
+            mu FLOAT NOT NULL DEFAULT 25.0,
+            sigma FLOAT NOT NULL DEFAULT 8.333
             )"""
         )
 

@@ -21,7 +21,7 @@ export async function action({ request }: ActionFunctionArgs) {
     await addUser(username, password);
   } catch (error) {
     return {
-      alerts: [{ severity: "error", message: "Username is already taken" }]
+      alerts: [{ severity: "error", message: error.message }]
     }
   }
   return redirect("/login");
