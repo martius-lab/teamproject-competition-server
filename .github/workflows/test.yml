@@ -5,7 +5,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "comprl/**"
   pull_request:
+    paths:
+      - "comprl/**"
+
+defaults:
+  run:
+    working-directory: "comprl"
 
 jobs:
   pytest:
