@@ -1,4 +1,5 @@
 """Login page and authentication logic."""
+from __future__ import annotations
 
 import reflex as rx
 
@@ -27,7 +28,7 @@ class LoginState(State):
         password = form_data["password"]
         with rx.session() as session:
             user = session.exec(
-                User.select.where(User.username == username)
+                User.select().where(User.username == username)
             ).one_or_none()
         if user is not None and not user.enabled:
             self.error_message = "This account is disabled."
@@ -51,12 +52,17 @@ class LoginState(State):
         if not self.is_hydrated:
             # wait until after hydration to ensure auth_token is known
             return LoginState.redir()  # type: ignore
-        page = self.get_current_page()
+
+        page = self.router.page.path
+
         if not self.is_authenticated and page != LOGIN_ROUTE:
-            self.redirect_to = page
+            self.redirect_to = self.router.page.raw_path
             return rx.redirect(LOGIN_ROUTE)
-        elif page == LOGIN_ROUTE:
+        if page == LOGIN_ROUTE:
             return rx.redirect(self.redirect_to or "/")
+        #if self.is_authenticated and page == routes.LOGIN_ROUTE:
+
+        return None
 
 
 @rx.page(route=LOGIN_ROUTE)
@@ -68,7 +74,7 @@ def login_page() -> rx.Component:
     """
     login_form = rx.form(
         rx.input(placeholder="username", id="username"),
-        rx.password(placeholder="password", id="password"),
+        rx.input(type="password", placeholder="password", id="password"),
         rx.button("Login", type_="submit"),
         width="80vw",
         on_submit=LoginState.on_submit,

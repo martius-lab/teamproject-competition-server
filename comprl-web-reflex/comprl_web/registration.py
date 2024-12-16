@@ -35,7 +35,7 @@ class RegistrationState(State):
                 yield rx.set_focus("username")
                 return
             existing_user = session.exec(
-                User.select.where(User.username == username)
+                User.select().where(User.username == username)
             ).one_or_none()
             if existing_user is not None:
                 self.error_message = (
@@ -79,8 +79,8 @@ def registration_page() -> rx.Component:
     """
     register_form = rx.form(
         rx.input(placeholder="username", id="username"),
-        rx.password(placeholder="password", id="password"),
-        rx.password(placeholder="confirm", id="confirm_password"),
+        rx.input(type="password", placeholder="password", id="password"),
+        rx.input(type="password", placeholder="confirm", id="confirm_password"),
         rx.button("Register", type_="submit"),
         width="80vw",
         on_submit=RegistrationState.handle_registration,
