@@ -1,54 +1,94 @@
-"""Welcome to Reflex! This file outlines the steps to create a basic app."""
+"""Main app module to demo local authentication."""
 
 import reflex as rx
 
-from rxconfig import config
+from . import reflex_local_auth
 
 
-from .base_state import State
-from .login import require_login
-from .registration import registration_page
-
-
-def index() -> rx.Component:
-    # Welcome Page (Index)
-    return rx.container(
-        rx.color_mode.button(position="top-right"),
-        rx.vstack(
-            rx.heading("Welcome to Reflex!", size="9"),
-            rx.text(
-                "Get started by editing ",
-                rx.code(f"{config.app_name}/{config.app_name}.py"),
-                size="5",
+def links() -> rx.Component:
+    """Render the links for the demo."""
+    return rx.fragment(
+        rx.link("Home", href="/"),
+        rx.link("Need 2 Login", href="/need2login"),
+        rx.link("Protected Page", href="/protected"),
+        rx.link("Custom Register", href="/custom-register"),
+        rx.link("User Info", href="/user-info"),
+        rx.cond(
+            reflex_local_auth.LocalAuthState.is_authenticated,
+            rx.link(
+                "Logout", href="/", on_click=reflex_local_auth.LocalAuthState.do_logout
             ),
-            rx.link("Protected Page", href="/protected"),
-            spacing="5",
-            justify="center",
-            min_height="85vh",
+            rx.link("Login", href=reflex_local_auth.routes.LOGIN_ROUTE),
         ),
-        rx.logo(),
     )
 
 
-@require_login
-def protected() -> rx.Component:
-    """Render a protected page.
-
-    The `require_login` decorator will redirect to the login page if the user is
-    not authenticated.
+@rx.page()
+def index() -> rx.Component:
+    """Render the index page.
 
     Returns:
         A reflex component.
     """
-    return rx.vstack(
-        rx.heading(
-            "Protected Page for ", State.authenticated_user.username, font_size="2em"
+    return rx.fragment(
+        rx.color_mode.button(position="top-right"),
+        rx.vstack(
+            rx.heading("Welcome to my homepage!", font_size="2em"),
+            links(),
+            spacing="2",
+            padding_top="10%",
+            align="center",
         ),
-        rx.link("Home", href="/"),
-        rx.link("Logout", href="/", on_click=State.do_logout),
     )
 
 
-app = rx.App()
-app.add_page(index)
-app.add_page(protected)
+@rx.page()
+@reflex_local_auth.require_login
+def need2login():
+    return rx.vstack(
+        rx.heading(
+            "Accessing this page will redirect to the login page if not authenticated."
+        ),
+        links(),
+        spacing="2",
+        padding_top="10%",
+        align="center",
+    )
+
+
+class ProtectedState(reflex_local_auth.LocalAuthState):
+    data: str
+
+    def on_load(self):
+        if not self.is_authenticated:
+            return reflex_local_auth.LoginState.redir
+        self.data = f"This is truly private data for {self.authenticated_user.username}"
+
+    def do_logout(self):
+        self.data = ""
+        return reflex_local_auth.LocalAuthState.do_logout
+
+
+@rx.page(on_load=ProtectedState.on_load)
+@reflex_local_auth.require_login
+def protected():
+    return rx.vstack(
+        rx.heading(ProtectedState.data),
+        links(),
+        spacing="2",
+        padding_top="10%",
+        align="center",
+    )
+
+
+app = rx.App(theme=rx.theme(has_background=True, accent_color="orange"))
+app.add_page(
+    reflex_local_auth.pages.login_page,
+    route=reflex_local_auth.routes.LOGIN_ROUTE,
+    title="Login",
+)
+app.add_page(
+    reflex_local_auth.pages.register_page,
+    route=reflex_local_auth.routes.REGISTER_ROUTE,
+    title="Register",
+)

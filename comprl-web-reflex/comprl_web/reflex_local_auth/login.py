@@ -1,17 +1,15 @@
-"""Login page and authentication logic."""
+"""Login state and authentication logic."""
 from __future__ import annotations
 
 import reflex as rx
+from sqlmodel import select
 
-from .base_state import State
-from .user import User
-
-
-LOGIN_ROUTE = "/login"
-REGISTER_ROUTE = "/register"
+from . import routes
+from .local_auth import LocalAuthState
+from .user import LocalUser
 
 
-class LoginState(State):
+class LoginState(LocalAuthState):
     """Handle login form submission and redirect to proper routes after authentication."""
 
     error_message: str = ""
@@ -28,22 +26,23 @@ class LoginState(State):
         password = form_data["password"]
         with rx.session() as session:
             user = session.exec(
-                User.select().where(User.username == username)
+                select(LocalUser).where(LocalUser.username == username)
             ).one_or_none()
         if user is not None and not user.enabled:
             self.error_message = "This account is disabled."
-            return rx.set_value("password", "")
-        if user is None or not user.verify(password):
-            self.error_message = "There was a problem logging in, please try again."
             return rx.set_value("password", "")
         if (
             user is not None
             and user.id is not None
             and user.enabled
+            and password
             and user.verify(password)
         ):
             # mark the user as logged in
             self._login(user.id)
+        else:
+            self.error_message = "There was a problem logging in, please try again."
+            return rx.set_value("password", "")
         self.error_message = ""
         return LoginState.redir()  # type: ignore
 
@@ -52,48 +51,12 @@ class LoginState(State):
         if not self.is_hydrated:
             # wait until after hydration to ensure auth_token is known
             return LoginState.redir()  # type: ignore
-
         page = self.router.page.path
-
-        if not self.is_authenticated and page != LOGIN_ROUTE:
+        if not self.is_authenticated and page != routes.LOGIN_ROUTE:
             self.redirect_to = self.router.page.raw_path
-            return rx.redirect(LOGIN_ROUTE)
-        if page == LOGIN_ROUTE:
+            return rx.redirect(routes.LOGIN_ROUTE)
+        elif self.is_authenticated and page == routes.LOGIN_ROUTE:
             return rx.redirect(self.redirect_to or "/")
-        #if self.is_authenticated and page == routes.LOGIN_ROUTE:
-
-        return None
-
-
-@rx.page(route=LOGIN_ROUTE)
-def login_page() -> rx.Component:
-    """Render the login page.
-
-    Returns:
-        A reflex component.
-    """
-    login_form = rx.form(
-        rx.input(placeholder="username", id="username"),
-        rx.input(type="password", placeholder="password", id="password"),
-        rx.button("Login", type_="submit"),
-        width="80vw",
-        on_submit=LoginState.on_submit,
-    )
-
-    return rx.fragment(
-        rx.cond(
-            LoginState.is_hydrated,  # type: ignore
-            rx.vstack(
-                rx.cond(  # conditionally show error messages
-                    LoginState.error_message != "",
-                    rx.text(LoginState.error_message),
-                ),
-                login_form,
-                rx.link("Register", href=REGISTER_ROUTE),
-                padding_top="10vh",
-            ),
-        )
-    )
 
 
 def require_login(page: rx.app.ComponentCallable) -> rx.app.ComponentCallable:
@@ -111,11 +74,11 @@ def require_login(page: rx.app.ComponentCallable) -> rx.app.ComponentCallable:
     def protected_page():
         return rx.fragment(
             rx.cond(
-                State.is_hydrated & State.is_authenticated,  # type: ignore
+                LoginState.is_hydrated & LoginState.is_authenticated,  # type: ignore
                 page(),
                 rx.center(
-                    # When this spinner mounts, it will redirect to the login page
-                    rx.spinner(on_mount=LoginState.redir),
+                    # When this text mounts, it will redirect to the login page
+                    rx.text("Loading...", on_mount=LoginState.redir),
                 ),
             )
         )
