@@ -4,19 +4,24 @@ from sqlmodel import Column, DateTime, Field, func, String
 
 import reflex as rx
 
+from comprl.server.data.sql_backend import Base
+
+import sqlalchemy as sa
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 class LocalAuthSession(
-    rx.Model,
-    table=True,  # type: ignore
+    Base,
 ):
     """Correlate a session_id with an arbitrary user_id."""
 
-    user_id: int = Field(index=True, nullable=False)
-    session_id: str = Field(
-        unique=True, index=True, nullable=False, sa_type=String(255)
+    __tablename__ = "auth_sessions"
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    user_id: Mapped[int] = mapped_column(index=True, nullable=False)
+    session_id: Mapped[str] = mapped_column(
+        sa.String(255), unique=True, index=True, nullable=False
     )
-    expiration: datetime.datetime = Field(
-        sa_column=Column(
-            DateTime(timezone=True), server_default=func.now(), nullable=False
-        ),
+    expiration: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )

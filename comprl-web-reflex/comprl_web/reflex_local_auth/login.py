@@ -2,12 +2,31 @@
 
 from __future__ import annotations
 
+import bcrypt
 import reflex as rx
+import sqlalchemy as sa
 from sqlmodel import select
 
+from comprl.server.data.sql_backend import User
+
 from . import routes
-from .local_auth import LocalAuthState
-from .user import LocalUser
+from .local_auth import LocalAuthState, get_session
+
+
+def _verify_password(user_password_hash: bytes, secret: str) -> bool:
+    """Validate the user's password.
+
+    Args:
+        secret: The password to check.
+
+    Returns:
+        True if the hashed secret matches this user's password_hash.
+    """
+    return user_password_hash == secret  # FIXME
+    return bcrypt.checkpw(
+        password=secret.encode("utf-8"),
+        hashed_password=user_password_hash,
+    )
 
 
 class LoginState(LocalAuthState):
@@ -25,25 +44,34 @@ class LoginState(LocalAuthState):
         self.error_message = ""
         username = form_data["username"]
         password = form_data["password"]
-        with rx.session() as session:
-            user = session.exec(
-                select(LocalUser).where(LocalUser.username == username)
+        # with rx.session() as session:
+        #    user = session.exec(
+        #        select(User).where(User.username == username)
+        #    ).one_or_none()
+
+        with get_session() as session:
+            user = session.scalars(
+                select(User).where(User.username == username)
             ).one_or_none()
-        if user is not None and not user.enabled:
-            self.error_message = "This account is disabled."
-            return rx.set_value("password", "")
+
+        # FIXME
+        # if user is not None and not user.enabled:
+        #    self.error_message = "This account is disabled."
+        #    return rx.set_value("password", "")
+
         if (
             user is not None
-            and user.id is not None
-            and user.enabled
+            and user.user_id is not None
+            # and user.enabled  # FIXME
             and password
-            and user.verify(password)
+            and _verify_password(user.password, password)
         ):
             # mark the user as logged in
-            self._login(user.id)
+            self._login(user.user_id)
         else:
             self.error_message = "There was a problem logging in, please try again."
             return rx.set_value("password", "")
+
         self.error_message = ""
         return LoginState.redir()  # type: ignore
 
@@ -58,6 +86,8 @@ class LoginState(LocalAuthState):
             return rx.redirect(routes.LOGIN_ROUTE)
         elif self.is_authenticated and page == routes.LOGIN_ROUTE:
             return rx.redirect(self.redirect_to or "/")
+
+        return None
 
 
 def require_login(page: rx.app.ComponentCallable) -> rx.app.ComponentCallable:

@@ -3,7 +3,9 @@ import datetime
 from sqlmodel import select
 
 import reflex as rx
+import sqlalchemy as sa
 
+from .local_auth import LocalAuthState, get_session
 from .auth_session import AuthSession
 from .user import User
 
@@ -13,7 +15,8 @@ DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
 
 
 class State(rx.State):
-    # The auth_token is stored in local storage to persist across tab and browser sessions.
+    # The auth_token is stored in local storage to persist across tab and browser
+    # sessions.
     auth_token: str = rx.LocalStorage(name=AUTH_TOKEN_LOCAL_STORAGE_KEY)
 
     @rx.var(cache=True)
@@ -24,8 +27,8 @@ class State(rx.State):
             A User instance with id=-1 if not authenticated, or the User instance
             corresponding to the currently authenticated user.
         """
-        with rx.session() as session:
-            result = session.exec(
+        with get_session() as session:
+            result = session.scalars(
                 select(User, AuthSession).where(
                     AuthSession.session_id == self.auth_token,
                     AuthSession.expiration
@@ -49,9 +52,9 @@ class State(rx.State):
 
     def do_logout(self) -> None:
         """Destroy AuthSessions associated with the auth_token."""
-        with rx.session() as session:
-            for auth_session in session.exec(
-                AuthSession.select.where(AuthSession.session_id == self.auth_token)
+        with get_session() as session:
+            for auth_session in session.scalars(
+                AuthSession.select().where(AuthSession.session_id == self.auth_token)
             ).all():
                 session.delete(auth_session)
             session.commit()
@@ -76,7 +79,7 @@ class State(rx.State):
         if user_id < 0:
             return
         self.auth_token = self.auth_token or self.get_token()
-        with rx.session() as session:
+        with get_session() as session:
             session.add(
                 AuthSession(  # type: ignore
                     user_id=user_id,

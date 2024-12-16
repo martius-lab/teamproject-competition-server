@@ -2,8 +2,15 @@
 Implementation of the data access objects for managing game and user data in SQLite.
 """
 
+from __future__ import annotations
+
 import dataclasses
 import sqlite3
+from typing import Optional
+
+import sqlalchemy as sa
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 
 from comprl.server.data.interfaces import GameResult, UserRole
 from comprl.shared.types import GameID
@@ -21,6 +28,42 @@ class SQLiteConnectionInfo:
 
     host: str
     table: str
+
+
+class Base(sa.orm.MappedAsDataclass, sa.orm.DeclarativeBase):
+    """Base class for all ORM classes."""
+
+
+class User(Base):
+    """A User."""
+
+    __tablename__ = "users"
+
+    user_id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True)
+    password: Mapped[str] = mapped_column()
+    token: Mapped[str] = mapped_column(sa.String(64))
+    role: Mapped[str] = mapped_column(default="user")
+    mu: Mapped[float] = mapped_column(default=25.0)
+    sigma: Mapped[float] = mapped_column(default=8.333)
+
+
+class Game(Base):
+    """Games."""
+
+    __tablename__ = "games"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    game_id: Mapped[str] = mapped_column(unique=True)
+    # TODO foreign key
+    user1: Mapped[int]
+    user2: Mapped[int]
+    score1: Mapped[float]
+    score2: Mapped[float]
+    start_time: Mapped[str]
+    end_state: Mapped[int]
+    winner: Mapped[Optional[int]]
+    disconnected: Mapped[Optional[int]]
 
 
 class GameData:
@@ -250,3 +293,9 @@ class UserData:
             (mu, sigma, user_id),
         )
         self.connection.commit()
+
+
+def create_database_tables(db_path: str) -> None:
+    """Create the database tables in the given SQLite database."""
+    engine = sa.create_engine(f"sqlite:///{db_path}")
+    Base.metadata.create_all(engine)

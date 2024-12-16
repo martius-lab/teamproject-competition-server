@@ -3,6 +3,7 @@
 import reflex as rx
 
 from . import reflex_local_auth
+from .reflex_local_auth.local_auth import LocalAuthState
 
 
 def links() -> rx.Component:
@@ -62,7 +63,7 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
     def on_load(self):
         if not self.is_authenticated:
             return reflex_local_auth.LoginState.redir
-        self.data = f"This is truly private data for {self.authenticated_user.username}"
+        self.data = f"This is truly private data for {LocalAuthState.authenticated_user.username}"
 
     def do_logout(self):
         self.data = ""
@@ -74,6 +75,7 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
 def protected():
     return rx.vstack(
         rx.heading(ProtectedState.data),
+        rx.heading(f"Hello {LocalAuthState.authenticated_user.username}"),
         links(),
         spacing="2",
         padding_top="10%",

@@ -4,34 +4,51 @@ from __future__ import annotations
 
 import asyncio
 
+import bcrypt
 import reflex as rx
+import sqlalchemy as sa
 
 from sqlmodel import select
 
 from . import routes
-from .local_auth import LocalAuthState
-from .user import LocalUser
+from .local_auth import LocalAuthState, get_session
 
+from comprl.server.data.sql_backend import User
 
 POST_REGISTRATION_DELAY = 0.5
 
 
+def hash_password(secret: str) -> bytes:
+    """Hash the secret using bcrypt.
+
+    Args:
+        secret: The password to hash.
+
+    Returns:
+        The hashed password.
+    """
+    return bcrypt.hashpw(
+        password=secret.encode("utf-8"),
+        salt=bcrypt.gensalt(),
+    )
+
+
 class RegistrationState(LocalAuthState):
-    """Handle registration form submission and redirect to login page after registration."""
+    """Handle registration form submission and redirect to login page afterwards."""
 
     success: bool = False
     error_message: str = ""
     new_user_id: int = -1
 
     def _validate_fields(
-        self, username, password, confirm_password
+        self, username: str, password: str, confirm_password: str
     ) -> rx.event.EventSpec | list[rx.event.EventSpec] | None:
         if not username:
             self.error_message = "Username cannot be empty"
             return rx.set_focus("username")
-        with rx.session() as session:
+        with get_session() as session:
             existing_user = session.exec(
-                select(LocalUser).where(LocalUser.username == username)
+                select(User).where(User.username == username)
             ).one_or_none()
         if existing_user is not None:
             self.error_message = (
@@ -48,17 +65,19 @@ class RegistrationState(LocalAuthState):
                 rx.set_focus("confirm_password"),
             ]
 
-    def _register_user(self, username, password) -> None:
-        with rx.session() as session:
+        return None
+
+    def _register_user(self, username: str, password: str) -> None:
+        with get_session() as session:
             # Create the new user and add it to the database.
-            new_user = LocalUser()  # type: ignore
+            new_user = User()  # type: ignore
             new_user.username = username
-            new_user.password_hash = LocalUser.hash_password(password)
-            new_user.enabled = True
+            new_user.password = hash_password(password)
+            # new_user.enabled = True  # FIXME
             session.add(new_user)
             session.commit()
             session.refresh(new_user)
-            self.new_user_id = new_user.id
+            self.new_user_id = new_user.user_id
 
     def handle_registration(
         self, form_data

@@ -11,42 +11,72 @@ import datetime
 
 from sqlmodel import select
 
+import sqlalchemy as sa
 import reflex as rx
 
-from .auth_session import LocalAuthSession
-from .user import LocalUser
+from comprl.server.data.sql_backend import User
 
+from .auth_session import LocalAuthSession
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_token"
 DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
 DEFAULT_AUTH_REFRESH_DELTA = datetime.timedelta(minutes=10)
 
 
+def get_session() -> sa.orm.Session:
+    # FIXME make configurable
+    db_url: str = "sqlite:////home/felixwidmaier/ws/comprl/hockey_combined.db"
+    engine = sa.create_engine(db_url)
+    return sa.orm.Session(engine)
+
+
+# def authenticated_user() -> User:
+#     """The currently authenticated user, or a dummy user if not authenticated.
+
+#     Returns:
+#         A LocalUser instance with id=-1 if not authenticated, or the LocalUser instance
+#         corresponding to the currently authenticated user.
+#     """
+#     with get_session() as session:
+        
+#         import ipdb; ipdb.set_trace()  # XXX Breakpoint
+#         result = session.scalars(
+#             select(User, LocalAuthSession).where(
+#                 LocalAuthSession.session_id == LocalAuthState.auth_token,
+#                 LocalAuthSession.expiration
+#                 >= datetime.datetime.now(datetime.timezone.utc),
+#                 User.user_id == LocalAuthSession.user_id,
+#             ),
+#         ).first()
+#         if result:
+#             return result
+#     return User(user_id=-1)  # type: ignore
+
+
 class LocalAuthState(rx.State):
     # The auth_token is stored in local storage to persist across tab and browser sessions.
     auth_token: str = rx.LocalStorage(name=AUTH_TOKEN_LOCAL_STORAGE_KEY)
 
-    @rx.var(cache=True, interval=DEFAULT_AUTH_REFRESH_DELTA)
-    def authenticated_user(self) -> LocalUser:
+    @rx.var(cache=True)
+    def authenticated_user(self) -> User | None:
         """The currently authenticated user, or a dummy user if not authenticated.
 
         Returns:
             A LocalUser instance with id=-1 if not authenticated, or the LocalUser instance
             corresponding to the currently authenticated user.
         """
-        with rx.session() as session:
-            result = session.exec(
-                select(LocalUser, LocalAuthSession).where(
+        with get_session() as session:
+            result = session.scalars(
+                select(User, LocalAuthSession).where(
                     LocalAuthSession.session_id == self.auth_token,
                     LocalAuthSession.expiration
                     >= datetime.datetime.now(datetime.timezone.utc),
-                    LocalUser.id == LocalAuthSession.user_id,
+                    User.user_id == LocalAuthSession.user_id,
                 ),
             ).first()
             if result:
-                user, session = result
-                return user
-        return LocalUser(id=-1)  # type: ignore
+                return result
+        return None
 
     @rx.var(cache=True, interval=DEFAULT_AUTH_REFRESH_DELTA)
     def is_authenticated(self) -> bool:
@@ -55,12 +85,12 @@ class LocalAuthState(rx.State):
         Returns:
             True if the authenticated user has a positive user ID, False otherwise.
         """
-        return self.authenticated_user.id >= 0
+        return self.authenticated_user is not None
 
     def do_logout(self) -> None:
         """Destroy LocalAuthSessions associated with the auth_token."""
-        with rx.session() as session:
-            for auth_session in session.exec(
+        with get_session() as session:
+            for auth_session in session.scalars(
                 select(LocalAuthSession).where(
                     LocalAuthSession.session_id == self.auth_token
                 )
@@ -87,7 +117,7 @@ class LocalAuthState(rx.State):
         if user_id < 0:
             return
         self.auth_token = self.auth_token or self.router.session.client_token
-        with rx.session() as session:
+        with get_session() as session:
             session.add(
                 LocalAuthSession(  # type: ignore
                     user_id=user_id,
