@@ -6,7 +6,6 @@ import asyncio
 
 import bcrypt
 import reflex as rx
-import sqlalchemy as sa
 
 from sqlmodel import select
 

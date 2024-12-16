@@ -63,7 +63,10 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
     def on_load(self):
         if not self.is_authenticated:
             return reflex_local_auth.LoginState.redir
-        self.data = f"This is truly private data for {LocalAuthState.authenticated_user.username}"
+        self.data = (
+            "This is truly private data for"
+            f" {LocalAuthState.authenticated_user.username}"
+        )
 
     def do_logout(self):
         self.data = ""

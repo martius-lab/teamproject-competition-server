@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import bcrypt
 import reflex as rx
-import sqlalchemy as sa
 from sqlmodel import select
 
 from comprl.server.data.sql_backend import User
@@ -30,7 +29,8 @@ def _verify_password(user_password_hash: bytes, secret: str) -> bool:
 
 
 class LoginState(LocalAuthState):
-    """Handle login form submission and redirect to proper routes after authentication."""
+    """Handle login form submission and redirect to proper routes after authentication.
+    """
 
     error_message: str = ""
     redirect_to: str = ""
@@ -76,7 +76,7 @@ class LoginState(LocalAuthState):
         return LoginState.redir()  # type: ignore
 
     def redir(self) -> rx.event.EventSpec | None:
-        """Redirect to the redirect_to route if logged in, or to the login page if not."""
+        """Redirect to redirect_to if logged in, or to the login page if not."""
         if not self.is_hydrated:
             # wait until after hydration to ensure auth_token is known
             return LoginState.redir()  # type: ignore

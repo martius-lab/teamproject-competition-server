@@ -9,7 +9,7 @@ import sqlite3
 from typing import Optional
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 from comprl.server.data.interfaces import GameResult, UserRole

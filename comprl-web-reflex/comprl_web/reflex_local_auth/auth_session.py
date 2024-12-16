@@ -1,9 +1,5 @@
 import datetime
 
-from sqlmodel import Column, DateTime, Field, func, String
-
-import reflex as rx
-
 from comprl.server.data.sql_backend import Base
 
 import sqlalchemy as sa
@@ -23,5 +19,5 @@ class LocalAuthSession(
         sa.String(255), unique=True, index=True, nullable=False
     )
     expiration: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
+        sa.DateTime(timezone=True), server_default=sa.sql.func.now(), nullable=False
     )

@@ -3,9 +3,8 @@ import datetime
 from sqlmodel import select
 
 import reflex as rx
-import sqlalchemy as sa
 
-from .local_auth import LocalAuthState, get_session
+from .local_auth import get_session
 from .auth_session import AuthSession
 from .user import User
 

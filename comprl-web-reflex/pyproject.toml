@@ -5,3 +5,11 @@ lint.select = [
     "B",  # bugbear
     #"D100", "D101", "D102", "D103",  # Complain about missing docstrings
 ]
+
+[[tool.mypy.overrides]]
+# here you can list third-party packages for which no type hints are provided (to avoid
+# complaints from mypy)
+module = [
+    "reflex",
+]
+ignore_missing_imports = true

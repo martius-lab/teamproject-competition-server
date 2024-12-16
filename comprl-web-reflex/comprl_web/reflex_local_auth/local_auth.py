@@ -30,31 +30,9 @@ def get_session() -> sa.orm.Session:
     return sa.orm.Session(engine)
 
 
-# def authenticated_user() -> User:
-#     """The currently authenticated user, or a dummy user if not authenticated.
-
-#     Returns:
-#         A LocalUser instance with id=-1 if not authenticated, or the LocalUser instance
-#         corresponding to the currently authenticated user.
-#     """
-#     with get_session() as session:
-        
-#         import ipdb; ipdb.set_trace()  # XXX Breakpoint
-#         result = session.scalars(
-#             select(User, LocalAuthSession).where(
-#                 LocalAuthSession.session_id == LocalAuthState.auth_token,
-#                 LocalAuthSession.expiration
-#                 >= datetime.datetime.now(datetime.timezone.utc),
-#                 User.user_id == LocalAuthSession.user_id,
-#             ),
-#         ).first()
-#         if result:
-#             return result
-#     return User(user_id=-1)  # type: ignore
-
-
 class LocalAuthState(rx.State):
-    # The auth_token is stored in local storage to persist across tab and browser sessions.
+    # The auth_token is stored in local storage to persist across tab and browser
+    # sessions.
     auth_token: str = rx.LocalStorage(name=AUTH_TOKEN_LOCAL_STORAGE_KEY)
 
     @rx.var(cache=True)
@@ -62,8 +40,8 @@ class LocalAuthState(rx.State):
         """The currently authenticated user, or a dummy user if not authenticated.
 
         Returns:
-            A LocalUser instance with id=-1 if not authenticated, or the LocalUser instance
-            corresponding to the currently authenticated user.
+            User instance corresponding to the currently authenticated user or None if
+            no user is authenticated.
         """
         with get_session() as session:
             result = session.scalars(
