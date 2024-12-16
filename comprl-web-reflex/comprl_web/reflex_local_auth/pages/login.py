@@ -6,6 +6,7 @@ app.add_page(
     title="Login",
 )
 """
+
 import reflex as rx
 
 from ..login import LoginState

@@ -6,6 +6,7 @@ app.add_page(
     title="Register",
 )
 """
+
 import reflex as rx
 
 from .. import routes

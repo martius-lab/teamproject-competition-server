@@ -4,6 +4,7 @@ access it for verifying access to event handlers and computed vars.
 
 Your app may inherit from LocalAuthState, or it may access it via the `get_state` API.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -60,7 +61,9 @@ class LocalAuthState(rx.State):
         """Destroy LocalAuthSessions associated with the auth_token."""
         with rx.session() as session:
             for auth_session in session.exec(
-                select(LocalAuthSession).where(LocalAuthSession.session_id == self.auth_token)
+                select(LocalAuthSession).where(
+                    LocalAuthSession.session_id == self.auth_token
+                )
             ).all():
                 session.delete(auth_session)
             session.commit()
