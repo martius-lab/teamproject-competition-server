@@ -35,6 +35,11 @@ def index() -> rx.Component:
         rx.color_mode.button(position="top-right"),
         rx.vstack(
             rx.heading("Welcome to my homepage!", font_size="2em"),
+            rx.cond(
+                LocalAuthState.is_authenticated,
+                rx.heading(f"Hello {LocalAuthState.authenticated_user.username}"),
+                rx.box(),
+            ),
             links(),
             spacing="2",
             padding_top="10%",
