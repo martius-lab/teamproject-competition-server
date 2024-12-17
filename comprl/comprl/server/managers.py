@@ -366,16 +366,29 @@ class MatchmakingManager:
         Args:
             player_id (PlayerID): The ID of the player to be removed.
         """
-
-    def _update(self, start_index: int = 0) -> None:
         self._queue = [entry for entry in self._queue if (entry.player_id != player_id)]
+
+    def _update(self) -> None:
+        self._match_quality_scores: list[tuple[str, str, float]] = []
+
+        # TODO: don't print to stdout but to shared memory file?
+        # print("Players in queue:")
+        # for entry in self._queue:
+        #     print(entry)
+
+        self._search_for_matches()
+
+        # print("Match quality scores:")
+        # for u1, u2, score in self._match_quality_scores:
+        #     print(f"{u1} vs {u2}: {score}")
+
+    def _search_for_matches(self, start_index: int = 0) -> None:
         """
         Updates the matchmaking manager.
 
         start_index (int, optional): The position in queue to start matching from.
         Used for recursion. Defaults to 0.
         """
-
         if len(self._queue) < self._min_players_waiting():
             return
 
@@ -383,8 +396,8 @@ class MatchmakingManager:
             for j in range(i + 1, len(self._queue)):
                 # try to match all players against each other
                 if self._try_start_game(self._queue[i], self._queue[j]):
-                    # players are matched and removed from queue. continue searching
-                    self._update(i)
+                    # Players are matched and removed from queue. Continue searching.
+                    self._search_for_matches(i)
                     return
         return
 
