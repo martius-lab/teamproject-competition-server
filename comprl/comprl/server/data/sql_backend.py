@@ -13,6 +13,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from comprl.server.data.interfaces import GameResult, UserRole
+from comprl.server.config import get_config
 
 
 DEFAULT_MU = 25.0
@@ -113,13 +114,16 @@ class GameData:
 class UserData:
     """Represents a data access object for managing game data in a SQLite database."""
 
-    def __init__(self, db_path: str | os.PathLike) -> None:
+    def __init__(self, db_path: str | os.PathLike | None = None) -> None:
         """
         Initializes a new instance of the UserData class.
 
         Args:
             db_path: Path to the sqlite database.
         """
+        if db_path is None:
+            db_path = get_config().database_path
+
         # connect to the database
         db_url = f"sqlite:///{db_path}"
         self.engine = sa.create_engine(db_url)
