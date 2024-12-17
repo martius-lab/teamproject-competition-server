@@ -141,7 +141,9 @@ def main():
         return
 
     server = Server(game_type)
-    networking.launch_server(server, conf.port)
+    networking.launch_server(
+        server=server, port=conf.port, update_interval=conf.server_update_interval
+    )
 
 
 if __name__ == "__main__":

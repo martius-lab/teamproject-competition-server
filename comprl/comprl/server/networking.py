@@ -434,12 +434,16 @@ class COMPFactory(ServerFactory):
         return protocol
 
 
-def launch_server(server: IServer, port: int = 65335) -> None:
+def launch_server(
+    server: IServer, port: int = 65335, update_interval: float = 1.0
+) -> None:
     """Create a COMP server.
 
     Args:
-        server (IServer): The server instance to be used.
-        port (int): The port number of the server. Defaults to 65335.
+        server: The server instance to be used.
+        port: The port number of the server. Defaults to 65335.
+        update_interval: The interval in seconds for updating the server (matchmaking
+            etc.).
 
     """
     log.info(f"Launching server on port {port}")
@@ -447,5 +451,5 @@ def launch_server(server: IServer, port: int = 65335) -> None:
     reactor.listenTCP(port, COMPFactory(server))  # type: ignore[attr-defined]
 
     # setup and link the on_update event
-    LoopingCall(server.on_update).start(1.0)
+    LoopingCall(server.on_update).start(update_interval)
     reactor.run()  # type: ignore[attr-defined]
