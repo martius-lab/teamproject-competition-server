@@ -11,7 +11,7 @@ def links() -> rx.Component:
     return rx.fragment(
         rx.stack(
             rx.link("Home", href="/"),
-            rx.link("Dashboard", href="/dashboard"),
+            rx.link("User Info", href="/dashboard"),
             rx.link("Leaderboard", href="/leaderboard"),
             rx.link("Games", href="/games"),
             rx.cond(

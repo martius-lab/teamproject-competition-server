@@ -22,6 +22,7 @@ def game_overview() -> rx.Component:
                 data=ProtectedState.user_games,
                 columns=ProtectedState.user_games_header,
                 search=True,
+                pagination=True,
             ),
             rx.text("No games played yet."),
         ),

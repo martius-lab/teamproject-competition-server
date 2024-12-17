@@ -18,6 +18,7 @@ def leaderboard() -> rx.Component:
             columns=["Ranking", "Username", "µ / Σ"],
             search=True,
             sort=False,
+            pagination=True,
         ),
         spacing="2",
         padding_top="10%",

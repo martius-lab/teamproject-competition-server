@@ -10,7 +10,7 @@ from typing import Optional
 
 import bcrypt
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 from comprl.server.data.interfaces import GameResult, UserRole
@@ -56,15 +56,21 @@ class Game(Base):
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     game_id: Mapped[str] = mapped_column(unique=True)
-    # TODO foreign key
-    user1: Mapped[int]
-    user2: Mapped[int]
+
+    user1 = mapped_column(sa.ForeignKey("users.user_id"))
+    user2 = mapped_column(sa.ForeignKey("users.user_id"))
+    user1_: Mapped["User"] = relationship(foreign_keys=[user1])
+    user2_: Mapped["User"] = relationship(foreign_keys=[user2])
+
     score1: Mapped[float]
     score2: Mapped[float]
     start_time: Mapped[str]
     end_state: Mapped[int]
-    winner: Mapped[Optional[int]]
-    disconnected: Mapped[Optional[int]]
+
+    winner: Mapped[Optional[int]] = mapped_column(sa.ForeignKey("users.user_id"))
+    winner_: Mapped["User"] = relationship(foreign_keys=[winner])
+    disconnected: Mapped[Optional[int]] = mapped_column(sa.ForeignKey("users.user_id"))
+    disconnected_: Mapped["User"] = relationship(foreign_keys=[disconnected])
 
 
 class GameData:

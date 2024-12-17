@@ -97,35 +97,46 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
             return []
 
         with get_session() as session:
-            stmt = sa.select(Game).filter(
-                sa.or_(
-                    Game.user1 == self.authenticated_user.user_id,
-                    Game.user2 == self.authenticated_user.user_id,
+            stmt = (
+                sa.select(Game)
+                .options(
+                    sa.orm.joinedload(Game.user1_),
+                    sa.orm.joinedload(Game.user2_),
+                    sa.orm.joinedload(Game.winner_),
+                    sa.orm.joinedload(Game.disconnected_),
                 )
+                .filter(
+                    sa.or_(
+                        Game.user1 == self.authenticated_user.user_id,
+                        Game.user2 == self.authenticated_user.user_id,
+                    )
+                )
+                .order_by(Game.start_time.desc())
             )
             return session.scalars(stmt).all()
 
-    user_games_header: list[str] = ["ID", "Player 1", "Player 2", "Result"]
+    user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
 
     @rx.var
     def user_games(self) -> Sequence[Sequence[str]]:
         games = []
         for game in self._get_user_games():
             if game.end_state == GameEndState.WIN:
-                result = f"{game.winner} won ({game.score1} : {game.score2})"
+                result = f"{game.winner_.username} won ({game.score1} : {game.score2})"
             elif game.end_state == GameEndState.DRAW:
                 result = f"Draw ({game.score1} : {game.score2})"
             elif game.end_state == GameEndState.DISCONNECTED:
-                result = f"{game.disconnected} disconnected"
+                result = f"{game.disconnected_.username} disconnected"
             else:
                 result = "Unknown"
 
             games.append(
                 (
-                    str(game.game_id),
-                    game.user1,
-                    game.user2,
+                    game.user1_.username,
+                    game.user2_.username,
                     result,
+                    game.start_time,
+                    str(game.game_id),
                 )
             )
 
