@@ -3,14 +3,15 @@ This module contains classes that manage game instances and players.
 """
 
 import logging as log
-from typing import Type
 from datetime import datetime
 from openskill.models import PlackettLuce
-from typing import TypeAlias
+from typing import Type, NamedTuple
 
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.data import GameData, UserData
+from comprl.server.data.sql_backend import User
+from comprl.server.data.interfaces import UserRole
 from comprl.server.config import get_config
 
 
@@ -129,14 +130,19 @@ class PlayerManager:
         if player is None:
             return False
 
-        id = UserData(get_config().database_path).get_user_id(token)
+        user = UserData(get_config().database_path).get_user_by_token(token)
 
-        if id is not None:
+        if user is not None:
             # add player to authenticated players
-            self.auth_players[player_id] = (self.connected_players[player_id], id)
+            self.auth_players[player_id] = (
+                self.connected_players[player_id],
+                user.user_id,
+            )
             # set user_id of player
-            player.user_id = id
-            log.debug(f"Player {player_id} authenticated")
+            player.user_id = user.user_id
+            log.debug(
+                "Player authenticated | user=%s player_id=%s", user.username, player_id
+            )
             return True
 
         return False
@@ -156,6 +162,18 @@ class PlayerManager:
 
             if player.id in self.auth_players:
                 del self.auth_players[player.id]
+
+    def get_user(self, user_id: int) -> User | None:
+        """
+        Retrieves a user based on their ID.
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            Optional[User]: The user object if found, None otherwise.
+        """
+        return UserData(get_config().database_path).get(user_id)
 
     def get_user_id(self, player_id: PlayerID) -> int | None:
         """
@@ -244,7 +262,18 @@ class PlayerManager:
 
 # Type of a player entry in the queue, containing the player ID, user ID, mu, sigma
 # and time they joined the queue
-QueuePlayer: TypeAlias = tuple[PlayerID, int, float, float, datetime]
+class QueueEntry(NamedTuple):
+    """Represents an entry in the matchmaking queue."""
+
+    player_id: PlayerID
+    user: User
+    in_queue_since: datetime
+
+    def __str__(self) -> str:
+        return (
+            f"Player {self.player_id} ({self.user.username}) joined the queue at"
+            f" {self.in_queue_since}"
+        )
 
 
 class MatchmakingManager:
@@ -266,7 +295,7 @@ class MatchmakingManager:
         config = get_config()
 
         # queue storing player id, mu, sigma and time they joined the queue
-        self._queue: list[QueuePlayer] = []
+        self._queue: list[QueueEntry] = []
         # The model used for matchmaking
         self.model = PlackettLuce()
         self._match_quality_threshold = config.match_quality_threshold
@@ -305,12 +334,28 @@ class MatchmakingManager:
         if user_id is None:
             log.error(f"Player {player_id} is not authenticated but tried to queue.")
             return
-        mu, sigma = self.player_manager.get_matchmaking_parameters(user_id)
+        # mu, sigma = self.player_manager.get_matchmaking_parameters(user_id)
+        user = self.player_manager.get_user(user_id)
+        if user is None:
+            log.error(
+                (
+                    "Failed to add user to queue, user not found in database"
+                    " | player_id={%s}, user_id={%d}"
+                ),
+                player_id,
+                user_id,
+            )
+            return
 
         # check if enough players are waiting
-        self._queue.append((player_id, user_id, mu, sigma, datetime.now()))
+        self._queue.append(QueueEntry(player_id, user, datetime.now()))
 
-        log.debug(f"Player {player_id} was added to the queue")
+        log.debug(
+            "Player was added to the queue | user=%s role=%s player_id=%s",
+            user.username,
+            user.role,
+            player_id,
+        )
 
         return
 
@@ -321,13 +366,9 @@ class MatchmakingManager:
         Args:
             player_id (PlayerID): The ID of the player to be removed.
         """
-        self._queue = [
-            (p_id, u_id, mu, sigma, time)
-            for p_id, u_id, mu, sigma, time in self._queue
-            if (p_id != player_id)
-        ]
 
     def _update(self, start_index: int = 0) -> None:
+        self._queue = [entry for entry in self._queue if (entry.player_id != player_id)]
         """
         Updates the matchmaking manager.
 
@@ -358,23 +399,25 @@ class MatchmakingManager:
             len(self.player_manager.auth_players) * self._percentage_min_players_waiting
         )
 
-    def _try_start_game(self, player1: QueuePlayer, player2: QueuePlayer) -> bool:
+    def _try_start_game(self, player1: QueueEntry, player2: QueueEntry) -> bool:
         """
         Tries to start a game with the given players.
 
         Args:
-            player1 (QueuePlayer): The first player.
-            player2 (QueuePlayer): The second player.
+            player1: The first player.
+            player2: The second player.
 
         Returns:
             bool: True if the game was started, False otherwise.
         """
-        player1_id, user1_id, _, _, _ = player1
-        player2_id, user2_id, _, _, _ = player2
-        match_quality = self._rate_match_quality(player1, player2)
         # prevent the user from playing against himself
-        if user1_id == user2_id:
+        if player1.user.user_id == player2.user.user_id:
             return False
+
+        match_quality = self._rate_match_quality(player1, player2)
+        self._match_quality_scores.append(
+            (player1.user.username, player2.user.username, match_quality)
+        )
 
         if match_quality > self._match_quality_threshold:
             # match the players. We could search for best match but using the first adds
@@ -382,8 +425,8 @@ class MatchmakingManager:
             # longer, so its fairer for them.
 
             players = [
-                self.player_manager.get_player_by_id(player1_id),
-                self.player_manager.get_player_by_id(player2_id),
+                self.player_manager.get_player_by_id(player1.player_id),
+                self.player_manager.get_player_by_id(player2.player_id),
             ]
 
             filtered_players = [player for player in players if player is not None]
@@ -391,35 +434,33 @@ class MatchmakingManager:
             if len(filtered_players) != 2:
                 log.error("Player was in queue but not in player manager")
                 if players[0] is None:
-                    self.remove(player1_id)
+                    self.remove(player1.player_id)
                 if players[1] is None:
-                    self.remove(player2_id)
+                    self.remove(player2.player_id)
                 return False
 
-            self.remove(player1_id)
-            self.remove(player2_id)
+            self.remove(player1.player_id)
+            self.remove(player2.player_id)
 
             game = self.game_manager.start_game(filtered_players)
             game.add_finish_callback(self._end_game)
             return True
         return False
 
-    def _rate_match_quality(self, player1: QueuePlayer, player2: QueuePlayer) -> float:
+    def _rate_match_quality(self, player1: QueueEntry, player2: QueueEntry) -> float:
         """
         Rates the match quality between two players.
 
         Args:
-            player1 (QueuePlayer): The first player.
-            player2 (QueuePlayer): The second player.
+            player1: The first player.
+            player2: The second player.
 
         Returns:
             float: The match quality.
         """
-        _, _, mu_p1, sigma_p1, time_stamp_p1 = player1
-        _, _, mu_p2, sigma_p2, time_stamp_p2 = player2
         now = datetime.now()
-        waiting_time_p1 = (now - time_stamp_p1).total_seconds()
-        waiting_time_p2 = (now - time_stamp_p2).total_seconds()
+        waiting_time_p1 = (now - player1.in_queue_since).total_seconds()
+        waiting_time_p2 = (now - player2.in_queue_since).total_seconds()
         combined_waiting_time = waiting_time_p1 + waiting_time_p2
         # calculate a bonus if the players waited a long time
         waiting_bonus = max(
@@ -428,8 +469,12 @@ class MatchmakingManager:
         # TODO play with this function. Maybe even use polynomial or exponential growth,
         # depending on waiting time
 
-        rating_p1 = self.model.create_rating([mu_p1, sigma_p1], "player1")
-        rating_p2 = self.model.create_rating([mu_p2, sigma_p2], "player2")
+        rating_p1 = self.model.create_rating(
+            [player1.user.mu, player1.user.sigma], "player1"
+        )
+        rating_p2 = self.model.create_rating(
+            [player2.user.mu, player2.user.sigma], "player2"
+        )
         draw_prob = self.model.predict_draw([[rating_p1], [rating_p2]])
         return draw_prob + waiting_bonus
 

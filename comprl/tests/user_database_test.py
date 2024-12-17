@@ -18,7 +18,10 @@ def test_user_data(tmp_path):
     ]
 
     for user_id, user in zip(user_ids, users, strict=True):
-        assert user_data.get_user_id(user[1]) == user_id
+        _user = user_data.get_user_by_token(user[1])
+        assert _user is not None
+        assert _user.user_id == user_id
+        assert _user.username == user[0]
 
     user_data.set_matchmaking_parameters(user_id=user_ids[1], mu=23.0, sigma=3.0)
     mu0, sigma0 = user_data.get_matchmaking_parameters(user_ids[0])

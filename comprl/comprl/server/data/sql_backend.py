@@ -167,19 +167,28 @@ class UserData:
 
             return user.user_id
 
-    def get_user_id(self, user_token: str) -> int | None:
-        """
-        Retrieves the ID of a user based on their token.
+    def get(self, user_id: int) -> User:
+        """Get user with the specified ID."""
+        with sa.orm.Session(self.engine) as session:
+            user = session.get(User, user_id)
+
+        if user is None:
+            raise ValueError(f"User with ID {user_id} not found.")
+
+        return user
+
+    def get_user_by_token(self, access_token: str) -> User | None:
+        """Retrieves a user based on their access token.
 
         Args:
-            user_token (str): The token of the user.
+            access_token: The access token of the user.
 
         Returns:
-            int: The ID of the user, or None if the user is not found.
+            User instance or None if no user with the given token is found.
         """
         with sa.orm.Session(self.engine) as session:
-            user = session.query(User).filter(User.token == user_token).first()
-            return user.user_id if user is not None else None
+            user = session.query(User).filter(User.token == access_token).first()
+            return user
 
     def get_matchmaking_parameters(self, user_id: int) -> tuple[float, float]:
         """
