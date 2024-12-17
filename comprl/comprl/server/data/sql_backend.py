@@ -39,7 +39,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    user_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(init=False, primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str] = mapped_column()
     token: Mapped[str] = mapped_column(sa.String(64))
@@ -53,7 +53,7 @@ class Game(Base):
 
     __tablename__ = "games"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
     game_id: Mapped[str] = mapped_column(unique=True)
     # TODO foreign key
     user1: Mapped[int]

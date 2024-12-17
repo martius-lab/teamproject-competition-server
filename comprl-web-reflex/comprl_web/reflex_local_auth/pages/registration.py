@@ -34,11 +34,13 @@ def register_form() -> rx.Component:
         rx.vstack(
             rx.heading("Create an account", size="7"),
             register_error(),
+            rx.text("Registration Key"),
+            input_100w("key"),
             rx.text("Username"),
             input_100w("username"),
             rx.text("Password"),
             input_100w("password", type="password"),
-            rx.text("Confirm Password"),
+            rx.text("Repeat Password"),
             input_100w("confirm_password", type="password"),
             rx.button("Sign up", width="100%"),
             rx.center(

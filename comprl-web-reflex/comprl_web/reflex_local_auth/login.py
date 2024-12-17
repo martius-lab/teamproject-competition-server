@@ -21,7 +21,6 @@ def _verify_password(user_password_hash: bytes, secret: str) -> bool:
     Returns:
         True if the hashed secret matches this user's password_hash.
     """
-    return user_password_hash == secret  # FIXME
     return bcrypt.checkpw(
         password=secret.encode("utf-8"),
         hashed_password=user_password_hash,
