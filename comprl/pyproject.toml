@@ -34,6 +34,12 @@ dev = [
     "ruff",
 ]
 
+[tool.setuptools]
+packages = ["comprl"]
+
+[tool.setuptools.package-data]
+comprl = ["py.typed"]
+
 
 [tool.ruff]
 lint.select = [
@@ -59,7 +65,3 @@ module = [
     "pytest",
 ]
 ignore_missing_imports = true
-
-
-[tool.setuptools]
-packages = ["comprl"]
