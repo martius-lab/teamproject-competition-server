@@ -5,7 +5,7 @@ import pytest
 from comprl.server.data import ConnectionInfo, UserData, GameData
 from comprl.server.util import IDGenerator
 from comprl.server.data.interfaces import GameEndState, GameResult
-from comprl.server.data.sql_backend import create_database_tables, hash_password
+from comprl.server.data.sql_backend import create_database_tables
 import comprl.scripts.reset as reset
 
 
@@ -20,22 +20,22 @@ def test_reset(tmp_path):
 
     userID1 = user_data.add(
         user_name="user_1",
-        user_password=hash_password("pw1"),
+        user_password="pw1",
         user_token=str(IDGenerator.generate_player_id()),
     )
     userID2 = user_data.add(
         user_name="user_2",
-        user_password=hash_password("pw2"),
+        user_password="pw2",
         user_token=str(IDGenerator.generate_player_id()),
     )
     userID3 = user_data.add(
         user_name="user_3",
-        user_password=hash_password("pw3"),
+        user_password="pw3",
         user_token=str(IDGenerator.generate_player_id()),
     )
     userID4 = user_data.add(
         user_name="user_4",
-        user_password=hash_password("pw4"),
+        user_password="pw4",
         user_token=str(IDGenerator.generate_player_id()),
     )
 

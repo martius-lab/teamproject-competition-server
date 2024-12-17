@@ -5,16 +5,17 @@ Implementation of the data access objects for managing game and user data in SQL
 from __future__ import annotations
 
 import dataclasses
-import sqlite3
 from typing import Optional, Sequence
 
 import bcrypt
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
 from comprl.server.data.interfaces import GameResult, UserRole
-from comprl.shared.types import GameID
+
+
+DEFAULT_MU = 25.0
+DEFAULT_SIGMA = 8.333
 
 
 @dataclasses.dataclass
@@ -45,8 +46,8 @@ class User(Base):
     password: Mapped[str] = mapped_column()
     token: Mapped[str] = mapped_column(sa.String(64))
     role: Mapped[str] = mapped_column(default="user")
-    mu: Mapped[float] = mapped_column(default=25.0)
-    sigma: Mapped[float] = mapped_column(default=8.333)
+    mu: Mapped[float] = mapped_column(default=DEFAULT_MU)
+    sigma: Mapped[float] = mapped_column(default=DEFAULT_SIGMA)
 
 
 class Game(Base):
@@ -88,7 +89,7 @@ class GameData:
     def __init__(self, connection: SQLiteConnectionInfo) -> None:
         assert (
             connection.table == Game.__tablename__
-        ), "Games table name must be 'games'"
+        ), f"Games table name must be '{Game.__tablename__}'"
 
         # connect to the database
         db_url = f"sqlite:///{connection.host}"
@@ -150,23 +151,13 @@ class UserData:
         Args:
             connection (SQLiteConnectionInfo): The connection information for SQLite.
         """
-        # connect to the database
-        self.connection = sqlite3.connect(connection.host)
-        self.cursor = self.connection.cursor()
-        self.table = connection.table
+        assert (
+            connection.table == User.__tablename__
+        ), f"User table name must be '{User.__tablename__}'"
 
-        self.cursor.execute(
-            f"""
-            CREATE TABLE IF NOT EXISTS {connection.table} (
-            user_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL,
-            role TEXT NOT NULL DEFAULT 'user',
-            token TEXT NOT NULL,
-            mu FLOAT NOT NULL DEFAULT 25.0,
-            sigma FLOAT NOT NULL DEFAULT 8.333
-            )"""
-        )
+        # connect to the database
+        db_url = f"sqlite:///{connection.host}"
+        self.engine = sa.create_engine(db_url)
 
     def add(
         self,
@@ -174,70 +165,38 @@ class UserData:
         user_password: str,
         user_token: str,
         user_role=UserRole.USER,
-        user_mu=25.000,
-        user_sigma=8.333,
+        user_mu=DEFAULT_MU,
+        user_sigma=DEFAULT_SIGMA,
     ) -> int:
         """
         Adds a new user to the database.
 
         Args:
-            user_name (str): The name of the user.
-            user_password (str): The password of the user.
-            user_token (str): The token of the user.
-            user_role (UserRole, optional): The role of the user.
+            user_name: The name of the user.
+            user_password: The password of the user.
+            user_token: The token of the user.
+            user_role: The role of the user.
             Defaults to UserRole.USER.
-            user_mu (float, optional): The mu value of the user. Defaults to 25.
-            user_sigma (float, optional): The sigma value of the user. Defaults to 8.33.
+            user_mu: The mu value of the user.
+            user_sigma: The sigma value of the user.
 
         Returns:
             int: The ID of the newly added user.
         """
+        with sa.orm.Session(self.engine) as session:
+            user = User(
+                username=user_name,
+                password=hash_password(user_password),
+                token=user_token,
+                role=user_role.value,
+                mu=user_mu,
+                sigma=user_sigma,
+            )
+            session.add(user)
+            session.commit()
+            session.refresh(user)
 
-        user_role = user_role.value
-
-        self.cursor.execute(
-            f"""INSERT INTO {self.table}(username, password, role, token, mu, sigma)
-            VALUES (?,?,?,?,?,?)""",
-            (user_name, user_password, user_role, user_token, user_mu, user_sigma),
-        )
-        self.cursor.execute(
-            f"""SELECT user_id FROM {self.table} WHERE token=?""",
-            (user_token,),
-        )
-        self.connection.commit()
-        return self.cursor.fetchone()[0]
-
-    def remove(self, user_id: int) -> None:
-        """
-        Removes a user from the database based on their ID.
-
-        Args:
-            user_id (int): The ID of the user to be removed.
-        """
-        self.cursor.execute(
-            f"""DELETE FROM {self.table} WHERE user_id=?""",
-            (user_id,),
-        )
-        self.connection.commit()
-
-    def is_verified(self, user_token: str) -> bool:
-        """
-        Checks if a user is verified based on their token.
-
-        Args:
-            user_token (str): The token of the user.
-
-        Returns:
-            bool: True if the user is verified, False otherwise.
-        """
-        self.cursor.execute(
-            f"""SELECT user_id FROM {self.table} WHERE token=?""",
-            (user_token,),
-        )
-        result = self.cursor.fetchone()
-        if result is not None:
-            return True
-        return False
+            return user.user_id
 
     def get_user_id(self, user_token: str) -> int | None:
         """
@@ -247,17 +206,11 @@ class UserData:
             user_token (str): The token of the user.
 
         Returns:
-            int: The ID of the user, or -1 if the user is not found.
+            int: The ID of the user, or None if the user is not found.
         """
-        self.cursor.execute(
-            f"""SELECT user_id FROM {self.table} WHERE token=?""",
-            (user_token,),
-        )
-        result = self.cursor.fetchone()
-        if result is not None:
-            return result[0]
-
-        return None
+        with sa.orm.Session(self.engine) as session:
+            user = session.query(User).filter(User.token == user_token).first()
+            return user.user_id if user is not None else None
 
     def get_matchmaking_parameters(self, user_id: int) -> tuple[float, float]:
         """
@@ -269,11 +222,12 @@ class UserData:
         Returns:
             tuple[float, float]: The mu and sigma values of the user.
         """
-        self.cursor.execute(
-            f"""SELECT mu, sigma FROM {self.table} WHERE user_id=?""",
-            (user_id,),
-        )
-        return self.cursor.fetchone()
+        with sa.orm.Session(self.engine) as session:
+            user = session.get(User, user_id)
+            if user is None:
+                raise ValueError(f"User with ID {user_id} not found.")
+
+            return user.mu, user.sigma
 
     def set_matchmaking_parameters(self, user_id: int, mu: float, sigma: float) -> None:
         """
@@ -284,11 +238,20 @@ class UserData:
             mu (float): The new mu value of the user.
             sigma (float): The new sigma value of the user.
         """
-        self.cursor.execute(
-            f"""UPDATE {self.table} SET mu=?, sigma=? WHERE user_id=?""",
-            (mu, sigma, user_id),
-        )
-        self.connection.commit()
+        with sa.orm.Session(self.engine) as session:
+            user = session.get(User, user_id)
+            if user is None:
+                raise ValueError(f"User with ID {user_id} not found.")
+
+            user.mu = mu
+            user.sigma = sigma
+            session.commit()
+
+    def reset_all_matchmaking_parameters(self) -> None:
+        """Resets the matchmaking parameters of all users."""
+        with sa.orm.Session(self.engine) as session:
+            session.query(User).update({"mu": DEFAULT_MU, "sigma": DEFAULT_SIGMA})
+            session.commit()
 
 
 def hash_password(secret: str) -> bytes:

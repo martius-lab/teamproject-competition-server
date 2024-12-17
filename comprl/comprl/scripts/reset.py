@@ -1,4 +1,4 @@
-""" script to reset the game database and the mu and sigma in the user database"""
+"""script to reset the game database and the mu and sigma in the user database"""
 
 from comprl.server.data import UserData, GameData
 from comprl.server.data import ConnectionInfo
@@ -25,20 +25,9 @@ def reset_games(game_data: GameData):
 
 def reset_elo(user_data: UserData):
     """reset the elo in the user database: set mu=25.000 and sigma=8.333"""
-
-    # reset mu=25.000 and sigma=8.333
-    default_mu = 25.000
-    default_sigma = 8.333
-    user_data.cursor.execute(
-        f"""
-    UPDATE {user_data.table} SET mu = ?, sigma = ?""",
-        (default_mu, default_sigma),
-    )
-
-    user_data.connection.commit()
+    user_data.reset_all_matchmaking_parameters()
     logging.info(
-        "The matchmaking parameters have been reset to "
-        "mu=25.000 and sigma=8.333 for all users."
+        "The matchmaking parameters have been reset to default values for all users."
     )
 
 

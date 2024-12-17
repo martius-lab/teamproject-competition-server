@@ -1,9 +1,13 @@
 import pytest
+
 from comprl.server.data import ConnectionInfo, UserData
+from comprl.server.data.sql_backend import create_database_tables
 
 
 def test_user_data(tmp_path):
-    db_file = tmp_path / "users.db"
+    db_file = tmp_path / "database.db"
+    create_database_tables(db_file)
+
     table_name = "users"
     user_data = UserData(ConnectionInfo(host=db_file, table=table_name))
 
@@ -13,9 +17,6 @@ def test_user_data(tmp_path):
         user_data.add(user_name=u[0], user_password="pass", user_token=u[1])
         for u in users
     ]
-
-    for user in users:
-        assert user_data.is_verified(user[1])
 
     for user_id, user in zip(user_ids, users, strict=True):
         assert user_data.get_user_id(user[1]) == user_id
