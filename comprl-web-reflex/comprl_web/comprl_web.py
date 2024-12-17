@@ -75,6 +75,13 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
         return ranked_users
 
     @rx.var
+    def ranked_users(self) -> Sequence[tuple[int, str, str]]:
+        return [
+            (i + 1, user.username, f"{user.mu:.2f} / {user.sigma:.2f}")
+            for i, user in enumerate(self._get_ranked_users())
+        ]
+
+    @rx.var
     def ranking_position(self) -> int:
         if not self.is_authenticated:
             return -1
@@ -90,8 +97,7 @@ def links() -> rx.Component:
     return rx.fragment(
         rx.link("Home", href="/"),
         rx.link("Dashboard", href="/dashboard"),
-        rx.link("Custom Register", href="/custom-register"),
-        rx.link("User Info", href="/user-info"),
+        rx.link("Leaderboard", href="/leaderboard"),
         rx.cond(
             reflex_local_auth.LocalAuthState.is_authenticated,
             rx.link(
@@ -168,6 +174,24 @@ def dashboard():
                     rx.data_list.value(ProtectedState.game_statistics.num_disconnects),
                 ),
             ),
+        ),
+        spacing="2",
+        padding_top="10%",
+        align="center",
+    )
+
+
+@rx.page(on_load=ProtectedState.on_load)
+@reflex_local_auth.require_login
+def leaderboard():
+    return rx.vstack(
+        rx.heading("Leaderboard"),
+        links(),
+        rx.data_table(
+            data=ProtectedState.ranked_users,
+            columns=["Ranking", "Username", "µ / Σ"],
+            search=True,
+            sort=False,
         ),
         spacing="2",
         padding_top="10%",
