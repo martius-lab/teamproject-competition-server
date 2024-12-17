@@ -16,99 +16,7 @@ import NextHead from "next/head"
 
 
 
-export function Fragment_9017984ada32ffa55f5d2870ebd3c887 () {
-  const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
-
-  return (
-    <Fragment>
-
-{isTrue((connectErrors.length > 0)) ? (
-  <Fragment>
-
-<LucideWifiOffIcon css={({ ["color"] : "crimson", ["zIndex"] : 9999, ["position"] : "fixed", ["bottom"] : "33px", ["right"] : "33px", ["animation"] : (pulse+" 1s infinite") })} size={32}/>
-</Fragment>
-) : (
-  <Fragment/>
-)}
-</Fragment>
-  )
-}
-
-export function Toaster_6e6ebf8d7ce589d59b7d382fb7576edf () {
-  const { resolvedColorMode } = useContext(ColorModeContext)
-
-
-  refs['__toast'] = toast
-  const [addEvents, connectErrors] = useContext(EventLoopContext);
-  const toast_props = ({ ["description"] : ("Check if server is reachable at "+getBackendURL(env.EVENT).href), ["closeButton"] : true, ["duration"] : 120000, ["id"] : "websocket-error" });
-  const [userDismissed, setUserDismissed] = useState(false);
-  (useEffect(
-() => {
-    if ((connectErrors.length >= 2)) {
-        if (!userDismissed) {
-            toast.error(
-                `Cannot connect to server: ${((connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : '')}.`,
-                {...toast_props, onDismiss: () => setUserDismissed(true)},
-            )
-        }
-    } else {
-        toast.dismiss("websocket-error");
-        setUserDismissed(false);  // after reconnection reset dismissed state
-    }
-}
-, [connectErrors]))
-
-  return (
-    <Toaster closeButton={false} expand={true} position={"bottom-right"} richColors={true} theme={resolvedColorMode}/>
-  )
-}
-
-export function Fragment_8ab9e2c5b8041f4f88578517f00c887d () {
-  const reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state = useContext(StateContexts.reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state)
-  const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
-
-  return (
-    <Fragment>
-
-{isTrue(reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state.is_authenticated) ? (
-  <Fragment>
-
-<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })} onClick={((...args) => (addEvents([(Event("reflex___state____state.comprl_web___reflex_local_auth___local_auth____local_auth_state.do_logout", ({  }), ({  })))], args, ({  }))))}>
-
-<NextLink href={"/"} passHref={true}>
-
-{("Logout ("+reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state.authenticated_user?.["username"]+")")}
-</NextLink>
-</RadixThemesLink>
-</Fragment>
-) : (
-  <Fragment>
-
-<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
-
-<NextLink href={"/login"} passHref={true}>
-
-{"Login"}
-</NextLink>
-</RadixThemesLink>
-<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
-
-<NextLink href={"/register"} passHref={true}>
-
-{"Register"}
-</NextLink>
-</RadixThemesLink>
-</Fragment>
-)}
-</Fragment>
-  )
-}
-
-export function Errorboundary_4f6f0949c41746c8a65ce15821741897 () {
+export function Errorboundary_28afb3aa2ecb6125048d178487efd420 () {
   const [addEvents, connectErrors] = useContext(EventLoopContext);
 
   const on_error_0f5dbf674521530422d73a7946faf6d4 = useCallback(((_error, _info) => (addEvents([(Event("reflex___state____state.reflex___state____frontend_event_exception_state.handle_frontend_exception", ({ ["stack"] : _error["stack"], ["component_stack"] : _info["componentStack"] }), ({  })))], [_error, _info], ({  })))), [addEvents, Event])
@@ -155,13 +63,13 @@ export function Errorboundary_4f6f0949c41746c8a65ce15821741897 () {
 {"Leaderboard"}
 </NextLink>
 </RadixThemesLink>
-<Fragment_8ab9e2c5b8041f4f88578517f00c887d/>
+<Fragment_9c1046c4995d7f3aab3ce2e068474102/>
 </RadixThemesFlex>
 <RadixThemesSeparator size={"4"}/>
 </Fragment>
 <RadixThemesFlex css={({ ["display"] : "flex", ["alignItems"] : "center", ["justifyContent"] : "center", ["paddingTop"] : "10vh" })}>
 
-<Fragment_6077619a1f9f1be5e629e5ebe4b9c550/>
+<Fragment_119a6463a3f4c16d2511516b121c0178/>
 </RadixThemesFlex>
 </RadixThemesFlex>
 </Fragment>
@@ -177,7 +85,122 @@ export function Errorboundary_4f6f0949c41746c8a65ce15821741897 () {
   )
 }
 
-export function Fragment_6077619a1f9f1be5e629e5ebe4b9c550 () {
+export function Fragment_9017984ada32ffa55f5d2870ebd3c887 () {
+  const [addEvents, connectErrors] = useContext(EventLoopContext);
+
+
+
+  return (
+    <Fragment>
+
+{isTrue((connectErrors.length > 0)) ? (
+  <Fragment>
+
+<LucideWifiOffIcon css={({ ["color"] : "crimson", ["zIndex"] : 9999, ["position"] : "fixed", ["bottom"] : "33px", ["right"] : "33px", ["animation"] : (pulse+" 1s infinite") })} size={32}/>
+</Fragment>
+) : (
+  <Fragment/>
+)}
+</Fragment>
+  )
+}
+
+export function Fragment_9c1046c4995d7f3aab3ce2e068474102 () {
+  const reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state = useContext(StateContexts.reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state)
+  const [addEvents, connectErrors] = useContext(EventLoopContext);
+
+
+
+  return (
+    <Fragment>
+
+{isTrue(reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state.is_authenticated) ? (
+  <Fragment>
+
+<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })} onClick={((...args) => (addEvents([(Event("reflex___state____state.comprl_web___reflex_local_auth___local_auth____local_auth_state.do_logout", ({  }), ({  })))], args, ({  }))))}>
+
+<NextLink href={"/"} passHref={true}>
+
+{("Logout ("+reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state.authenticated_user?.["username"]+")")}
+</NextLink>
+</RadixThemesLink>
+</Fragment>
+) : (
+  <Fragment>
+
+<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
+
+<NextLink href={"/login"} passHref={true}>
+
+{"Login"}
+</NextLink>
+</RadixThemesLink>
+<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
+
+<NextLink href={"/register"} passHref={true}>
+
+{"Register"}
+</NextLink>
+</RadixThemesLink>
+</Fragment>
+)}
+</Fragment>
+  )
+}
+
+export function Div_bd4c022a8f796682aa6392e9d4c102e9 () {
+  const [addEvents, connectErrors] = useContext(EventLoopContext);
+
+
+
+  return (
+    <div css={({ ["position"] : "fixed", ["width"] : "100vw", ["height"] : "0" })} title={("Connection Error: "+((connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''))}>
+
+<Fragment_9017984ada32ffa55f5d2870ebd3c887/>
+</div>
+  )
+}
+
+export function Toaster_6e6ebf8d7ce589d59b7d382fb7576edf () {
+  const { resolvedColorMode } = useContext(ColorModeContext)
+
+
+  refs['__toast'] = toast
+  const [addEvents, connectErrors] = useContext(EventLoopContext);
+  const toast_props = ({ ["description"] : ("Check if server is reachable at "+getBackendURL(env.EVENT).href), ["closeButton"] : true, ["duration"] : 120000, ["id"] : "websocket-error" });
+  const [userDismissed, setUserDismissed] = useState(false);
+  (useEffect(
+() => {
+    if ((connectErrors.length >= 2)) {
+        if (!userDismissed) {
+            toast.error(
+                `Cannot connect to server: ${((connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : '')}.`,
+                {...toast_props, onDismiss: () => setUserDismissed(true)},
+            )
+        }
+    } else {
+        toast.dismiss("websocket-error");
+        setUserDismissed(false);  // after reconnection reset dismissed state
+    }
+}
+, [connectErrors]))
+
+  return (
+    <Toaster closeButton={false} expand={true} position={"bottom-right"} richColors={true} theme={resolvedColorMode}/>
+  )
+}
+
+const pulse = keyframes`
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+`
+
+
+export function Fragment_119a6463a3f4c16d2511516b121c0178 () {
   const reflex___state____state = useContext(StateContexts.reflex___state____state)
   const reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state__comprl_web___reflex_local_auth___login____login_state = useContext(StateContexts.reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state__comprl_web___reflex_local_auth___login____login_state)
   const [addEvents, connectErrors] = useContext(EventLoopContext);
@@ -186,10 +209,10 @@ export function Fragment_6077619a1f9f1be5e629e5ebe4b9c550 () {
 
 
   
-    const handleSubmit_0e0b9f34d2c7a258da519a055b7e990c = useCallback((ev) => {
+    const handleSubmit_4996648142a20c40db8f5d0f5bb14d48 = useCallback((ev) => {
         const $form = ev.target
         ev.preventDefault()
-        const form_data = {...Object.fromEntries(new FormData($form).entries()), ...({ ["password"] : getRefValue(refs["ref_password"]), ["username"] : getRefValue(refs["ref_username"]) })};
+        const form_data = {...Object.fromEntries(new FormData($form).entries()), ...({ ["username"] : getRefValue(refs["ref_username"]), ["password"] : getRefValue(refs["ref_password"]) })};
 
         (((...args) => (addEvents([(Event("reflex___state____state.comprl_web___reflex_local_auth___local_auth____local_auth_state.comprl_web___reflex_local_auth___login____login_state.on_submit", ({ ["form_data"] : form_data }), ({  })))], args, ({  }))))());
 
@@ -207,7 +230,7 @@ export function Fragment_6077619a1f9f1be5e629e5ebe4b9c550 () {
 
 <RadixThemesCard>
 
-<RadixFormRoot className={"Root "} css={({ ["width"] : "100%" })} onSubmit={handleSubmit_0e0b9f34d2c7a258da519a055b7e990c}>
+<RadixFormRoot className={"Root "} css={({ ["width"] : "100%" })} onSubmit={handleSubmit_4996648142a20c40db8f5d0f5bb14d48}>
 
 <RadixThemesFlex align={"start"} className={"rx-Stack"} css={({ ["minWidth"] : "50vw" })} direction={"column"} gap={"3"}>
 
@@ -268,32 +291,9 @@ export function Fragment_6077619a1f9f1be5e629e5ebe4b9c550 () {
   )
 }
 
-export function Div_bd4c022a8f796682aa6392e9d4c102e9 () {
-  const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
-
-  return (
-    <div css={({ ["position"] : "fixed", ["width"] : "100vw", ["height"] : "0" })} title={("Connection Error: "+((connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''))}>
-
-<Fragment_9017984ada32ffa55f5d2870ebd3c887/>
-</div>
-  )
-}
-
-const pulse = keyframes`
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-`
-
-
 export default function Component() {
 
   return (
-    <Errorboundary_4f6f0949c41746c8a65ce15821741897/>
+    <Errorboundary_28afb3aa2ecb6125048d178487efd420/>
   )
 }

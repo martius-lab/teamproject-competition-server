@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 
 import bcrypt
 import reflex as rx
@@ -16,6 +17,8 @@ from comprl.server.util import IDGenerator
 from comprl.server.data.sql_backend import User, hash_password
 
 POST_REGISTRATION_DELAY = 0.5
+
+PASSWORD_MIN_LENGTH = 8
 
 # FIXME: make configurable!
 REGISTRATION_KEY = "1234"
@@ -44,6 +47,13 @@ class RegistrationState(LocalAuthState):
             self.error_message = "Username cannot be empty"
             return rx.set_focus("username")
 
+        if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+            self.error_message = (
+                "Username contains invalid characters."
+                "  Allowed characters are: a-Z0-9_-"
+            )
+            return rx.set_focus("username")
+
         with get_session() as session:
             existing_user = session.scalars(
                 select(User).where(User.username == username)
@@ -55,8 +65,10 @@ class RegistrationState(LocalAuthState):
             )
             return [rx.set_value("username", ""), rx.set_focus("username")]
 
-        if not password:
-            self.error_message = "Password cannot be empty"
+        if len(password) < PASSWORD_MIN_LENGTH:
+            self.error_message = (
+                f"Password needs to be at least {PASSWORD_MIN_LENGTH} characters long"
+            )
             return rx.set_focus("password")
 
         if password != confirm_password:
