@@ -1,33 +1,29 @@
-"""
-class for server
-"""
+"""Run the comprl server."""
 
-import os
+from __future__ import annotations
+
 import argparse
-import logging as log
-import inspect
-import pathlib
-
-try:
-    import tomllib  # type: ignore[import-not-found]
-except ImportError:
-    # tomllib was added in Python 3.11.  Older versions can use tomli
-    import tomli as tomllib  # type: ignore[import-not-found, no-redef]
-
-import importlib.util
 import importlib.abc
+import importlib.util
+import inspect
+import logging as log
+import os
+import pathlib
+from typing import Type, TYPE_CHECKING
 
-from comprl.server import networking
+from comprl.server import config, networking
 from comprl.server.managers import GameManager, PlayerManager, MatchmakingManager
 from comprl.server.interfaces import IPlayer, IServer
-from comprl.server.util import ConfigProvider
+
+if TYPE_CHECKING:
+    from comprl.server.interfaces import IGame
 
 
 class Server(IServer):
     """class for server"""
 
-    def __init__(self):
-        self.game_manager = GameManager(ConfigProvider.get("game_type"))
+    def __init__(self, game_type: Type[IGame]):
+        self.game_manager = GameManager(game_type)
         self.player_manager = PlayerManager()
         self.matchmaking = MatchmakingManager(self.player_manager, self.game_manager)
 
@@ -112,103 +108,40 @@ def main():
     """
     Main function to start the server.
     """
-    parser = argparse.ArgumentParser(
-        description="The following arguments are supported:"
-    )
-    parser.add_argument("--config", type=str, help="Config file")
-    parser.add_argument("--port", type=int, help="Port to listen on")
-    parser.add_argument(
-        "--timeout", type=int, help="Seconds to wait for a player to answer"
-    )
-    parser.add_argument("--game_path", type=str, help="File containing the game to run")
-    parser.add_argument("--game_class", type=str, help="Class name of the game")
-    parser.add_argument("--log", type=str, help="Log level")
-    parser.add_argument("--database_path", type=str, help="Path to the database file.")
-    parser.add_argument("--data_dir", type=str, help="Path to the data directory.")
-    parser.add_argument(
-        "--match_quality_threshold",
-        type=float,
-        help="Threshold for matching players",
-    )
-    parser.add_argument(
-        "--percentage_min_players_waiting",
-        type=float,
-        help="Percentage of players always waiting in queue",
-    )
-    parser.add_argument(
-        "--percental_time_bonus",
-        type=float,
-        help="(Minutes waiting * percentage) added as a time bonus for waiting players",
-    )
-
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config", type=pathlib.Path, help="Config file")
+    parser.add_argument("--config-overwrites", type=str, nargs="+", default=[])
     args = parser.parse_args()
 
-    data = None
-    if args.config is not None:
-        # load config file
-        with open(args.config, "rb") as f:
-            data = tomllib.load(f)["CompetitionServer"]
-    else:
-        print("No config file provided, using arguments or defaults")
-
-    if args.database_path:
-        database_path = args.database_path
-    elif data:
-        database_path = data["database_path"]
-    else:
-        parser.error("Need to provide either --config or --database-path")
-
-    # TODO better config management
-    port = args.port or (data["port"] if data else 65335)
-    timeout = args.timeout or (data["timeout"] if data else 10)
-    game_path = args.game_path or (data["game_path"] if data else "game.py")
-    game_class = args.game_class or (data["game_class"] if data else "Game")
-    log_level = args.log or (data["log"] if data else "INFO")
-    match_quality_threshold = args.match_quality_threshold or (
-        data["match_quality_threshold"] if data else 0.8
-    )
-    percentage_min_players_waiting = args.percentage_min_players_waiting or (
-        data["percentage_min_players_waiting"] if data else 0.1
-    )
-    percental_time_bonus = args.percental_time_bonus or (
-        data["percental_time_bonus"] if data else 0.1
-    )
-    data_dir = pathlib.Path(args.data_dir or data["data_dir"])
+    try:
+        conf = config.load_config(args.config, args.config_overwrites)
+    except Exception as e:
+        log.error("Failed to load config: %s", e)
+        return
 
     # set up logging
-    log.basicConfig(level=log_level)
+    log.basicConfig(level=conf.log_level)
 
-    # get working directory
-    full_path = os.path.join(os.getcwd(), game_path)
+    # resolve relative game_path w.r.t. current working directory
+    absolute_game_path = os.path.join(os.getcwd(), conf.game_path)
 
     # try to load the game class
-    game_type = load_class(full_path, game_class)
+    game_type = load_class(absolute_game_path, conf.game_class)
     # check if the class could be loaded
     if game_type is None:
-        log.error(f"Could not load game class from {full_path}")
+        log.error(f"Could not load game class from {absolute_game_path}")
         return
     # check if the class is fully implemented
     if inspect.isabstract(game_type):
         log.error("Provided game class is not valid because it is still abstract.")
         return
 
-    if not data_dir.is_dir():
-        log.error("data_dir '%s' not found or not a directory", data_dir)
+    if not conf.data_dir.is_dir():
+        log.error("data_dir '%s' not found or not a directory", conf.data_dir)
         return
 
-    # write the config to the ConfigProvider
-    ConfigProvider.set("port", port)
-    ConfigProvider.set("timeout", timeout)
-    ConfigProvider.set("log_level", log_level)
-    ConfigProvider.set("game_type", game_type)
-    ConfigProvider.set("database_path", database_path)
-    ConfigProvider.set("data_dir", data_dir)
-    ConfigProvider.set("match_quality_threshold", match_quality_threshold)
-    ConfigProvider.set("percentage_min_players_waiting", percentage_min_players_waiting)
-    ConfigProvider.set("percental_time_bonus", percental_time_bonus)
-
-    server = Server()
-    networking.launch_server(server, port)
+    server = Server(game_type)
+    networking.launch_server(server, conf.port)
 
 
 if __name__ == "__main__":

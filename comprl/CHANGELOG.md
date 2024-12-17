@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `comprl.scripts.create_database`.
 - BREAKING: New config option `data_dir` to specify output directory for game actions.
   This is a required setting (no default value), hence a breaking change.
+- BREAKING: The server main script (`python -m comprl.server`) does not provide
+  individual arguments to overwrite parameters anymore but instead uses a single
+  argument `--config-overwrites` which expects a list of parameters like this:
+  ```
+  --config-overwrites port=1234 data_dir=/foo/bar ...
+  ```
 
 ## Added
 - Script `list_games` to list all games from the database on the terminal.

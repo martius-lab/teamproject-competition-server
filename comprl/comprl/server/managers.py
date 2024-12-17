@@ -11,7 +11,7 @@ from typing import TypeAlias
 from comprl.server.interfaces import IGame, IPlayer
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.data import GameData, UserData
-from comprl.server.util import ConfigProvider
+from comprl.server.config import get_config
 
 
 class GameManager:
@@ -58,7 +58,7 @@ class GameManager:
         if game.id in self.games:
             game_result = game.get_result()
             if game_result is not None:
-                GameData(ConfigProvider.get("database_path")).add(game_result)
+                GameData(get_config().database_path).add(game_result)
             else:
                 log.error(f"Game had no valid result. Game-ID: {game.id}")
             del self.games[game.id]
@@ -129,7 +129,7 @@ class PlayerManager:
         if player is None:
             return False
 
-        id = UserData(ConfigProvider.get("database_path")).get_user_id(token)
+        id = UserData(get_config().database_path).get_user_id(token)
 
         if id is not None:
             # add player to authenticated players
@@ -224,9 +224,7 @@ class PlayerManager:
         Returns:
             tuple[float, float]: The mu and sigma values of the user.
         """
-        return UserData(ConfigProvider.get("database_path")).get_matchmaking_parameters(
-            user_id
-        )
+        return UserData(get_config().database_path).get_matchmaking_parameters(user_id)
 
     def update_matchmaking_parameters(
         self, user_id: int, new_mu: float, new_sigma: float
@@ -239,7 +237,7 @@ class PlayerManager:
             new_mu (float): The new mu value of the user.
             new_sigma (float): The new sigma value of the user.
         """
-        UserData(ConfigProvider.get("database_path")).set_matchmaking_parameters(
+        UserData(get_config().database_path).set_matchmaking_parameters(
             user_id, new_mu, new_sigma
         )
 
@@ -265,15 +263,15 @@ class MatchmakingManager:
         self.player_manager = player_manager
         self.game_manager = game_manager
 
+        config = get_config()
+
         # queue storing player id, mu, sigma and time they joined the queue
         self._queue: list[QueuePlayer] = []
         # The model used for matchmaking
         self.model = PlackettLuce()
-        self._match_quality_threshold = ConfigProvider.get("match_quality_threshold")
-        self._percentage_min_players_waiting = ConfigProvider.get(
-            "percentage_min_players_waiting"
-        )
-        self._percental_time_bonus = ConfigProvider.get("percental_time_bonus")
+        self._match_quality_threshold = config.match_quality_threshold
+        self._percentage_min_players_waiting = config.percentage_min_players_waiting
+        self._percental_time_bonus = config.percental_time_bonus
 
     def try_match(self, player_id: PlayerID) -> None:
         """

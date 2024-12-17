@@ -10,7 +10,7 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
 from comprl.server.interfaces import IPlayer, IServer
-from comprl.server.util import ConfigProvider
+from comprl.server.config import get_config
 from comprl.shared.commands import Auth, EndGame, Error, Ready, StartGame, Step, Message
 from comprl.shared.types import GameID
 
@@ -163,7 +163,7 @@ class COMPServerProtocol(amp.AMP):
         return (
             self.callRemote(Auth)
             .addCallback(callback=callback)
-            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addTimeout(get_config().timeout, reactor, self.connectionTimeout)
             .addErrback(self.connection_error)
         )
 
@@ -181,7 +181,7 @@ class COMPServerProtocol(amp.AMP):
         return (
             self.callRemote(Ready)
             .addCallback(callback=lambda res: return_callback(res["ready"]))
-            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addTimeout(get_config().timeout, reactor, self.connectionTimeout)
             .addErrback(self.connection_error)
         )
 
@@ -212,7 +212,7 @@ class COMPServerProtocol(amp.AMP):
         return (
             self.callRemote(Step, obv=obv)
             .addCallback(callback=lambda res: return_callback(res["action"]))
-            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addTimeout(get_config().timeout, reactor, self.connectionTimeout)
             .addErrback(self.connection_error)
         )
 
@@ -229,7 +229,7 @@ class COMPServerProtocol(amp.AMP):
         """
         return (
             self.callRemote(EndGame, result=result, stats=stats)
-            .addTimeout(ConfigProvider.get("timeout"), reactor, self.connectionTimeout)
+            .addTimeout(get_config().timeout, reactor, self.connectionTimeout)
             .addErrback(self.connection_error)
         )
 
