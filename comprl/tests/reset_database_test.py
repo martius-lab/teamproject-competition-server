@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 
 from comprl.server.data import ConnectionInfo, UserData, GameData

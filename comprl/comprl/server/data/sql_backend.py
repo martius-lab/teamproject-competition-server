@@ -5,6 +5,7 @@ Implementation of the data access objects for managing game and user data in SQL
 from __future__ import annotations
 
 import dataclasses
+import datetime
 from typing import Optional, Sequence
 
 import bcrypt
@@ -65,7 +66,7 @@ class Game(Base):
 
     score1: Mapped[float]
     score2: Mapped[float]
-    start_time: Mapped[str]
+    start_time: Mapped[datetime.datetime] = mapped_column(sa.DateTime)
     end_state: Mapped[int]
 
     winner: Mapped[Optional[int]] = mapped_column(sa.ForeignKey("users.user_id"))

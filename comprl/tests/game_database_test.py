@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -35,7 +37,7 @@ def test_game_data(tmp_path):
             user2_id=2,
             score_user_1=3,
             score_user_2=6,
-            start_time="2021-01-01 12:00:00",
+            start_time=datetime(2021, 1, 1, 12, 0, 0),
             end_state=GameEndState.DRAW,
         )
     )
@@ -46,7 +48,7 @@ def test_game_data(tmp_path):
             user2_id=2,
             score_user_1=3,
             score_user_2=6,
-            start_time="2021-01-01 13:00:00",
+            start_time=datetime(2021, 1, 1, 13, 0, 0),
             end_state=GameEndState.WIN,
             is_user1_winner=True,
         )
@@ -58,7 +60,7 @@ def test_game_data(tmp_path):
             user2_id=2,
             score_user_1=3,
             score_user_2=6,
-            start_time="2021-01-01 13:00:00",
+            start_time=datetime(2021, 1, 1, 13, 0, 0),
             end_state=GameEndState.DISCONNECTED,
             is_user1_disconnected=True,
         )

@@ -4,6 +4,7 @@ This module contains the interfaces for the game data.
 
 from datetime import datetime
 from enum import IntEnum, Enum
+from typing import Optional
 
 from comprl.shared.types import GameID
 
@@ -33,7 +34,7 @@ class GameResult:
         user2_id: int,
         score_user_1: float,
         score_user_2: float,
-        start_time=None,
+        start_time: Optional[datetime] = None,
         end_state: GameEndState = GameEndState.WIN,
         is_user1_winner: bool = True,
         is_user1_disconnected: bool = True,
