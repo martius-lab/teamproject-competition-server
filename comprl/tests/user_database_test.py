@@ -1,6 +1,6 @@
 import pytest
 
-from comprl.server.data import ConnectionInfo, UserData
+from comprl.server.data import UserData
 from comprl.server.data.sql_backend import create_database_tables
 
 
@@ -8,8 +8,7 @@ def test_user_data(tmp_path):
     db_file = tmp_path / "database.db"
     create_database_tables(db_file)
 
-    table_name = "users"
-    user_data = UserData(ConnectionInfo(host=db_file, table=table_name))
+    user_data = UserData(db_file)
 
     # add test users to database and collect IDs
     users = [("player_1", "token1"), ("player_2", "token2"), ("player_3", "token3")]

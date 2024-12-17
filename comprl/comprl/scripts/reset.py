@@ -1,10 +1,10 @@
 """script to reset the game database and the mu and sigma in the user database"""
 
 from comprl.server.data import UserData, GameData
-from comprl.server.data import ConnectionInfo
 import logging
 import argparse
 import os
+import sys
 
 try:
     import tomllib  # type: ignore[import-not-found]
@@ -37,16 +37,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("--config", type=str, help="Config file")
     parser.add_argument(
-        "--game_db_path",
+        "--database-path",
         type=str,
         help="Path to the database file (doesn't have to exist)",
-    )
-    parser.add_argument(
-        "--game_db_name", type=str, help="Name of the game table in the file"
-    )
-    parser.add_argument("--user_db_path", type=str, help="Path to the database file")
-    parser.add_argument(
-        "--user_db_name", type=str, help="Name of the user table in the file"
     )
     args = parser.parse_args()
 
@@ -55,13 +48,17 @@ if __name__ == "__main__":
         # load config file
         with open(args.config, "rb") as f:
             data = tomllib.load(f)["CompetitionServer"]
-    else:
-        print("No config file provided, using arguments or defaults")
 
-    game_db_path = args.game_db_path or (data["game_db_path"] if data else "data.db")
-    game_db_name = args.game_db_name or (data["game_db_name"] if data else "games")
-    user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
-    user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
+    if args.database_path:
+        database_path = args.database_path
+    elif data:
+        database_path = data["database_path"]
+    else:
+        parser.error("Need to provide either --config or --database-path")
+
+    if not os.path.exists(database_path):
+        print(f"Database file {database_path} does not exist.")
+        sys.exit(1)
 
     user_answer = input(
         "Are you sure you want to delete the games table and "
@@ -69,12 +66,8 @@ if __name__ == "__main__":
     )
 
     if user_answer.lower() == "y":
-        if os.path.exists(game_db_path):
-            game_data = GameData(ConnectionInfo(game_db_path, game_db_name))
-            reset_games(game_data)
+        game_data = GameData(database_path)
+        reset_games(game_data)
 
-        user_data = UserData(ConnectionInfo(user_db_path, user_db_name))
-
+        user_data = UserData(database_path)
         reset_elo(user_data)
-
-    pass

@@ -5,16 +5,14 @@ from sqlalchemy.exc import IntegrityError
 
 from comprl.server.util import IDGenerator
 from comprl.server.data.interfaces import GameEndState, GameResult
-from comprl.server.data import ConnectionInfo, GameData
+from comprl.server.data import GameData
 from comprl.server.data.sql_backend import create_database_tables
 
 
 def test_game_data(tmp_path):
     db_file = tmp_path / "database.db"
     create_database_tables(db_file)
-
-    table_name = "games"
-    game_data = GameData(ConnectionInfo(host=db_file, table=table_name))
+    game_data = GameData(db_file)
 
     # add some test games
     game1_uuid = IDGenerator.generate_game_id()

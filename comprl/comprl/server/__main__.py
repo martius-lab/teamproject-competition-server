@@ -20,7 +20,6 @@ from comprl.server import networking
 from comprl.server.managers import GameManager, PlayerManager, MatchmakingManager
 from comprl.server.interfaces import IPlayer, IServer
 from comprl.server.util import ConfigProvider
-from comprl.server.data import ConnectionInfo
 
 
 class Server(IServer):
@@ -121,20 +120,9 @@ def main():
         "--timeout", type=int, help="Seconds to wait for a player to answer"
     )
     parser.add_argument("--game_path", type=str, help="File containing the game to run")
-    parser.add_argument("--game_class", type=str, help="Classname of the game")
+    parser.add_argument("--game_class", type=str, help="Class name of the game")
     parser.add_argument("--log", type=str, help="Log level")
-    parser.add_argument(
-        "--game_db_path",
-        type=str,
-        help="Path to the database file (doesn't have to exist)",
-    )
-    parser.add_argument(
-        "--game_db_name", type=str, help="Name of the game table in the file"
-    )
-    parser.add_argument("--user_db_path", type=str, help="Path to the database file")
-    parser.add_argument(
-        "--user_db_name", type=str, help="Name of the user table in the file"
-    )
+    parser.add_argument("--database_path", type=str, help="Path to the database file.")
     parser.add_argument(
         "--match_quality_threshold",
         type=float,
@@ -161,15 +149,18 @@ def main():
     else:
         print("No config file provided, using arguments or defaults")
 
+    if args.database_path:
+        database_path = args.database_path
+    elif data:
+        database_path = data["database_path"]
+    else:
+        parser.error("Need to provide either --config or --database-path")
+
     port = args.port or (data["port"] if data else 65335)
     timeout = args.timeout or (data["timeout"] if data else 10)
     game_path = args.game_path or (data["game_path"] if data else "game.py")
     game_class = args.game_class or (data["game_class"] if data else "Game")
     log_level = args.log or (data["log"] if data else "INFO")
-    game_db_path = args.game_db_path or (data["game_db_path"] if data else "data.db")
-    game_db_name = args.game_db_name or (data["game_db_name"] if data else "games")
-    user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
-    user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
     match_quality_threshold = args.match_quality_threshold or (
         data["match_quality_threshold"] if data else 0.8
     )
@@ -202,8 +193,7 @@ def main():
     ConfigProvider.set("timeout", timeout)
     ConfigProvider.set("log_level", log_level)
     ConfigProvider.set("game_type", game_type)
-    ConfigProvider.set("game_data", ConnectionInfo(game_db_path, game_db_name))
-    ConfigProvider.set("user_data", ConnectionInfo(user_db_path, user_db_name))
+    ConfigProvider.set("database_path", database_path)
     ConfigProvider.set("match_quality_threshold", match_quality_threshold)
     ConfigProvider.set("percentage_min_players_waiting", percentage_min_players_waiting)
     ConfigProvider.set("percental_time_bonus", percental_time_bonus)

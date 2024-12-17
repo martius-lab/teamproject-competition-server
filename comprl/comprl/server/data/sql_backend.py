@@ -4,7 +4,6 @@ Implementation of the data access objects for managing game and user data in SQL
 
 from __future__ import annotations
 
-import dataclasses
 import datetime
 from typing import Optional, Sequence
 
@@ -17,20 +16,6 @@ from comprl.server.data.interfaces import GameResult, UserRole
 
 DEFAULT_MU = 25.0
 DEFAULT_SIGMA = 8.333
-
-
-@dataclasses.dataclass
-class SQLiteConnectionInfo:
-    """
-    Represents the connection information for SQLite database.
-
-    Attributes:
-        host (str): The host of the SQLite database.
-        table (int): The table number in the database.
-    """
-
-    host: str
-    table: str
 
 
 class Base(sa.orm.MappedAsDataclass, sa.orm.DeclarativeBase):
@@ -80,13 +65,8 @@ class Game(Base):
 class GameData:
     """Represents a data access object for managing game data in a SQLite database."""
 
-    def __init__(self, connection: SQLiteConnectionInfo) -> None:
-        assert (
-            connection.table == Game.__tablename__
-        ), f"Games table name must be '{Game.__tablename__}'"
-
-        # connect to the database
-        db_url = f"sqlite:///{connection.host}"
+    def __init__(self, db_path: str) -> None:
+        db_url = f"sqlite:///{db_path}"
         self.engine = sa.create_engine(db_url)
 
     def add(self, game_result: GameResult) -> None:
@@ -94,7 +74,7 @@ class GameData:
         Adds a game result to the database.
 
         Args:
-            game_result (GameResult): The game result to be added.
+            db_path: Path to the sqlite database.
 
         """
         with sa.orm.Session(self.engine) as session:
@@ -132,19 +112,15 @@ class GameData:
 class UserData:
     """Represents a data access object for managing game data in a SQLite database."""
 
-    def __init__(self, connection: SQLiteConnectionInfo) -> None:
+    def __init__(self, db_path: str) -> None:
         """
         Initializes a new instance of the UserData class.
 
         Args:
-            connection (SQLiteConnectionInfo): The connection information for SQLite.
+            db_path: Path to the sqlite database.
         """
-        assert (
-            connection.table == User.__tablename__
-        ), f"User table name must be '{User.__tablename__}'"
-
         # connect to the database
-        db_url = f"sqlite:///{connection.host}"
+        db_url = f"sqlite:///{db_path}"
         self.engine = sa.create_engine(db_url)
 
     def add(

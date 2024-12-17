@@ -5,7 +5,6 @@ This module contains utility functions for the server.
 import uuid
 
 from comprl.shared.types import GameID, PlayerID
-from comprl.server.data import ConnectionInfo
 
 
 class IDGenerator:
@@ -38,8 +37,7 @@ class ConfigProvider:
         "timeout": 10,
         "log_level": "INFO",
         "game_type": None,
-        "game_data": ConnectionInfo("data.db", "games"),
-        "user_data": ConnectionInfo("data.db", "users"),
+        "database_path": None,
         "match_quality_threshold": 0.8,
         "percentage_min_players_waiting": 0.1,
         "percental_time_bonus": 0.1,

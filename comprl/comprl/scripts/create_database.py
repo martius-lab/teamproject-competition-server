@@ -35,37 +35,7 @@ def main() -> int:
     with open(args.config, "rb") as f:
         config = tomllib.load(f)["CompetitionServer"]
 
-    if config["user_db_path"] != config["game_db_path"]:
-        print(
-            "ERROR: user_db_path and game_db_path must be the same."
-            "  Separate databases are not supported anymore.",
-            file=sys.stderr,
-        )
-        return 1
-
-    db_path = config["user_db_path"]
-
-    if (
-        "user_db_name" in config
-        and config["user_db_name"] != sql_backend.User.__tablename__
-    ):
-        print(
-            f"ERROR: user_db_name must be '{sql_backend.User.__tablename__}'."
-            "  Custom names are not supported anymore.",
-            file=sys.stderr,
-        )
-        return 1
-
-    if (
-        "game_db_name" in config
-        and config["game_db_name"] != sql_backend.Game.__tablename__
-    ):
-        print(
-            f"ERROR: game_db_name must be '{sql_backend.Game.__tablename__}'."
-            "  Custom names are not supported anymore.",
-            file=sys.stderr,
-        )
-        return 1
+    db_path = config["database_path"]
 
     if pathlib.Path(db_path).exists():
         print(f"ERROR: Database '{db_path}' already exists.", file=sys.stderr)

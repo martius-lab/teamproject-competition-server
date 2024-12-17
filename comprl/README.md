@@ -28,6 +28,16 @@ pip install .
 
 ## Getting Started
 
+### Initialize Database
+
+Before being able to run the server for the first time, the database needs to be
+initialized:
+```sh
+python -m comprl.scripts.create_database path/to/config.toml
+```
+
+
+
 ### Server
 
 To host your competition, implement a new game by inheriting from the `IGame` class

@@ -60,7 +60,7 @@ class GameManager:
         if game.id in self.games:
             game_result = game.get_result()
             if game_result is not None:
-                GameData(ConfigProvider.get("game_data")).add(game_result)
+                GameData(ConfigProvider.get("database_path")).add(game_result)
             else:
                 log.error(f"Game had no valid result. Game-ID: {game.id}")
             del self.games[game.id]
@@ -143,7 +143,7 @@ class PlayerManager:
         if player is None:
             return False
 
-        id = UserData(ConfigProvider.get("user_data")).get_user_id(token)
+        id = UserData(ConfigProvider.get("database_path")).get_user_id(token)
 
         if id is not None:
             # add player to authenticated players
@@ -238,7 +238,7 @@ class PlayerManager:
         Returns:
             tuple[float, float]: The mu and sigma values of the user.
         """
-        return UserData(ConfigProvider.get("user_data")).get_matchmaking_parameters(
+        return UserData(ConfigProvider.get("database_path")).get_matchmaking_parameters(
             user_id
         )
 
@@ -253,7 +253,7 @@ class PlayerManager:
             new_mu (float): The new mu value of the user.
             new_sigma (float): The new sigma value of the user.
         """
-        UserData(ConfigProvider.get("user_data")).set_matchmaking_parameters(
+        UserData(ConfigProvider.get("database_path")).set_matchmaking_parameters(
             user_id, new_mu, new_sigma
         )
 
