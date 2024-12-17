@@ -15,7 +15,11 @@ def links() -> rx.Component:
             rx.link("Leaderboard", href="/leaderboard"),
             rx.cond(
                 LocalAuthState.is_authenticated,
-                rx.link("Logout", href="/", on_click=LocalAuthState.do_logout),
+                rx.link(
+                    f"Logout ({LocalAuthState.authenticated_user.username})",
+                    href="/",
+                    on_click=LocalAuthState.do_logout,
+                ),
                 rx.fragment(
                     rx.link("Login", href=routes.LOGIN_ROUTE),
                     rx.link("Register", href=routes.REGISTER_ROUTE),

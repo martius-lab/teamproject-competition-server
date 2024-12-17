@@ -16,21 +16,7 @@ import NextHead from "next/head"
 
 
 
-export function Div_bd4c022a8f796682aa6392e9d4c102e9 () {
-  const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
-
-  return (
-    <div css={({ ["position"] : "fixed", ["width"] : "100vw", ["height"] : "0" })} title={("Connection Error: "+((connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''))}>
-
-<Fragment_9017984ada32ffa55f5d2870ebd3c887/>
-</div>
-  )
-}
-
-export function Fragment_517d1e0080269f7db9af5659fa368c41 () {
-  const reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state = useContext(StateContexts.reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state)
+export function Fragment_9017984ada32ffa55f5d2870ebd3c887 () {
   const [addEvents, connectErrors] = useContext(EventLoopContext);
 
 
@@ -38,35 +24,13 @@ export function Fragment_517d1e0080269f7db9af5659fa368c41 () {
   return (
     <Fragment>
 
-{isTrue(reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state.is_authenticated) ? (
+{isTrue((connectErrors.length > 0)) ? (
   <Fragment>
 
-<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })} onClick={((...args) => (addEvents([(Event("reflex___state____state.comprl_web___reflex_local_auth___local_auth____local_auth_state.do_logout", ({  }), ({  })))], args, ({  }))))}>
-
-<NextLink href={"/"} passHref={true}>
-
-{"Logout"}
-</NextLink>
-</RadixThemesLink>
+<LucideWifiOffIcon css={({ ["color"] : "crimson", ["zIndex"] : 9999, ["position"] : "fixed", ["bottom"] : "33px", ["right"] : "33px", ["animation"] : (pulse+" 1s infinite") })} size={32}/>
 </Fragment>
 ) : (
-  <Fragment>
-
-<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
-
-<NextLink href={"/login"} passHref={true}>
-
-{"Login"}
-</NextLink>
-</RadixThemesLink>
-<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
-
-<NextLink href={"/register"} passHref={true}>
-
-{"Register"}
-</NextLink>
-</RadixThemesLink>
-</Fragment>
+  <Fragment/>
 )}
 </Fragment>
   )
@@ -101,17 +65,8 @@ export function Toaster_6e6ebf8d7ce589d59b7d382fb7576edf () {
   )
 }
 
-const pulse = keyframes`
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-`
-
-
-export function Fragment_9017984ada32ffa55f5d2870ebd3c887 () {
+export function Fragment_8ab9e2c5b8041f4f88578517f00c887d () {
+  const reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state = useContext(StateContexts.reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state)
   const [addEvents, connectErrors] = useContext(EventLoopContext);
 
 
@@ -119,19 +74,41 @@ export function Fragment_9017984ada32ffa55f5d2870ebd3c887 () {
   return (
     <Fragment>
 
-{isTrue((connectErrors.length > 0)) ? (
+{isTrue(reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state.is_authenticated) ? (
   <Fragment>
 
-<LucideWifiOffIcon css={({ ["color"] : "crimson", ["zIndex"] : 9999, ["position"] : "fixed", ["bottom"] : "33px", ["right"] : "33px", ["animation"] : (pulse+" 1s infinite") })} size={32}/>
+<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })} onClick={((...args) => (addEvents([(Event("reflex___state____state.comprl_web___reflex_local_auth___local_auth____local_auth_state.do_logout", ({  }), ({  })))], args, ({  }))))}>
+
+<NextLink href={"/"} passHref={true}>
+
+{("Logout ("+reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state.authenticated_user?.["username"]+")")}
+</NextLink>
+</RadixThemesLink>
 </Fragment>
 ) : (
-  <Fragment/>
+  <Fragment>
+
+<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
+
+<NextLink href={"/login"} passHref={true}>
+
+{"Login"}
+</NextLink>
+</RadixThemesLink>
+<RadixThemesLink asChild={true} css={({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })}>
+
+<NextLink href={"/register"} passHref={true}>
+
+{"Register"}
+</NextLink>
+</RadixThemesLink>
+</Fragment>
 )}
 </Fragment>
   )
 }
 
-export function Errorboundary_556755c02f806d59708dc5984687c0ba () {
+export function Errorboundary_4f6f0949c41746c8a65ce15821741897 () {
   const [addEvents, connectErrors] = useContext(EventLoopContext);
 
   const on_error_0f5dbf674521530422d73a7946faf6d4 = useCallback(((_error, _info) => (addEvents([(Event("reflex___state____state.reflex___state____frontend_event_exception_state.handle_frontend_exception", ({ ["stack"] : _error["stack"], ["component_stack"] : _info["componentStack"] }), ({  })))], [_error, _info], ({  })))), [addEvents, Event])
@@ -178,13 +155,13 @@ export function Errorboundary_556755c02f806d59708dc5984687c0ba () {
 {"Leaderboard"}
 </NextLink>
 </RadixThemesLink>
-<Fragment_517d1e0080269f7db9af5659fa368c41/>
+<Fragment_8ab9e2c5b8041f4f88578517f00c887d/>
 </RadixThemesFlex>
 <RadixThemesSeparator size={"4"}/>
 </Fragment>
 <RadixThemesFlex css={({ ["display"] : "flex", ["alignItems"] : "center", ["justifyContent"] : "center", ["paddingTop"] : "10vh" })}>
 
-<Fragment_119a6463a3f4c16d2511516b121c0178/>
+<Fragment_6077619a1f9f1be5e629e5ebe4b9c550/>
 </RadixThemesFlex>
 </RadixThemesFlex>
 </Fragment>
@@ -200,7 +177,7 @@ export function Errorboundary_556755c02f806d59708dc5984687c0ba () {
   )
 }
 
-export function Fragment_119a6463a3f4c16d2511516b121c0178 () {
+export function Fragment_6077619a1f9f1be5e629e5ebe4b9c550 () {
   const reflex___state____state = useContext(StateContexts.reflex___state____state)
   const reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state__comprl_web___reflex_local_auth___login____login_state = useContext(StateContexts.reflex___state____state__comprl_web___reflex_local_auth___local_auth____local_auth_state__comprl_web___reflex_local_auth___login____login_state)
   const [addEvents, connectErrors] = useContext(EventLoopContext);
@@ -209,10 +186,10 @@ export function Fragment_119a6463a3f4c16d2511516b121c0178 () {
 
 
   
-    const handleSubmit_4996648142a20c40db8f5d0f5bb14d48 = useCallback((ev) => {
+    const handleSubmit_0e0b9f34d2c7a258da519a055b7e990c = useCallback((ev) => {
         const $form = ev.target
         ev.preventDefault()
-        const form_data = {...Object.fromEntries(new FormData($form).entries()), ...({ ["username"] : getRefValue(refs["ref_username"]), ["password"] : getRefValue(refs["ref_password"]) })};
+        const form_data = {...Object.fromEntries(new FormData($form).entries()), ...({ ["password"] : getRefValue(refs["ref_password"]), ["username"] : getRefValue(refs["ref_username"]) })};
 
         (((...args) => (addEvents([(Event("reflex___state____state.comprl_web___reflex_local_auth___local_auth____local_auth_state.comprl_web___reflex_local_auth___login____login_state.on_submit", ({ ["form_data"] : form_data }), ({  })))], args, ({  }))))());
 
@@ -230,7 +207,7 @@ export function Fragment_119a6463a3f4c16d2511516b121c0178 () {
 
 <RadixThemesCard>
 
-<RadixFormRoot className={"Root "} css={({ ["width"] : "100%" })} onSubmit={handleSubmit_4996648142a20c40db8f5d0f5bb14d48}>
+<RadixFormRoot className={"Root "} css={({ ["width"] : "100%" })} onSubmit={handleSubmit_0e0b9f34d2c7a258da519a055b7e990c}>
 
 <RadixThemesFlex align={"start"} className={"rx-Stack"} css={({ ["minWidth"] : "50vw" })} direction={"column"} gap={"3"}>
 
@@ -291,9 +268,32 @@ export function Fragment_119a6463a3f4c16d2511516b121c0178 () {
   )
 }
 
+export function Div_bd4c022a8f796682aa6392e9d4c102e9 () {
+  const [addEvents, connectErrors] = useContext(EventLoopContext);
+
+
+
+  return (
+    <div css={({ ["position"] : "fixed", ["width"] : "100vw", ["height"] : "0" })} title={("Connection Error: "+((connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''))}>
+
+<Fragment_9017984ada32ffa55f5d2870ebd3c887/>
+</div>
+  )
+}
+
+const pulse = keyframes`
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+`
+
+
 export default function Component() {
 
   return (
-    <Errorboundary_556755c02f806d59708dc5984687c0ba/>
+    <Errorboundary_4f6f0949c41746c8a65ce15821741897/>
   )
 }
