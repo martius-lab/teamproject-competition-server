@@ -61,11 +61,12 @@ class GameResult:
         self.user2_id = user2_id
         self.score_user_1 = score_user_1
         self.score_user_2 = score_user_2
-        self.start_time = start_time
         self.end_state = end_state
 
-        if self.start_time is None:
+        if start_time is None:
             self.start_time = datetime.now()
+        else:
+            self.start_time = start_time
 
         self.winner_id = None
         if end_state == GameEndState.WIN:

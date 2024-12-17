@@ -78,14 +78,7 @@ class Game(Base):
 
 
 class GameData:
-    """
-    Represents a data access object for managing game data in a SQLite database.
-
-    Attributes:
-        connection (sqlite3.Connection): The connection to the SQLite database.
-        cursor (sqlite3.Cursor): The cursor for executing SQL queries.
-
-    """
+    """Represents a data access object for managing game data in a SQLite database."""
 
     def __init__(self, connection: SQLiteConnectionInfo) -> None:
         assert (
@@ -137,13 +130,7 @@ class GameData:
 
 
 class UserData:
-    """
-    Represents a data access object for managing game data in a SQLite database.
-
-    Attributes:
-        connection (sqlite3.Connection): The connection to the SQLite database.
-        cursor (sqlite3.Cursor): The cursor for executing SQL queries.
-    """
+    """Represents a data access object for managing game data in a SQLite database."""
 
     def __init__(self, connection: SQLiteConnectionInfo) -> None:
         """
