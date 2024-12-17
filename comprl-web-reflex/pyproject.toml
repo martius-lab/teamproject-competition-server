@@ -11,5 +11,6 @@ lint.select = [
 # complaints from mypy)
 module = [
     "reflex",
+    "comprl.*",  # TODO: find out why it doesn't find the type hints of comprl
 ]
 ignore_missing_imports = true
