@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import re
 
-import bcrypt
 import reflex as rx
 
 from sqlmodel import select
@@ -78,6 +77,7 @@ class RegistrationState(LocalAuthState):
 
     def _register_user(self, username: str, password: str) -> None:
         """Create the new user and add it to the database."""
+        # TODO better use UserData.add_user() here, to avoid redundant code
         with get_session() as session:
             new_user = User(
                 username=username,

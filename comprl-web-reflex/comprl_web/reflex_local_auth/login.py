@@ -28,7 +28,8 @@ def _verify_password(user_password_hash: bytes, secret: str) -> bool:
 
 
 class LoginState(LocalAuthState):
-    """Handle login form submission and redirect to proper routes after authentication."""
+    """Handle login form submission and redirect to proper routes after authentication.
+    """
 
     error_message: str = ""
     redirect_to: str = ""
