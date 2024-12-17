@@ -1,4 +1,4 @@
-name: Linters
+name: "Linters (comprl-web-reflex)"
 
 # Run on pull requests and when merging to main branch
 on:
@@ -28,7 +28,9 @@ jobs:
           echo "::add-matcher::.github/workflows/mypy-problem-matcher.json"
       - name: Install package and mypy dependencies
         run: |
-          pip install ".[mypy]"
+          pip install -r requirements.txt
+          pip install ../comprl
+          pip install mypy
       - name: Run mypy
         run: |
           python3 -m mypy .
@@ -42,7 +44,6 @@ jobs:
           python-version: "3.10"
       - name: Install package and ruff
         run: |
-          python -m pip install .
           python -m pip install ruff
       # Include `--format=github` to enable automatic inline annotations.
       - name: Run Ruff

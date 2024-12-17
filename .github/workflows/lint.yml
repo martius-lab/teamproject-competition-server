@@ -1,4 +1,4 @@
-name: Linters
+name: "Linters (comprl)"
 
 # Run on pull requests and when merging to main branch
 on:
