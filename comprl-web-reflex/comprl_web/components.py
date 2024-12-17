@@ -13,6 +13,7 @@ def links() -> rx.Component:
             rx.link("Home", href="/"),
             rx.link("Dashboard", href="/dashboard"),
             rx.link("Leaderboard", href="/leaderboard"),
+            rx.link("Games", href="/games"),
             rx.cond(
                 LocalAuthState.is_authenticated,
                 rx.link(

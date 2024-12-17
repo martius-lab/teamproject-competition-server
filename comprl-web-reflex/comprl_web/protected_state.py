@@ -1,4 +1,5 @@
 """State for the protected pages."""
+
 import dataclasses
 from typing import Sequence
 
@@ -6,6 +7,7 @@ import reflex as rx
 import sqlalchemy as sa
 
 from comprl.server.data.sql_backend import Game, User
+from comprl.server.data.interfaces import GameEndState
 
 from . import reflex_local_auth
 from .reflex_local_auth.local_auth import LocalAuthState, get_session
@@ -89,3 +91,42 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
             if user.user_id == self.authenticated_user.user_id:
                 return i + 1
         return -1
+
+    def _get_user_games(self) -> Sequence[Game]:
+        if not self.is_authenticated:
+            return []
+
+        with get_session() as session:
+            stmt = sa.select(Game).filter(
+                sa.or_(
+                    Game.user1 == self.authenticated_user.user_id,
+                    Game.user2 == self.authenticated_user.user_id,
+                )
+            )
+            return session.scalars(stmt).all()
+
+    user_games_header: list[str] = ["ID", "Player 1", "Player 2", "Result"]
+
+    @rx.var
+    def user_games(self) -> Sequence[Sequence[str]]:
+        games = []
+        for game in self._get_user_games():
+            if game.end_state == GameEndState.WIN:
+                result = f"{game.winner} won ({game.score1} : {game.score2})"
+            elif game.end_state == GameEndState.DRAW:
+                result = f"Draw ({game.score1} : {game.score2})"
+            elif game.end_state == GameEndState.DISCONNECTED:
+                result = f"{game.disconnected} disconnected"
+            else:
+                result = "Unknown"
+
+            games.append(
+                (
+                    str(game.game_id),
+                    game.user1,
+                    game.user2,
+                    result,
+                )
+            )
+
+        return games

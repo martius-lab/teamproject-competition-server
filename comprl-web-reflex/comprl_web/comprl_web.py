@@ -4,7 +4,7 @@ import reflex as rx
 
 from .components import links
 from . import reflex_local_auth
-from .pages import user_dashboard, leaderboard
+from .pages import user_dashboard, leaderboard, games
 from .reflex_local_auth.local_auth import LocalAuthState
 
 
@@ -70,4 +70,9 @@ app.add_page(
     leaderboard.leaderboard,
     route="/leaderboard",
     title="Leaderboard",
+)
+app.add_page(
+    games.game_overview,
+    route="/games",
+    title="Games",
 )
