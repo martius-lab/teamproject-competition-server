@@ -2,7 +2,7 @@
 
 import reflex as rx
 
-from ..components import links
+from ..components import standard_layout
 from ..protected_state import ProtectedState
 from .. import reflex_local_auth
 from ..reflex_local_auth.local_auth import LocalAuthState
@@ -16,9 +16,8 @@ def dashboard() -> rx.Component:
         / ProtectedState.game_statistics.num_games_played
         * 100
     )
-    return rx.vstack(
-        rx.heading("Dashboard"),
-        links(),
+
+    return standard_layout(
         rx.card(
             rx.data_list.root(
                 rx.data_list.item(
@@ -51,7 +50,5 @@ def dashboard() -> rx.Component:
                 ),
             ),
         ),
-        spacing="2",
-        padding_top="10%",
-        align="center",
+        heading="Dashboard",
     )
