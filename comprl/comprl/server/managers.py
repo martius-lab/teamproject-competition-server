@@ -294,7 +294,7 @@ class MatchmakingManager:
 
         config = get_config()
 
-        # queue storing player id, mu, sigma and time they joined the queue
+        # queue storing player info and time they joined the queue
         self._queue: list[QueueEntry] = []
         # The model used for matchmaking
         self.model = PlackettLuce()
@@ -334,7 +334,6 @@ class MatchmakingManager:
         if user_id is None:
             log.error(f"Player {player_id} is not authenticated but tried to queue.")
             return
-        # mu, sigma = self.player_manager.get_matchmaking_parameters(user_id)
         user = self.player_manager.get_user(user_id)
         if user is None:
             log.error(
@@ -425,6 +424,13 @@ class MatchmakingManager:
         """
         # prevent the user from playing against himself
         if player1.user.user_id == player2.user.user_id:
+            return False
+
+        # do not match if both players are bots
+        if (
+            UserRole(player1.user.role) == UserRole.BOT
+            and UserRole(player2.user.role) == UserRole.BOT
+        ):
             return False
 
         match_quality = self._rate_match_quality(player1, player2)
