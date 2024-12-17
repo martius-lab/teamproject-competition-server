@@ -8,6 +8,7 @@ import dataclasses
 import sqlite3
 from typing import Optional
 
+import bcrypt
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -293,6 +294,21 @@ class UserData:
             (mu, sigma, user_id),
         )
         self.connection.commit()
+
+
+def hash_password(secret: str) -> bytes:
+    """Hash the secret using bcrypt.
+
+    Args:
+        secret: The password to hash.
+
+    Returns:
+        The hashed password.
+    """
+    return bcrypt.hashpw(
+        password=secret.encode("utf-8"),
+        salt=bcrypt.gensalt(),
+    )
 
 
 def create_database_tables(db_path: str) -> None:
