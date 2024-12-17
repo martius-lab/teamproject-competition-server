@@ -44,7 +44,7 @@ class User(Base):
 
     user_id: Mapped[int] = mapped_column(init=False, primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
-    password: Mapped[str] = mapped_column()
+    password: Mapped[bytes] = mapped_column()
     token: Mapped[str] = mapped_column(sa.String(64))
     role: Mapped[str] = mapped_column(default="user")
     mu: Mapped[float] = mapped_column(default=DEFAULT_MU)
