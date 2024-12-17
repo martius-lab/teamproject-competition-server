@@ -37,7 +37,6 @@ python -m comprl.scripts.create_database path/to/config.toml
 ```
 
 
-
 ### Server
 
 To host your competition, implement a new game by inheriting from the `IGame` class
