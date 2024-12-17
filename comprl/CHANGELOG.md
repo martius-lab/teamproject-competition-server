@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BREAKING: Removed option to configure database table names.
 - BREAKING: Database is not automatically created anymore.  Use
   `comprl.scripts.create_database`.
+- BREAKING: New config option `data_dir` to specify output directory for game actions.
+  This is a required setting (no default value), hence a breaking change.
+
+## Added
+- Script `list_games` to list all games from the database on the terminal.
 
 
 ## [0.1.0]
