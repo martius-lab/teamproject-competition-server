@@ -1,22 +1,24 @@
-import sqlite3
-import uuid
-
 import pytest
+from sqlalchemy.exc import IntegrityError
 
+from comprl.server.util import IDGenerator
 from comprl.server.data.interfaces import GameEndState, GameResult
 from comprl.server.data import ConnectionInfo, GameData
+from comprl.server.data.sql_backend import create_database_tables
 
 
 def test_game_data(tmp_path):
-    db_file = tmp_path / "users.db"
+    db_file = tmp_path / "database.db"
+    create_database_tables(db_file)
+
     table_name = "games"
     game_data = GameData(ConnectionInfo(host=db_file, table=table_name))
 
     # add some test games
-    game1_uuid = uuid.uuid4()
-    game2_uuid = uuid.uuid4()
-    game3_uuid = uuid.uuid4()
-    game4_uuid = uuid.uuid4()
+    game1_uuid = IDGenerator.generate_game_id()
+    game2_uuid = IDGenerator.generate_game_id()
+    game3_uuid = IDGenerator.generate_game_id()
+    game4_uuid = IDGenerator.generate_game_id()
     game_data.add(
         GameResult(
             game_id=game1_uuid,
@@ -63,7 +65,7 @@ def test_game_data(tmp_path):
     )
 
     # check that I can't add two games with same ID
-    with pytest.raises(sqlite3.IntegrityError):
+    with pytest.raises(IntegrityError):
         game_data.add(
             GameResult(
                 game_id=game1_uuid,
@@ -74,5 +76,6 @@ def test_game_data(tmp_path):
             )
         )
 
-    # NOTE: There are currently no methods to retrieve any information about games from
-    # the database, so no further checks can be done here.
+    assert len(game_data.get_all()) == 4
+
+    # TODO check the data returned by get_all

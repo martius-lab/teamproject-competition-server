@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import dataclasses
 import sqlite3
-from typing import Optional
+from typing import Optional, Sequence
 
 import bcrypt
 import sqlalchemy as sa
@@ -57,10 +57,10 @@ class Game(Base):
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     game_id: Mapped[str] = mapped_column(unique=True)
 
-    user1 = mapped_column(sa.ForeignKey("users.user_id"))
-    user2 = mapped_column(sa.ForeignKey("users.user_id"))
-    user1_: Mapped["User"] = relationship(foreign_keys=[user1])
-    user2_: Mapped["User"] = relationship(foreign_keys=[user2])
+    user1: Mapped[int] = mapped_column(sa.ForeignKey("users.user_id"))
+    user2: Mapped[int] = mapped_column(sa.ForeignKey("users.user_id"))
+    user1_: Mapped["User"] = relationship(init=False, foreign_keys=[user1])
+    user2_: Mapped["User"] = relationship(init=False, foreign_keys=[user2])
 
     score1: Mapped[float]
     score2: Mapped[float]
@@ -68,9 +68,11 @@ class Game(Base):
     end_state: Mapped[int]
 
     winner: Mapped[Optional[int]] = mapped_column(sa.ForeignKey("users.user_id"))
-    winner_: Mapped["User"] = relationship(foreign_keys=[winner])
+    winner_: Mapped["User"] = relationship(init=False, foreign_keys=[winner])
     disconnected: Mapped[Optional[int]] = mapped_column(sa.ForeignKey("users.user_id"))
-    disconnected_: Mapped["User"] = relationship(foreign_keys=[disconnected])
+    disconnected_: Mapped["User"] = relationship(
+        init=False, foreign_keys=[disconnected]
+    )
 
 
 class GameData:
@@ -84,24 +86,13 @@ class GameData:
     """
 
     def __init__(self, connection: SQLiteConnectionInfo) -> None:
-        # connect to the database
-        self.connection = sqlite3.connect(connection.host)
-        self.cursor = self.connection.cursor()
-        self.table = connection.table
+        assert (
+            connection.table == Game.__tablename__
+        ), "Games table name must be 'games'"
 
-        self.cursor.execute(
-            f"""
-            CREATE TABLE IF NOT EXISTS {self.table} (
-            game_id TEXT NOT NULL PRIMARY KEY,
-            user1, 
-            user2, 
-            score1, 
-            score2,
-            start_time,
-            end_state,
-            winner,
-            disconnected)"""
-        )
+        # connect to the database
+        db_url = f"sqlite:///{connection.host}"
+        self.engine = sa.create_engine(db_url)
 
     def add(self, game_result: GameResult) -> None:
         """
@@ -111,38 +102,36 @@ class GameData:
             game_result (GameResult): The game result to be added.
 
         """
-        self.cursor.execute(
-            f"""INSERT INTO {self.table} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                str(game_result.game_id),
-                game_result.user1_id,
-                game_result.user2_id,
-                game_result.score_user_1,
-                game_result.score_user_2,
-                game_result.start_time,
-                game_result.end_state,
-                game_result.winner_id,
-                game_result.disconnected_id,
-            ),
-        )
-        self.connection.commit()
+        with sa.orm.Session(self.engine) as session:
+            game = Game(
+                game_id=str(game_result.game_id),
+                user1=game_result.user1_id,
+                user2=game_result.user2_id,
+                score1=game_result.score_user_1,
+                score2=game_result.score_user_2,
+                start_time=game_result.start_time,
+                end_state=int(game_result.end_state),
+                winner=game_result.winner_id,
+                disconnected=game_result.disconnected_id,
+            )
+            session.add(game)
+            session.commit()
 
-    def remove(self, game_id: GameID) -> None:
+    def get_all(self) -> Sequence[Game]:
         """
-        Removes a game from the database based on its ID.
+        Retrieves all games from the database.
 
-        Args:
-            game_id (str): The ID of the game to be removed.
-
+        Returns:
+            list[Game]: A list of all games.
         """
-        self.cursor.execute(
-            f"""DELETE FROM {self.table} WHERE game_id=?""",
-            (game_id,),
-        )
-        self.connection.commit()
+        with sa.orm.Session(self.engine) as session:
+            return session.scalars(sa.select(Game)).all()
 
-    # TODO:  I skipped some functions here due to time constraints.
-    #       And cuurently no use of them in the code...
+    def delete_all(self) -> None:
+        """Delete all games."""
+        with sa.orm.Session(self.engine) as session:
+            session.query(Game).delete()
+            session.commit()
 
 
 class UserData:
