@@ -23,9 +23,9 @@ DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
 DEFAULT_AUTH_REFRESH_DELTA = datetime.timedelta(minutes=10)
 
 
+# TODO move to other module?
 def get_session() -> sa.orm.Session:
-    # FIXME make configurable
-    db_url: str = "sqlite:////home/felixwidmaier/ws/comprl/hockey_combined.db"
+    db_url = f"sqlite:///{rx.config.get_config().comprl_db_path}"
     engine = sa.create_engine(db_url)
     return sa.orm.Session(engine)
 

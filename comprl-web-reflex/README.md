@@ -36,6 +36,12 @@ python3 ./create_database_tables.py path/to/comprl/database.db
 
 ## Run
 
+Some configuration values have to be specified via environment variables:
 ```
+# Path to the database
+export COMPRL_DB_PATH="/path/to/comprl/database.db"
+# Key that has to be specified to be able to register
+export COMPRL_REGISTRATION_KEY="12345"
+
 reflex run
 ```

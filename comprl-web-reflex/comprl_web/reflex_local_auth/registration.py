@@ -17,11 +17,7 @@ from comprl.server.util import IDGenerator
 from comprl.server.data.sql_backend import User, hash_password
 
 POST_REGISTRATION_DELAY = 0.5
-
 PASSWORD_MIN_LENGTH = 8
-
-# FIXME: make configurable!
-REGISTRATION_KEY = "1234"
 
 
 def generate_access_token() -> str:
@@ -39,7 +35,7 @@ class RegistrationState(LocalAuthState):
     def _validate_fields(
         self, registration_key: str, username: str, password: str, confirm_password: str
     ) -> rx.event.EventSpec | list[rx.event.EventSpec] | None:
-        if registration_key != REGISTRATION_KEY:
+        if registration_key != rx.config.get_config().comprl_registration_key:
             self.error_message = "Invalid registration key"
             return rx.set_focus("key")
 
