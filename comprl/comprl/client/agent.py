@@ -20,20 +20,6 @@ class Agent(IAgent):
         super().__init__()
 
     @final
-    def event(self, func):
-        """Decorator to register a function as an event handler.
-
-        Args:
-            func (function): The function to be registered as an event handler.
-
-        Returns:
-            function: The registered event handler function.
-
-        """
-        setattr(self, func.__name__, func)
-        return func
-
-    @final
     def run(self, token: str, host: str = "localhost", port: int = 65335) -> None:
         """Connects the client to the server.
 
