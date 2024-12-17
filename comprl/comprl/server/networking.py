@@ -31,7 +31,7 @@ class COMPServerProtocol(amp.AMP):
             to be executed when the connection is lost.
     """
 
-    def __init__(self, boxReceiver=None, locator=None):
+    def __init__(self, boxReceiver=None, locator=None) -> None:
         super().__init__(boxReceiver, locator)
 
         self.connection_made_callbacks: list[Callable[[], None]] = []
