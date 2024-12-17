@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import uuid
 
 import bcrypt
 import reflex as rx
@@ -13,7 +12,8 @@ from sqlmodel import select
 from . import routes
 from .local_auth import LocalAuthState, get_session
 
-from comprl.server.data.sql_backend import User
+from comprl.server.util import IDGenerator
+from comprl.server.data.sql_backend import User, hash_password
 
 POST_REGISTRATION_DELAY = 0.5
 
@@ -23,22 +23,7 @@ REGISTRATION_KEY = "1234"
 
 def generate_access_token() -> str:
     """Generate a random access token."""
-    return str(uuid.uuid4())
-
-
-def hash_password(secret: str) -> bytes:
-    """Hash the secret using bcrypt.
-
-    Args:
-        secret: The password to hash.
-
-    Returns:
-        The hashed password.
-    """
-    return bcrypt.hashpw(
-        password=secret.encode("utf-8"),
-        salt=bcrypt.gensalt(),
-    )
+    return str(IDGenerator.generate_player_id())
 
 
 class RegistrationState(LocalAuthState):
