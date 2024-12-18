@@ -1,0 +1,16 @@
+[tool.ruff]
+lint.select = [
+    "E",
+    "F",
+    "B",  # bugbear
+    #"D100", "D101", "D102", "D103",  # Complain about missing docstrings
+]
+
+[[tool.mypy.overrides]]
+# here you can list third-party packages for which no type hints are provided (to avoid
+# complaints from mypy)
+module = [
+    "reflex",
+    "comprl.*",  # TODO: find out why it doesn't find the type hints of comprl
+]
+ignore_missing_imports = true

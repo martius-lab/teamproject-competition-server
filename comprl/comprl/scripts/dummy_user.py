@@ -1,7 +1,6 @@
-""" script to add dummy user to the user database"""
+"""Script to add dummy user to the user database."""
 
 from comprl.server.data import UserData
-from comprl.server.data import ConnectionInfo
 import logging
 import argparse
 
@@ -31,10 +30,7 @@ if __name__ == "__main__":
         description="The following arguments are supported:"
     )
     parser.add_argument("--config", type=str, help="Config file")
-    parser.add_argument("--user_db_path", type=str, help="Path to the database file")
-    parser.add_argument(
-        "--user_db_name", type=str, help="Name of the user table in the file"
-    )
+    parser.add_argument("--database-path", type=str, help="Path to the database file")
     args = parser.parse_args()
 
     data = None
@@ -42,13 +38,13 @@ if __name__ == "__main__":
         # load config file
         with open(args.config, "rb") as f:
             data = tomllib.load(f)["CompetitionServer"]
+
+    if args.database_path:
+        database_path = args.database_path
+    elif data:
+        database_path = data["database_path"]
     else:
-        print("No config file provided, using arguments or defaults")
+        parser.error("Need to provide either --config or --database-path")
 
-    user_db_path = args.user_db_path or (data["user_db_path"] if data else "data.db")
-    user_db_name = args.user_db_name or (data["user_db_name"] if data else "users")
-
-    user_data = UserData(ConnectionInfo(user_db_path, user_db_name))
-
+    user_data = UserData(database_path)
     insert_users()
-    pass

@@ -17,7 +17,9 @@ dependencies = [
     "numpy",
     "tomli; python_version<'3.11'",
     "hockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git@cc48daa135e2cca3e620b90431e57870f61d043c",
-    "openskill==5.1.0"
+    "openskill==5.1.0",
+    "sqlalchemy",
+    "bcrypt",
 ]
 
 [project.optional-dependencies]
@@ -33,6 +35,12 @@ dev = [
     "comprl[mypy]",
     "ruff",
 ]
+
+[tool.setuptools]
+packages = ["comprl"]
+
+[tool.setuptools.package-data]
+comprl = ["py.typed"]
 
 
 [tool.ruff]
@@ -59,7 +67,3 @@ module = [
     "pytest",
 ]
 ignore_missing_imports = true
-
-
-[tool.setuptools]
-packages = ["comprl"]

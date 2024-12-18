@@ -1,41 +1,40 @@
-import uuid
-
 import pytest
 
-from comprl.server.data import ConnectionInfo, UserData, GameData
+from comprl.server.data import UserData, GameData
 from comprl.server.util import IDGenerator
 from comprl.server.data.interfaces import GameEndState, GameResult
+from comprl.server.data.sql_backend import create_database_tables
 import comprl.scripts.reset as reset
 
 
 def test_reset(tmp_path):
-    user_db = tmp_path / "users.db"
-    game_db = tmp_path / "games.db"
+    db_path = tmp_path / "database.db"
+    create_database_tables(db_path)
 
-    user_data = UserData(ConnectionInfo(host=user_db, table="users"))
-    game_data = GameData(ConnectionInfo(host=game_db, table="games"))
+    user_data = UserData(db_path)
+    game_data = GameData(db_path)
 
     # add test data
 
     userID1 = user_data.add(
         user_name="user_1",
-        user_password=str(uuid.uuid4()),
-        user_token=str(uuid.uuid4()),
+        user_password="pw1",
+        user_token=str(IDGenerator.generate_player_id()),
     )
     userID2 = user_data.add(
         user_name="user_2",
-        user_password=str(uuid.uuid4()),
-        user_token=str(uuid.uuid4()),
+        user_password="pw2",
+        user_token=str(IDGenerator.generate_player_id()),
     )
     userID3 = user_data.add(
         user_name="user_3",
-        user_password=str(uuid.uuid4()),
-        user_token=str(uuid.uuid4()),
+        user_password="pw3",
+        user_token=str(IDGenerator.generate_player_id()),
     )
     userID4 = user_data.add(
         user_name="user_4",
-        user_password=str(uuid.uuid4()),
-        user_token=str(uuid.uuid4()),
+        user_password="pw4",
+        user_token=str(IDGenerator.generate_player_id()),
     )
 
     user_data.set_matchmaking_parameters(user_id=userID1, mu=24.000, sigma=9.333)
@@ -66,6 +65,8 @@ def test_reset(tmp_path):
     game_data.add(game_result=game2)
     game_data.add(game_result=game3)
 
+    assert len(game_data.get_all()) == 3
+
     # reset
     reset.reset_games(game_data=game_data)
     reset.reset_elo(user_data=user_data)
@@ -76,8 +77,4 @@ def test_reset(tmp_path):
         assert pytest.approx(mu) == 25.0, f"user_id: {user_id}"
         assert pytest.approx(sigma) == 8.333, f"user_id: {user_id}"
 
-    game_data.cursor.execute(
-        f"""SELECT name FROM sqlite_master 
-        WHERE type='table' AND name='{game_data.table}'"""
-    )
-    assert game_data.cursor.fetchone() is None
+    assert len(game_data.get_all()) == 0
