@@ -5,6 +5,7 @@ Implementation of the data access objects for managing game and user data in SQL
 from __future__ import annotations
 
 import datetime
+import os
 from typing import Optional, Sequence
 
 import bcrypt
@@ -65,7 +66,7 @@ class Game(Base):
 class GameData:
     """Represents a data access object for managing game data in a SQLite database."""
 
-    def __init__(self, db_path: str) -> None:
+    def __init__(self, db_path: str | os.PathLike) -> None:
         db_url = f"sqlite:///{db_path}"
         self.engine = sa.create_engine(db_url)
 
@@ -112,7 +113,7 @@ class GameData:
 class UserData:
     """Represents a data access object for managing game data in a SQLite database."""
 
-    def __init__(self, db_path: str) -> None:
+    def __init__(self, db_path: str | os.PathLike) -> None:
         """
         Initializes a new instance of the UserData class.
 

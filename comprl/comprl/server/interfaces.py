@@ -7,13 +7,12 @@ from typing import Callable, Optional
 from datetime import datetime
 import numpy as np
 import pickle
-import pathlib
 import logging
 
 from comprl.shared.types import GameID, PlayerID
 from comprl.server.util import IDGenerator
 from comprl.server.data.interfaces import GameResult, GameEndState
-from comprl.server.util import ConfigProvider
+from comprl.server.config import get_config
 
 
 class IAction:
@@ -156,7 +155,7 @@ class IGame(abc.ABC):
         # as storing the actions can take a while
         self.game_info["actions"] = np.array(self.all_actions)
 
-        data_dir = pathlib.Path(ConfigProvider.get("data_dir"))
+        data_dir = get_config().data_dir
         # should already be checked during config loading but just to be sure
         assert data_dir.is_dir(), f"data_dir '{data_dir}' is not a directory"
         game_actions_dir = data_dir / "game_actions"
