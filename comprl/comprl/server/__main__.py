@@ -6,6 +6,7 @@ import os
 import argparse
 import logging as log
 import inspect
+import pathlib
 
 try:
     import tomllib  # type: ignore[import-not-found]
@@ -123,6 +124,7 @@ def main():
     parser.add_argument("--game_class", type=str, help="Class name of the game")
     parser.add_argument("--log", type=str, help="Log level")
     parser.add_argument("--database_path", type=str, help="Path to the database file.")
+    parser.add_argument("--data_dir", type=str, help="Path to the data directory.")
     parser.add_argument(
         "--match_quality_threshold",
         type=float,
@@ -156,6 +158,7 @@ def main():
     else:
         parser.error("Need to provide either --config or --database-path")
 
+    # TODO better config management
     port = args.port or (data["port"] if data else 65335)
     timeout = args.timeout or (data["timeout"] if data else 10)
     game_path = args.game_path or (data["game_path"] if data else "game.py")
@@ -170,6 +173,7 @@ def main():
     percental_time_bonus = args.percental_time_bonus or (
         data["percental_time_bonus"] if data else 0.1
     )
+    data_dir = pathlib.Path(args.data_dir or data["data_dir"])
 
     # set up logging
     log.basicConfig(level=log_level)
@@ -188,12 +192,17 @@ def main():
         log.error("Provided game class is not valid because it is still abstract.")
         return
 
+    if not data_dir.is_dir():
+        log.error("data_dir '%s' not found or not a directory", data_dir)
+        return
+
     # write the config to the ConfigProvider
     ConfigProvider.set("port", port)
     ConfigProvider.set("timeout", timeout)
     ConfigProvider.set("log_level", log_level)
     ConfigProvider.set("game_type", game_type)
     ConfigProvider.set("database_path", database_path)
+    ConfigProvider.set("data_dir", data_dir)
     ConfigProvider.set("match_quality_threshold", match_quality_threshold)
     ConfigProvider.set("percentage_min_players_waiting", percentage_min_players_waiting)
     ConfigProvider.set("percental_time_bonus", percental_time_bonus)
