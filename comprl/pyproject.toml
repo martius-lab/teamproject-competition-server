@@ -20,6 +20,7 @@ dependencies = [
     "openskill==5.1.0",
     "sqlalchemy",
     "bcrypt",
+    "tabulate",
 ]
 
 [project.optional-dependencies]
@@ -27,7 +28,8 @@ dependencies = [
 # development).  To install them use `pip install ".[dev]"` (the quotes are needed!).
 
 test = ["pytest"]
-mypy = ["mypy"]  # here you can also list `types-*` stub packages for third-party packages
+# here you can also list `types-*` stub packages for third-party packages
+mypy = ["mypy", "types-tabulate"]
 
 # For convenience: Install all development-dependencies
 dev = [
