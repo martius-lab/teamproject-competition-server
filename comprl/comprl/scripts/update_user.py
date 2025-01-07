@@ -11,6 +11,7 @@ import sys
 import sqlalchemy as sa
 
 from comprl.server.data.sql_backend import User, hash_password
+from comprl.server.data.interfaces import UserRole
 
 
 def main() -> int:
@@ -19,6 +20,12 @@ def main() -> int:
     parser.add_argument("database", type=str, help="Path to the database file.")
     parser.add_argument("username", type=str, help="Name of the user")
     parser.add_argument("--set-password", action="store_true", help="Set new password")
+    parser.add_argument(
+        "--set-role",
+        type=str,
+        choices=[UserRole.USER.value, UserRole.ADMIN.value, UserRole.BOT.value],
+        help="Set new role",
+    )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose output."
     )
@@ -46,6 +53,10 @@ def main() -> int:
                 print("FAILURE: Passwords do not match.")
                 return 1
             user.password = hash_password(new_pw)
+            changed = True
+
+        if args.set_role:
+            user.role = args.set_role
             changed = True
 
         if changed:

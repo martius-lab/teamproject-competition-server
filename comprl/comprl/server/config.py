@@ -19,6 +19,8 @@ class Config:
 
     #: Port to listen on
     port: int = 8080
+    #: Update interval for the matchmaking
+    server_update_interval: float = 1.0
     #: Seconds to wait for a player to answer
     timeout: int = 10
     #: Log level used by the server

@@ -13,6 +13,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from comprl.server.data.interfaces import GameResult, UserRole
+from comprl.server.config import get_config
 
 
 DEFAULT_MU = 25.0
@@ -113,13 +114,16 @@ class GameData:
 class UserData:
     """Represents a data access object for managing game data in a SQLite database."""
 
-    def __init__(self, db_path: str | os.PathLike) -> None:
+    def __init__(self, db_path: str | os.PathLike | None = None) -> None:
         """
         Initializes a new instance of the UserData class.
 
         Args:
             db_path: Path to the sqlite database.
         """
+        if db_path is None:
+            db_path = get_config().database_path
+
         # connect to the database
         db_url = f"sqlite:///{db_path}"
         self.engine = sa.create_engine(db_url)
@@ -163,19 +167,28 @@ class UserData:
 
             return user.user_id
 
-    def get_user_id(self, user_token: str) -> int | None:
-        """
-        Retrieves the ID of a user based on their token.
+    def get(self, user_id: int) -> User:
+        """Get user with the specified ID."""
+        with sa.orm.Session(self.engine) as session:
+            user = session.get(User, user_id)
+
+        if user is None:
+            raise ValueError(f"User with ID {user_id} not found.")
+
+        return user
+
+    def get_user_by_token(self, access_token: str) -> User | None:
+        """Retrieves a user based on their access token.
 
         Args:
-            user_token (str): The token of the user.
+            access_token: The access token of the user.
 
         Returns:
-            int: The ID of the user, or None if the user is not found.
+            User instance or None if no user with the given token is found.
         """
         with sa.orm.Session(self.engine) as session:
-            user = session.query(User).filter(User.token == user_token).first()
-            return user.user_id if user is not None else None
+            user = session.query(User).filter(User.token == access_token).first()
+            return user
 
     def get_matchmaking_parameters(self, user_id: int) -> tuple[float, float]:
         """

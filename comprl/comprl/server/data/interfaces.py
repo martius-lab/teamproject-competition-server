@@ -83,8 +83,10 @@ class UserRole(Enum):
 
     Attributes:
         USER: Normal user without administrative rights.
-        ADMIN = User with administrative rights.
+        ADMIN: User with administrative rights.
+        BOT: Bot-user.  Bots are treated differently during matchmaking.
     """
 
     USER = "user"
     ADMIN = "admin"
+    BOT = "bot"
