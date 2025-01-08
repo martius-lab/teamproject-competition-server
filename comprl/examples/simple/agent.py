@@ -1,23 +1,19 @@
 import random
-from comprl.client import Agent
-
-bob = Agent()
+from comprl.client import Agent, launch_client
 
 
-@bob.event
-def get_step(obv: list[float]):
-    # return [float(random.randint(1, 2))]
-    return [float(input("enter number: ")) or float(random.randint(1, 2))]
+class MyAgent(Agent):
+    """An agent for the simple game."""
+
+    def get_step(self, obv: list[float]):
+        return [float(input("enter number: ")) or float(random.randint(1, 2))]
+
+    def on_start_game(self, game_id: int):
+        print("game started")
+
+    def on_end_game(self, result, stats):
+        print("game ended")
 
 
-@bob.event
-def on_start_game(game_id: int):
-    print("game started")
-
-
-@bob.event
-def on_end_game(result, stats):
-    print("game ended")
-
-
-bob.run("token" + str(input("enter 1, 2, 3 or 4 to choose token: ")))
+if __name__ == "__main__":
+    launch_client(lambda args: MyAgent())
