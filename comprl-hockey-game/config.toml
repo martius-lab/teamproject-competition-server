@@ -2,7 +2,7 @@
     port = 65335
     timeout = 10
     log_level = "DEBUG"
-    game_path = "examples/hockey/hockey_game.py"
+    game_path = "hockey_game.py"
     game_class = "HockeyGame"
     database_path = "hockey.db"
     data_dir = "/tmp"

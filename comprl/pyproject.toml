@@ -16,7 +16,6 @@ dependencies = [
     "twisted==24.11.0",
     "numpy",
     "tomli; python_version<'3.11'",
-    "hockey @ git+https://git@github.com/martius-lab/laser-hockey-env.git@cc48daa135e2cca3e620b90431e57870f61d043c",
     "openskill==5.1.0",
     "sqlalchemy",
     "bcrypt",
