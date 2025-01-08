@@ -19,9 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
   --config-overwrites port=1234 data_dir=/foo/bar ...
   ```
+- BREAKING: `Agent` is now an abstract class and cannot be instantiated anymore.
+  Instead, derive a custom class from it, that implements the `get_step` method.
+
+## Removed
+- The `Agent.event` decorator has been removed.  Instead of using it, create
+  a custom class that is derived from `Agent`.
 
 ## Added
 - Script `list_games` to list all games from the database on the terminal.
+- Helper function `comprl.client.launch_client`, which should make it easier to launch
+  a client in a unified way.
 
 
 ## [0.1.0]
