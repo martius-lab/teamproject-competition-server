@@ -21,7 +21,11 @@ dependencies = [
     "bcrypt",
     "tabulate",
     "variconf<2",  # stick with version 1 (currently latest) to avoid breaking changes
+    "typer",
 ]
+
+[project.scripts]
+comprl-users = "comprl.scripts.manage_users:app"
 
 [project.optional-dependencies]
 # Here you can specify optional dependencies (e.g. for tools that are only needed during
