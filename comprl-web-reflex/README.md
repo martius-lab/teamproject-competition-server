@@ -33,12 +33,11 @@ python3 ./create_database_tables.py path/to/comprl/database.db
 
 ## Run
 
-Some configuration values have to be specified via environment variables:
+The path to the comprl config file needs to be specified via an environment
+variable:
 ```
 # Path to the database
-export COMPRL_DB_PATH="/path/to/comprl/database.db"
-# Key that has to be specified to be able to register
-export COMPRL_REGISTRATION_KEY="12345"
+export COMPRL_CONFIG_PATH="/path/to/comprl/config.toml"
 
 reflex run
 ```
@@ -62,10 +61,10 @@ sudo apptainer run -ec --overlay /tmp/overlay \
 ```
 
 In the example above, `/path/to/your/comprl-database` is expected to be a
-directory on the host system, that contains the comprl database.  It is
-expected to be called "comprl.db".  You can set a different name by adding the
+directory on the host system, that contains the comprl config file.  It is
+expected to be called "config.toml".  You can set a different name by adding the
 following argument: ```
---env COMPRL_DB_PATH=/comprl-config/my_database.db
+--env COMPRL_CONFIG_PATH=/comprl-config/my_config.toml
 ```
 
 Note from the [Reflex container example, which was used as a base for

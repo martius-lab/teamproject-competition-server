@@ -9,11 +9,13 @@ import reflex as rx
 
 from sqlmodel import select
 
+from comprl.server.util import IDGenerator
+from comprl.server.data.sql_backend import User, hash_password
+
+from ..config import get_config
 from . import routes
 from .local_auth import LocalAuthState, get_session
 
-from comprl.server.util import IDGenerator
-from comprl.server.data.sql_backend import User, hash_password
 
 POST_REGISTRATION_DELAY = 0.5
 PASSWORD_MIN_LENGTH = 8
@@ -34,7 +36,7 @@ class RegistrationState(LocalAuthState):
     def _validate_fields(
         self, registration_key: str, username: str, password: str, confirm_password: str
     ) -> rx.event.EventSpec | list[rx.event.EventSpec] | None:
-        if registration_key != rx.config.get_config().comprl_registration_key:
+        if registration_key != get_config().registration_key:
             self.error_message = "Invalid registration key"
             return rx.set_focus("key")
 

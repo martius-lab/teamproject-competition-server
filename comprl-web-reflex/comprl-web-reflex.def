@@ -27,12 +27,14 @@ from: python:3.12
     # set up reflex
     cd /comprl/comprl-web-reflex
 
-    # database path and registration key must be set (and db file must exist),
-    # otherwise `reflex export` will fail.  However, the database doesn't need
-    # to be populated and the key can be overwritten at runtime
-    export COMPRL_DB_PATH="/comprl-config/comprl.db"
-    touch $COMPRL_DB_PATH
-    export COMPRL_REGISTRATION_KEY="BUILDTIME"
+    # A valid configuration must be provided, otherwise `reflex export` will
+    # fail...  However, the database doesn't need to be populated and everything
+    # can be overwritten at runtime
+    export COMPRL_CONFIG_PATH="/comprl-config/config.toml"
+    echo '[CompetitionServer]' > $COMPRL_CONFIG_PATH
+    echo 'registration_key = "BUILDTIME"' >> $COMPRL_CONFIG_PATH
+    echo 'database_path = "/tmp/foobar.db"' >> $COMPRL_CONFIG_PATH
+    touch /tmp/foobar.db
 
     # Deploy templates and prepare app
     reflex init
@@ -46,8 +48,7 @@ from: python:3.12
 
 %environment
     export REDIS_URL=redis://localhost
-    export COMPRL_DB_PATH="/comprl-config/comprl.db"
-    export COMPRL_REGISTRATION_KEY="rl-lecture"
+    export COMPRL_CONFIG_PATH="/comprl-config/config.toml"
 
 %runscript
     . /venv/bin/activate

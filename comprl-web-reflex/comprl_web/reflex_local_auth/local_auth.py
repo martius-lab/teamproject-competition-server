@@ -16,6 +16,7 @@ import reflex as rx
 
 from comprl.server.data.sql_backend import User
 
+from .. import config
 from .auth_session import LocalAuthSession
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_token"
@@ -25,7 +26,7 @@ DEFAULT_AUTH_REFRESH_DELTA = datetime.timedelta(minutes=10)
 
 # TODO move to other module?
 def get_session() -> sa.orm.Session:
-    db_url = f"sqlite:///{rx.config.get_config().comprl_db_path}"
+    db_url = f"sqlite:///{config.get_config().database_path}"
     engine = sa.create_engine(db_url)
     return sa.orm.Session(engine)
 
