@@ -1,22 +1,18 @@
 RL Competition Hockey Agent
 ===========================
 
-This package contains a simple example implementation for a client of the comprl hockey
-game.  It wraps an agent from the `hockey` package and implements a `main()` function to
-run it as a client that connects to the comprl server.
+This is a simple example implementation for a client of the comprl hockey game.  It
+wraps an agent from the `hockey` package and implements a script to run it as a client
+that connects to the comprl server.
 
-To run the example agent, you first need to install the package:
+To run the example agent, you first need to install the dependencies:
 ```
-# call from the "comprl-hockey-agent" root directory
-pip install .
+pip install -r ./requirements.txt
 ```
 
-This installs an exectuable `comprl-hockey-agent` which executes the `main()` function
-which is implemented in `src/comprl_hockey_agent/__init__.py`.  It expects some
-arguments for the server connection and the agent configuration.  For example to run the
-strong version of the agent:
+Then execute the script `run_client.py` to run the client:
 ```
-comprl-hockey-agent --server-url <URL> --server-port <PORT> \
+python3 ./run_client.py --server-url <URL> --server-port <PORT> \
     --token <YOUR ACCESS TOKEN> \
     --args --agent=strong
 ```
@@ -31,5 +27,5 @@ export COMPRL_ACCESS_TOKEN=<YOUR ACCESS TOKEN>
 ```
 Then just call
 ```
-comprl-hockey-agent --args --agent=strong
+python3 ./run_client.p --args --agent=strong
 ```
