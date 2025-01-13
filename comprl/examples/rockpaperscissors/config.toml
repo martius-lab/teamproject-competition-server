@@ -2,7 +2,7 @@
     port = 65335
     timeout = 10
     log_level = "DEBUG"
-    game_path = "examples/rockpaperscissors/game.py"
+    game_path = "game.py"
     game_class = "RPSGame"
     database_path = "RPS.db"
     data_dir = "/tmp"

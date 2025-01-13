@@ -2,6 +2,7 @@
 
 import dataclasses
 import pathlib
+import os
 
 try:
     import tomllib  # type: ignore[import-not-found]
@@ -58,14 +59,26 @@ def set_config(config: Config):
     _config = config
 
 
-def load_config(config_file: pathlib.Path, dotlist_overwrites: list[str]) -> Config:
+def load_config(
+    config_file: str | os.PathLike, dotlist_overwrites: list[str]
+) -> Config:
     """Load config from config file and optional dotlist overwrites."""
+    config_file = pathlib.Path(config_file)
+
     wconf = variconf.WConf(Config)
 
     with open(config_file, "rb") as f:
         config_from_file = tomllib.load(f)["CompetitionServer"]
 
-    config = wconf.load_dict(config_from_file).load_dotlist(dotlist_overwrites)
-    set_config(Config(**config.get()))  # type: ignore[arg-type]
+    _config = wconf.load_dict(config_from_file).load_dotlist(dotlist_overwrites)
+    config = Config(**_config.get())  # type: ignore[arg-type]
+
+    # resolve relative paths w.r.t config file location
+    config_file_dir = config_file.parent
+    config.game_path = config_file_dir / config.game_path
+    config.database_path = config_file_dir / config.database_path
+    config.data_dir = config_file_dir / config.data_dir
+
+    set_config(config)
 
     return get_config()

@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 - BREAKING: `Agent` is now an abstract class and cannot be instantiated anymore.
   Instead, derive a custom class from it, that implements the `get_step` method.
+- BREAKING: Relative paths in the config file are now resolved relative to the
+  config file location instead of to the working directory.
 
 ## Removed
 - The `Agent.event` decorator has been removed.  Instead of using it, create
