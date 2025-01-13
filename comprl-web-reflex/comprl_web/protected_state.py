@@ -75,14 +75,14 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
 
         return ranked_users
 
-    @rx.var
+    @rx.var(cache=False)
     def ranked_users(self) -> Sequence[tuple[int, str, str]]:
         return [
             (i + 1, user.username, f"{user.mu:.2f} / {user.sigma:.2f}")
             for i, user in enumerate(self._get_ranked_users())
         ]
 
-    @rx.var
+    @rx.var(cache=False)
     def ranking_position(self) -> int:
         if not self.is_authenticated:
             return -1
@@ -117,7 +117,7 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
 
     user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
 
-    @rx.var
+    @rx.var(cache=False)
     def user_games(self) -> Sequence[Sequence[str]]:
         games = []
         for game in self._get_user_games():
