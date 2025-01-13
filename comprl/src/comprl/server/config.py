@@ -41,6 +41,9 @@ class Config:
     #: (Minutes waiting * percentage) added as a time bonus for waiting players
     percental_time_bonus: float = 0.1
 
+    # key that has to be specified to register
+    registration_key: str = ""
+
 
 _config: Config | None = None
 
