@@ -1,0 +1,56 @@
+# Container to run comprl-web-reflex.  Based on
+# https://github.com/reflex-dev/reflex/tree/main/docker-example/simple-two-port
+
+bootstrap: docker
+from: python:3.12
+
+%arguments
+    COMPRL_GIT_BRANCH=main
+
+%post
+    set -e
+    export DEBIAN_FRONTEND=noninteractive
+
+    apt-get update
+    apt-get install -y git caddy redis-server
+
+    git clone https://github.com/martius-lab/teamproject-competition-server --depth 1 -b "{{ COMPRL_GIT_BRANCH }}" /comprl
+
+    python3 -m venv /venv
+    . /venv/bin/activate
+
+    pip install /comprl/comprl
+    pip install -r /comprl/comprl-web-reflex/requirements.txt
+
+    mkdir /comprl-config
+
+    # set up reflex
+    cd /comprl/comprl-web-reflex
+
+    # database path and registration key must be set (and db file must exist),
+    # otherwise `reflex export` will fail.  However, the database doesn't need
+    # to be populated and the key can be overwritten at runtime
+    export COMPRL_DB_PATH="/comprl-config/comprl.db"
+    touch $COMPRL_DB_PATH
+    export COMPRL_REGISTRATION_KEY="BUILDTIME"
+
+    # Deploy templates and prepare app
+    reflex init
+    # Download all npm dependencies and compile frontend
+    reflex export --frontend-only --no-zip
+
+
+    # cleanup
+    apt-get clean
+    pip cache purge
+
+%environment
+    export REDIS_URL=redis://localhost
+    export COMPRL_DB_PATH="/comprl-config/comprl.db"
+    export COMPRL_REGISTRATION_KEY="rl-lecture"
+
+%runscript
+    . /venv/bin/activate
+    cd /comprl/comprl-web-reflex
+    redis-server --daemonize yes
+    reflex run --env prod "$@"
