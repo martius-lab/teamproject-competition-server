@@ -1,6 +1,7 @@
 """State for the protected pages."""
 
 import dataclasses
+import datetime
 from typing import Sequence
 
 import reflex as rx
@@ -20,17 +21,25 @@ class GameStatistics:
     num_disconnects: int = 0
 
 
+@dataclasses.dataclass
+class GameInfo:
+    # user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
+    player1: str
+    player2: str
+    result: str
+    time: str
+    id: str
+
+
 class ProtectedState(reflex_local_auth.LocalAuthState):
-    data: str
     game_statistics: GameStatistics = GameStatistics()
+    user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
+    user_games: list[GameInfo] = []
 
     def on_load(self):
         if not self.is_authenticated:
             return reflex_local_auth.LoginState.redir
-        self.data = (
-            "This is truly private data for"
-            f" {LocalAuthState.authenticated_user.username}"
-        )
+
         self.game_statistics = self._load_game_statistics()
 
     def do_logout(self):
@@ -115,11 +124,9 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
             )
             return session.scalars(stmt).all()
 
-    user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
-
-    @rx.var(cache=False)
-    def user_games(self) -> Sequence[Sequence[str]]:
-        games = []
+    @rx.event
+    def load_user_games(self) -> None:
+        self.user_games = []
         for game in self._get_user_games():
             if game.end_state == GameEndState.WIN:
                 result = f"{game.winner_.username} won ({game.score1} : {game.score2})"
@@ -130,14 +137,12 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
             else:
                 result = "Unknown"
 
-            games.append(
-                (
+            self.user_games.append(
+                GameInfo(
                     game.user1_.username,
                     game.user2_.username,
                     result,
-                    game.start_time,
+                    str(game.start_time.strftime("%Y-%m-%d %H:%M:%S")),
                     str(game.game_id),
                 )
             )
-
-        return games
