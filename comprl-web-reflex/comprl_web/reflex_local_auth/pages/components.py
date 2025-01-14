@@ -10,8 +10,10 @@ def input_100w(name, **props) -> rx.Component:
     Returns:
         A reflex component.
     """
+    if "placeholder" not in props:
+        props["placeholder"] = name.replace("_", " ").title()
+
     return rx.input(
-        placeholder=name.replace("_", " ").title(),
         id=name,
         name=name,
         width="100%",
