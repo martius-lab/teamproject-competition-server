@@ -105,6 +105,7 @@ class UserDashboardState(ProtectedState):
 class UserGamesState(ProtectedState):
     user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
     user_games: list[GameInfo] = []
+    search_id: str = ""
 
     total_items: int
     offset: int = 0
@@ -112,6 +113,7 @@ class UserGamesState(ProtectedState):
 
     def do_logout(self):
         self.user_games = []
+        self.search_id = ""
         return reflex_local_auth.LocalAuthState.do_logout
 
     def _get_num_user_games(self) -> int:
@@ -151,6 +153,9 @@ class UserGamesState(ProtectedState):
                 .offset(self.offset)
                 .limit(self.limit)
             )
+            if self.search_id:
+                stmt = stmt.filter(Game.game_id == self.search_id)
+
             return session.scalars(stmt).all()
 
     @rx.var(cache=True)
@@ -164,6 +169,11 @@ class UserGamesState(ProtectedState):
         )
 
     @rx.event
+    def first_page(self):
+        self.offset = 0
+        self.load_user_games()
+
+    @rx.event
     def prev_page(self):
         self.offset = max(self.offset - self.limit, 0)
         self.load_user_games()
@@ -172,6 +182,18 @@ class UserGamesState(ProtectedState):
     def next_page(self):
         if self.offset + self.limit < self.total_items:
             self.offset += self.limit
+        self.load_user_games()
+
+    @rx.event
+    def search_game(self, form_data):
+        self.offset = 0
+        self.search_id = form_data["search_id"]
+        self.load_user_games()
+
+    @rx.event
+    def clear_search(self):
+        self.offset = 0
+        self.search_id = ""
         self.load_user_games()
 
     @rx.event

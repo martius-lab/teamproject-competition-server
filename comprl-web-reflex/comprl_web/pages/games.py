@@ -23,6 +23,13 @@ def show_game(game: GameInfo) -> rx.Component:
 
 def user_game_table() -> rx.Component:
     return rx.vstack(
+        rx.cond(
+            UserGamesState.search_id,
+            rx.hstack(
+                rx.text(f"Search results for game ID: {UserGamesState.search_id}"),
+                rx.button("Clear search", on_click=UserGamesState.clear_search),
+            ),
+        ),
         rx.table.root(
             rx.table.header(
                 rx.table.row(
@@ -37,6 +44,10 @@ def user_game_table() -> rx.Component:
         ),
         rx.hstack(
             rx.button(
+                "First",
+                on_click=UserGamesState.first_page,
+            ),
+            rx.button(
                 "Prev",
                 on_click=UserGamesState.prev_page,
             ),
@@ -48,7 +59,18 @@ def user_game_table() -> rx.Component:
                 on_click=UserGamesState.next_page,
             ),
         ),
-        rx.text(f"Games played: {UserGamesState.total_items}"),
+        rx.form(
+            rx.hstack(
+                rx.text("Search for game ID:"),
+                rx.input(
+                    name="search_id",
+                    placeholder="Game ID",
+                ),
+                rx.button("Search"),
+            ),
+            on_submit=UserGamesState.search_game,
+        ),
+        # rx.text(f"Games played: {UserGamesState.total_items}"),
     )
 
 
