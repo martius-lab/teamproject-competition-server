@@ -9,8 +9,6 @@ from __future__ import annotations
 
 import datetime
 
-from sqlmodel import select
-
 import sqlalchemy as sa
 import reflex as rx
 
@@ -38,7 +36,7 @@ class LocalAuthState(rx.State):
 
     @rx.var(cache=True)
     def authenticated_user(self) -> User | None:
-        """The currently authenticated user, or a dummy user if not authenticated.
+        """The currently authenticated user.
 
         Returns:
             User instance corresponding to the currently authenticated user or None if
@@ -46,7 +44,7 @@ class LocalAuthState(rx.State):
         """
         with get_session() as session:
             result = session.scalars(
-                select(User, LocalAuthSession).where(
+                sa.select(User, LocalAuthSession).where(
                     LocalAuthSession.session_id == self.auth_token,
                     LocalAuthSession.expiration
                     >= datetime.datetime.now(datetime.timezone.utc),
@@ -70,7 +68,7 @@ class LocalAuthState(rx.State):
         """Destroy LocalAuthSessions associated with the auth_token."""
         with get_session() as session:
             for auth_session in session.scalars(
-                select(LocalAuthSession).where(
+                sa.select(LocalAuthSession).where(
                     LocalAuthSession.session_id == self.auth_token
                 )
             ).all():

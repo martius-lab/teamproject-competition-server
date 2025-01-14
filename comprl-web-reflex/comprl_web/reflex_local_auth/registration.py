@@ -7,7 +7,7 @@ import re
 
 import reflex as rx
 
-from sqlmodel import select
+from sqlalchemy import select
 
 from comprl.server.util import IDGenerator
 from comprl.server.data.sql_backend import User, hash_password
