@@ -50,8 +50,8 @@ from: python:3.12
     export REDIS_URL=redis://localhost
     export COMPRL_CONFIG_PATH="/comprl-config/config.toml"
 
-%runscript
+%startscript
     . /venv/bin/activate
-    cd /comprl/comprl-web-reflex
     redis-server --daemonize yes
+    cd /comprl/comprl-web-reflex
     reflex run --env prod "$@"
