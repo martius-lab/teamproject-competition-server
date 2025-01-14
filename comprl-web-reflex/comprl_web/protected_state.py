@@ -30,6 +30,8 @@ class GameInfo:
 
 
 class ProtectedState(reflex_local_auth.LocalAuthState):
+    """Base for protected states."""
+
     def on_load(self):
         if not self.is_authenticated:
             return reflex_local_auth.LoginState.redir
@@ -103,6 +105,8 @@ class UserDashboardState(ProtectedState):
 
 
 class UserGamesState(ProtectedState):
+    """State for the user games page."""
+
     user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID", ""]
     user_games: list[GameInfo] = []
     search_id: str = ""

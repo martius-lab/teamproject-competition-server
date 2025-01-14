@@ -28,6 +28,7 @@ def show_game(game: GameInfo) -> rx.Component:
 
 
 def user_game_table() -> rx.Component:
+    """Render the user game table."""
     return rx.vstack(
         rx.form(
             rx.hstack(
