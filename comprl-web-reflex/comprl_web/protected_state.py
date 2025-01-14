@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from comprl.server.data.sql_backend import Game, User
 from comprl.server.data.interfaces import GameEndState
 
-from . import reflex_local_auth
+from . import config, reflex_local_auth
 from .reflex_local_auth.local_auth import get_session
 
 
@@ -103,7 +103,7 @@ class UserDashboardState(ProtectedState):
 
 
 class UserGamesState(ProtectedState):
-    user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
+    user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID", ""]
     user_games: list[GameInfo] = []
     search_id: str = ""
 
@@ -220,3 +220,15 @@ class UserGamesState(ProtectedState):
             )
 
         self.total_items = self._get_num_user_games()
+
+    @rx.event
+    def download_game(self, game_id: str):
+        game_file_name = f"{game_id}.pkl"
+        game_file_path = config.get_config().data_dir / "game_actions" / game_file_name
+
+        try:
+            data = game_file_path.read_bytes()
+        except Exception:
+            raise RuntimeError("Game file not found") from None
+
+        return rx.download(filename=game_file_name, data=data)

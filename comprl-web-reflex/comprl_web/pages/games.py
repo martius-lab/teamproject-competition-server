@@ -18,11 +18,29 @@ def show_game(game: GameInfo) -> rx.Component:
         rx.table.cell(game.result),
         rx.table.cell(game.time),
         rx.table.cell(game.id),
+        rx.table.cell(
+            rx.button(
+                "Download game data",
+                on_click=lambda: UserGamesState.download_game(game.id),
+            )
+        ),
     )
 
 
 def user_game_table() -> rx.Component:
     return rx.vstack(
+        rx.form(
+            rx.hstack(
+                rx.text("Search for game ID:"),
+                rx.input(
+                    name="search_id",
+                    placeholder="Game ID",
+                    width="38ex",
+                ),
+                rx.button("Search"),
+            ),
+            on_submit=UserGamesState.search_game,
+        ),
         rx.cond(
             UserGamesState.search_id,
             rx.hstack(
@@ -59,18 +77,6 @@ def user_game_table() -> rx.Component:
                 on_click=UserGamesState.next_page,
             ),
         ),
-        rx.form(
-            rx.hstack(
-                rx.text("Search for game ID:"),
-                rx.input(
-                    name="search_id",
-                    placeholder="Game ID",
-                ),
-                rx.button("Search"),
-            ),
-            on_submit=UserGamesState.search_game,
-        ),
-        # rx.text(f"Games played: {UserGamesState.total_items}"),
     )
 
 
@@ -78,10 +84,6 @@ def user_game_table() -> rx.Component:
 @reflex_local_auth.require_login
 def game_overview() -> rx.Component:
     return standard_layout(
-        rx.cond(
-            UserGamesState.user_games,
-            user_game_table(),
-            rx.text("No games played yet."),
-        ),
+        user_game_table(),
         heading="Games",
     )
