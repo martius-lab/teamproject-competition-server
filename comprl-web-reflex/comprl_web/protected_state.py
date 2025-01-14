@@ -1,7 +1,6 @@
 """State for the protected pages."""
 
 import dataclasses
-import datetime
 from typing import Sequence
 
 import reflex as rx
@@ -11,7 +10,7 @@ from comprl.server.data.sql_backend import Game, User
 from comprl.server.data.interfaces import GameEndState
 
 from . import reflex_local_auth
-from .reflex_local_auth.local_auth import LocalAuthState, get_session
+from .reflex_local_auth.local_auth import get_session
 
 
 @dataclasses.dataclass
@@ -23,7 +22,6 @@ class GameStatistics:
 
 @dataclasses.dataclass
 class GameInfo:
-    # user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
     player1: str
     player2: str
     result: str
@@ -32,23 +30,25 @@ class GameInfo:
 
 
 class ProtectedState(reflex_local_auth.LocalAuthState):
-    game_statistics: GameStatistics = GameStatistics()
-    user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
-    user_games: list[GameInfo] = []
-
     def on_load(self):
         if not self.is_authenticated:
             return reflex_local_auth.LoginState.redir
 
+
+class UserDashboardState(ProtectedState):
+    game_statistics: GameStatistics = GameStatistics()
+
+    def on_load(self):
+        super().on_load()
         self.game_statistics = self._load_game_statistics()
 
     def do_logout(self):
-        self.data = ""
         self.game_statistics = GameStatistics()
         return reflex_local_auth.LocalAuthState.do_logout
 
     def _load_game_statistics(self):
         stats = GameStatistics()
+
         with get_session() as session:
             stats.num_games_played = (
                 session.query(Game)
@@ -84,14 +84,14 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
 
         return ranked_users
 
-    @rx.var(cache=False)
+    @rx.var(cache=True)
     def ranked_users(self) -> Sequence[tuple[int, str, str]]:
         return [
             (i + 1, user.username, f"{user.mu:.2f} / {user.sigma:.2f}")
             for i, user in enumerate(self._get_ranked_users())
         ]
 
-    @rx.var(cache=False)
+    @rx.var(cache=True)
     def ranking_position(self) -> int:
         if not self.is_authenticated:
             return -1
@@ -100,6 +100,33 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
             if user.user_id == self.authenticated_user.user_id:
                 return i + 1
         return -1
+
+
+class UserGamesState(ProtectedState):
+    user_games_header: list[str] = ["Player 1", "Player 2", "Result", "Time", "ID"]
+    user_games: list[GameInfo] = []
+
+    total_items: int
+    offset: int = 0
+    limit: int = 10
+
+    def do_logout(self):
+        self.user_games = []
+        return reflex_local_auth.LocalAuthState.do_logout
+
+    def _get_num_user_games(self) -> int:
+        with get_session() as session:
+            return (
+                session.query(Game)
+                .filter(
+                    sa.or_(
+                        Game.user1 == self.authenticated_user.user_id,
+                        Game.user2 == self.authenticated_user.user_id,
+                    )
+                )
+                .with_entities(sa.func.count())
+                .scalar()
+            )
 
     def _get_user_games(self) -> Sequence[Game]:
         if not self.is_authenticated:
@@ -121,8 +148,31 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
                     )
                 )
                 .order_by(Game.start_time.desc())
+                .offset(self.offset)
+                .limit(self.limit)
             )
             return session.scalars(stmt).all()
+
+    @rx.var(cache=True)
+    def page_number(self) -> int:
+        return (self.offset // self.limit) + 1 + (1 if self.offset % self.limit else 0)
+
+    @rx.var(cache=True)
+    def total_pages(self) -> int:
+        return self.total_items // self.limit + (
+            1 if self.total_items % self.limit else 0
+        )
+
+    @rx.event
+    def prev_page(self):
+        self.offset = max(self.offset - self.limit, 0)
+        self.load_user_games()
+
+    @rx.event
+    def next_page(self):
+        if self.offset + self.limit < self.total_items:
+            self.offset += self.limit
+        self.load_user_games()
 
     @rx.event
     def load_user_games(self) -> None:
@@ -146,3 +196,5 @@ class ProtectedState(reflex_local_auth.LocalAuthState):
                     str(game.game_id),
                 )
             )
+
+        self.total_items = self._get_num_user_games()
