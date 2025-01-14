@@ -2,10 +2,8 @@ import reflex as rx
 
 
 class CustomConfig(rx.Config):
-    # path tot he comprl database
-    comprl_db_path: str = ""
-    # key that has to be specified to register
-    comprl_registration_key: str = ""
+    # path to comprl config file
+    comprl_config_path: str = ""
 
 
 config = CustomConfig(

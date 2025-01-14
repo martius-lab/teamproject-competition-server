@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import bcrypt
 import reflex as rx
-from sqlmodel import select
+from sqlalchemy import select
 
 from comprl.server.data.sql_backend import User
 
@@ -44,10 +44,6 @@ class LoginState(LocalAuthState):
         self.error_message = ""
         username = form_data["username"]
         password = form_data["password"]
-        # with rx.session() as session:
-        #    user = session.exec(
-        #        select(User).where(User.username == username)
-        #    ).one_or_none()
 
         with get_session() as session:
             user = session.scalars(

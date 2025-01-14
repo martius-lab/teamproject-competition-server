@@ -9,13 +9,12 @@ from __future__ import annotations
 
 import datetime
 
-from sqlmodel import select
-
 import sqlalchemy as sa
 import reflex as rx
 
 from comprl.server.data.sql_backend import User
 
+from .. import config
 from .auth_session import LocalAuthSession
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_token"
@@ -25,7 +24,7 @@ DEFAULT_AUTH_REFRESH_DELTA = datetime.timedelta(minutes=10)
 
 # TODO move to other module?
 def get_session() -> sa.orm.Session:
-    db_url = f"sqlite:///{rx.config.get_config().comprl_db_path}"
+    db_url = f"sqlite:///{config.get_config().database_path}"
     engine = sa.create_engine(db_url)
     return sa.orm.Session(engine)
 
@@ -37,7 +36,7 @@ class LocalAuthState(rx.State):
 
     @rx.var(cache=True)
     def authenticated_user(self) -> User | None:
-        """The currently authenticated user, or a dummy user if not authenticated.
+        """The currently authenticated user.
 
         Returns:
             User instance corresponding to the currently authenticated user or None if
@@ -45,7 +44,7 @@ class LocalAuthState(rx.State):
         """
         with get_session() as session:
             result = session.scalars(
-                select(User, LocalAuthSession).where(
+                sa.select(User, LocalAuthSession).where(
                     LocalAuthSession.session_id == self.auth_token,
                     LocalAuthSession.expiration
                     >= datetime.datetime.now(datetime.timezone.utc),
@@ -69,7 +68,7 @@ class LocalAuthState(rx.State):
         """Destroy LocalAuthSessions associated with the auth_token."""
         with get_session() as session:
             for auth_session in session.scalars(
-                select(LocalAuthSession).where(
+                sa.select(LocalAuthSession).where(
                     LocalAuthSession.session_id == self.auth_token
                 )
             ).all():
