@@ -35,11 +35,16 @@ def register_form() -> rx.Component:
             rx.heading("Create an account", size="7"),
             register_error(),
             rx.text("Registration Key"),
-            input_100w("key"),
-            rx.text("Username"),
-            input_100w("username"),
-            rx.text("Password"),
-            input_100w("password", type="password"),
+            input_100w("key", placeholder="The key you got in the lecture"),
+            rx.text(
+                "Username (please use the pattern 'teamname-algorithm',"
+                " e.g. 'team1-ppo')"
+            ),
+            input_100w("username", placeholder="teamname-algorithm"),
+            rx.text("Password (Note: Password cannot be changed or recovered later)"),
+            input_100w(
+                "password", type="password", placeholder="Password (min. 8 chars)"
+            ),
             rx.text("Repeat Password"),
             input_100w("confirm_password", type="password"),
             rx.button("Sign up", width="100%"),
